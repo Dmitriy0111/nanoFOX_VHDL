@@ -1,0 +1,8 @@
+--
+-- File            :   nf_seven_seg_dynamic.vhd
+-- Autor           :   Vlasov D.V.
+-- Data            :   2019.04.20
+-- Language        :   VHDL
+-- Description     :   This is dynamic seven seg converter
+-- Copyright(c)    :   2019 Vlasov D.V.
+--

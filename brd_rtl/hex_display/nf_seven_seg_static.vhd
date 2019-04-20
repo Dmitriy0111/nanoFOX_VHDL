@@ -1,0 +1,8 @@
+--
+-- File            :   nf_seven_seg_static.vhd
+-- Autor           :   Vlasov D.V.
+-- Data            :   2019.04.20
+-- Language        :   VHDL
+-- Description     :   This is static seven seg converter
+-- Copyright(c)    :   2019 Vlasov D.V.
+--
