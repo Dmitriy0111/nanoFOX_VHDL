@@ -7,38 +7,48 @@
 -- Copyright(c)    :   2019 Vlasov D.V.
 --
 
-module nf_seven_seg
-(
-    input   logic   [3 : 0]     hex,        // hexadecimal value input
-    input   logic   [0 : 0]     cc_ca,      // common cathode or common anode
-    output  logic   [7 : 0]     seven_seg   // seven segments output
-);
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+use ieee.std_logic_unsigned.all;
 
-    logic   [7 : 0] sev_seg;
-    assign seven_seg = cc_ca ? ~ sev_seg : sev_seg;
+entity nf_seven_seg is
+    port 
+    (
+        hex         : in    std_logic_vector(3 downto 0);   -- hexadecimal value input
+        cc_ca       : in    std_logic;                      -- common cathode or common anode
+        seven_seg   : out   std_logic_vector(7 downto 0)    -- seven segments output
+    );
+end nf_seven_seg;
 
-    always_comb
+architecture rtl of nf_seven_seg is
+    signal sev_seg : std_logic_vector(7 downto 0);
+begin
+
+    seven_seg <= not sev_seg when cc_ca else sev_seg;
+
+    seven_seg_process : process(all)
     begin
-        sev_seg = 8'b0000_0000;
-        case( hex )         //dp_a_b_c_d_e_f_g
-        'h0     : sev_seg = 8'b1_1_0_0_0_0_0_0;
-        'h1     : sev_seg = 8'b1_1_1_1_1_0_0_1;
-        'h2     : sev_seg = 8'b1_0_1_0_0_1_0_0;
-        'h3     : sev_seg = 8'b1_0_1_1_0_0_0_0;
-        'h4     : sev_seg = 8'b1_0_0_1_1_0_0_1;
-        'h5     : sev_seg = 8'b1_0_0_1_0_0_1_0;
-        'h6     : sev_seg = 8'b1_0_0_0_0_0_1_0;
-        'h7     : sev_seg = 8'b1_1_1_1_1_0_0_0;
-        'h8     : sev_seg = 8'b1_0_0_0_0_0_0_0;
-        'h9     : sev_seg = 8'b1_0_0_1_1_0_0_0;
-        'ha     : sev_seg = 8'b1_0_0_0_1_0_0_0;
-        'hb     : sev_seg = 8'b1_0_0_0_0_0_1_1;
-        'hc     : sev_seg = 8'b1_1_0_0_0_1_1_0;
-        'hd     : sev_seg = 8'b1_0_1_0_0_0_0_1;
-        'he     : sev_seg = 8'b1_0_0_0_0_1_1_0;
-        'hf     : sev_seg = 8'b1_0_0_0_1_1_1_0;
-        default : ;
-        endcase
-    end
+        sev_seg <= (others => '0');
+        case( hex ) is              -- dp    a     b     c     d     e     f     g
+            when X"0"   => sev_seg <= '1' & '1' & '0' & '0' & '0' & '0' & '0' & '0';
+            when X"1"   => sev_seg <= '1' & '1' & '1' & '1' & '1' & '0' & '0' & '1';
+            when X"2"   => sev_seg <= '1' & '0' & '1' & '0' & '0' & '1' & '0' & '0';
+            when X"3"   => sev_seg <= '1' & '0' & '1' & '1' & '0' & '0' & '0' & '0';
+            when X"4"   => sev_seg <= '1' & '0' & '0' & '1' & '1' & '0' & '0' & '1';
+            when X"5"   => sev_seg <= '1' & '0' & '0' & '1' & '0' & '0' & '1' & '0';
+            when X"6"   => sev_seg <= '1' & '0' & '0' & '0' & '0' & '0' & '1' & '0';
+            when X"7"   => sev_seg <= '1' & '1' & '1' & '1' & '1' & '0' & '0' & '0';
+            when X"8"   => sev_seg <= '1' & '0' & '0' & '0' & '0' & '0' & '0' & '0';
+            when X"9"   => sev_seg <= '1' & '0' & '0' & '1' & '1' & '0' & '0' & '0';
+            when X"A"   => sev_seg <= '1' & '0' & '0' & '0' & '1' & '0' & '0' & '0';
+            when X"B"   => sev_seg <= '1' & '0' & '0' & '0' & '0' & '0' & '1' & '1';
+            when X"C"   => sev_seg <= '1' & '1' & '0' & '0' & '0' & '1' & '1' & '0';
+            when X"D"   => sev_seg <= '1' & '0' & '1' & '0' & '0' & '0' & '0' & '1';
+            when X"E"   => sev_seg <= '1' & '0' & '0' & '0' & '0' & '1' & '1' & '0';
+            when X"F"   => sev_seg <= '1' & '0' & '0' & '0' & '1' & '1' & '1' & '0';
+            when others => sev_seg <= ( others => '0' );
+        end case;
+    end process;
 
-endmodule : nf_seven_seg
+end rtl; -- nf_seven_seg
