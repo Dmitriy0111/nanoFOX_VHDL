@@ -79,31 +79,35 @@ begin
 
     -- creating one register file
     nf_cpu_0: nf_cpu 
-    port map    (
-                    clk         => clk,             -- clock
-                    resetn      => resetn,          -- reset
-                    instr_addr  => instr_addr,      -- cpu enable signal
-                    instr       => instr,           -- instruction address
-                    cpu_en      => cpu_en,          -- instruction data
-                    reg_addr    => reg_addr,        -- register address
-                    reg_data    => reg_data         -- register data
-                );
+    port map    
+    (
+        clk         => clk,             -- clock
+        resetn      => resetn,          -- reset
+        instr_addr  => instr_addr,      -- cpu enable signal
+        instr       => instr,           -- instruction address
+        cpu_en      => cpu_en,          -- instruction data
+        reg_addr    => reg_addr,        -- register address
+        reg_data    => reg_data         -- register data
+    );
     -- creating one instruction memory 
     nf_instr_mem_0: nf_instr_mem 
-    generic map (
-                    depth       => 64               -- depth of memory array
-                ) 
-    port map    (
-                    addr        => instr_addr_i,    -- instruction address
-                    instr       => instr            -- instruction data
-                );
+    generic map 
+    (
+        depth       => 64               -- depth of memory array
+    ) 
+    port map    
+    (
+        addr        => instr_addr_i,    -- instruction address
+        instr       => instr            -- instruction data
+    );
     -- creating one strob generating unit for "dividing" clock
     nf_clock_div_0: nf_clock_div 
-    port map    (
-                    clk         => clk,             -- clock
-                    resetn      => resetn,          -- reset
-                    div         => div,             -- div_number
-                    en          => cpu_en           -- enable strobe
-                );
+    port map    
+    (
+        clk         => clk,             -- clock
+        resetn      => resetn,          -- reset
+        div         => div,             -- div_number
+        en          => cpu_en           -- enable strobe
+    );
 
 end rtl; -- nf_top

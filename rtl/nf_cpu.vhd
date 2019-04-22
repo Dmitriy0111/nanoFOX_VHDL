@@ -41,7 +41,8 @@ architecture rtl of nf_cpu is
     signal rd2          :   std_logic_vector(31 downto 0);  -- read data 2 from RF
     signal wa3          :   std_logic_vector(4  downto 0);  -- write address for RF
     signal wd3          :   std_logic_vector(31 downto 0);  -- write data for RF
-    signal we3          :   std_logic;                       -- write enable for RF
+    signal we3          :   std_logic;                      -- write enable for RF
+    signal we_rf_mod    :   std_logic;                      -- write enable for RF with cpu enable signal
     -- sign extend wires
     signal imm_data_i   :   std_logic_vector(11 downto 0);  -- immediate data for i-type commands
     signal imm_data_u   :   std_logic_vector(19 downto 0);  -- immediate data for u-type commands
@@ -145,11 +146,11 @@ architecture rtl of nf_cpu is
     end component;
 
 begin
-
     -- register's address finding from instruction
     ra1 <= instr(19 downto 15);
     ra2 <= instr(24 downto 20);
     wa3 <= instr(11 downto  7);
+    we_rf_mod <= we3 and cpu_en;
     -- shamt value in instruction
     shamt <= instr(24 downto 20);
     -- operation code, funct3 and funct7 field's in instruction
@@ -167,7 +168,7 @@ begin
     -- next program counter value for not branch command
     pc_nb <= instr_addr_i + 4;
     -- next program counter value for branch command
-    pc_b  <= instr_addr_i + (ext_data(30 downto 0) & '0');--std_logic_vector( shift_left( unsigned( ext_data ) , 1 ) );
+    pc_b  <= instr_addr_i + (ext_data(30 downto 0) & '0');
     -- finding next program counter value
     pc_i  <= pc_b when pc_src else pc_nb;
     -- instruction address assigning
@@ -175,69 +176,76 @@ begin
 
     -- creating one program counter
     PC: nf_register_we 
-    generic map (
-                    width       => 32 
-                ) 
-    port map    (
-                    clk         => clk,             -- clock
-                    resetn      => resetn,          -- reset 
-                    datai       => pc_i,            -- input data
-                    datao       => instr_addr_i,    -- output data
-                    we          => cpu_en           -- write enable
-                );
+    generic map 
+    (
+        width       => 32 
+    ) 
+    port map    
+    (
+        clk         => clk,             -- clock
+        resetn      => resetn,          -- reset 
+        datai       => pc_i,            -- input data
+        datao       => instr_addr_i,    -- output data
+        we          => cpu_en           -- write enable
+    );
     -- creating one register file
     nf_reg_file_0: nf_reg_file 
-    port map    (
-                    clk         => clk,             -- clock
-                    ra1         => ra1,             -- read address 1
-                    rd1         => rd1,             -- read data 1
-                    ra2         => ra2,             -- read address 2
-                    rd2         => rd2,             -- read data 2
-                    wa3         => wa3,             -- write address 
-                    wd3         => wd3,             -- write data
-                    we3         => we3 and cpu_en,  -- write enable signal
-                    ra0         => reg_addr,        -- read address 0
-                    rd0         => reg_data         -- read data 0
-                );
+    port map    
+    (
+        clk         => clk,             -- clock
+        ra1         => ra1,             -- read address 1
+        rd1         => rd1,             -- read data 1
+        ra2         => ra2,             -- read address 2
+        rd2         => rd2,             -- read data 2
+        wa3         => wa3,             -- write address 
+        wd3         => wd3,             -- write data
+        we3         => we_rf_mod,       -- write enable signal
+        ra0         => reg_addr,        -- read address 0
+        rd0         => reg_data         -- read data 0
+    );
     -- creating one ALU unit
     nf_alu_0: nf_alu 
-    port map    (
-                    srcA        => srcA,        -- source A for ALU unit
-                    srcB        => srcB,        -- source B for ALU unit
-                    shamt       => shamt,       -- for shift operation
-                    ALU_Code    => ALU_Code,    -- ALU code from control unit
-                    result      => result       -- result of ALU operation
-                );
+    port map    
+    (
+        srcA        => srcA,            -- source A for ALU unit
+        srcB        => srcB,            -- source B for ALU unit
+        shamt       => shamt,           -- for shift operation
+        ALU_Code    => ALU_Code,        -- ALU code from control unit
+        result      => result           -- result of ALU operation
+    );
     -- creating one control unit for cpu
     nf_control_unit_0: nf_control_unit 
-    port map    (
-                    opcode      => opcode,      -- operation code field in instruction code
-                    funct3      => funct3,      -- funct 3 field in instruction code
-                    funct7      => funct7,      -- funct 7 field in instruction code
-                    imm_src     => imm_src,     -- for selecting immediate data
-                    srcBsel     => srcBsel,     -- for selecting srcB ALU
-                    branch_type => branch_type, -- for executing branch instructions
-                    branch_hf   => branch_hf,   -- branch help field
-                    we          => we3,         -- write enable signal for register file
-                    ALU_Code    => ALU_Code     -- output code for ALU unit
-                );
+    port map    
+    (
+        opcode      => opcode,          -- operation code field in instruction code
+        funct3      => funct3,          -- funct 3 field in instruction code
+        funct7      => funct7,          -- funct 7 field in instruction code
+        imm_src     => imm_src,         -- for selecting immediate data
+        srcBsel     => srcBsel,         -- for selecting srcB ALU
+        branch_type => branch_type,     -- for executing branch instructions
+        branch_hf   => branch_hf,       -- branch help field
+        we          => we3,             -- write enable signal for register file
+        ALU_Code    => ALU_Code         -- output code for ALU unit
+    );
     -- creating one  branch unit
     nf_branch_unit_0: nf_branch_unit 
-    port map    (
-                    branch_type => branch_type, -- from control unit, '1 if branch instruction
-                    branch_hf   => branch_hf,   -- branch help field
-                    d1          => rd1,         -- from register file (rd1)
-                    d2          => rd2,         -- from register file (rd2)
-                    pc_src      => pc_src       -- next program counter selection
-                );
+    port map    
+    (
+        branch_type => branch_type,     -- from control unit, '1 if branch instruction
+        branch_hf   => branch_hf,       -- branch help field
+        d1          => rd1,             -- from register file (rd1)
+        d2          => rd2,             -- from register file (rd2)
+        pc_src      => pc_src           -- next program counter selection
+    );
     -- creating one sign extending unit
     nf_sign_ex_0: nf_sign_ex 
-    port map    (
-                    imm_data_i  => imm_data_i,  -- immediate data in i-type instruction
-                    imm_data_u  => imm_data_u,  -- immediate data in u-type instruction
-                    imm_data_b  => imm_data_b,  -- immediate data in b-type instruction
-                    imm_src     => imm_src,     -- selection immediate data input
-                    imm_ex      => ext_data     -- extended immediate data
-                );
+    port map    
+    (
+        imm_data_i  => imm_data_i,      -- immediate data in i-type instruction
+        imm_data_u  => imm_data_u,      -- immediate data in u-type instruction
+        imm_data_b  => imm_data_b,      -- immediate data in b-type instruction
+        imm_src     => imm_src,         -- selection immediate data input
+        imm_ex      => ext_data         -- extended immediate data
+    );
 
 end rtl; -- nf_cpu

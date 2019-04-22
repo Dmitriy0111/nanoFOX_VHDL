@@ -39,12 +39,12 @@ begin
 
     gen_seven_seg_convertors: 
     for hn_i in 0 to hn-1 generate
-    nf_seven_seg_i : nf_seven_seg 
-    port map
+        nf_seven_seg_i : nf_seven_seg 
+        port map
         (
-            hex         =>  hex(hn_i*4 + 3 downto hn_i*4), 
-            cc_ca       =>  cc_ca, 
-            seven_seg   =>  seven_seg(hn_i*8+7 downto hn_i*8)
+            hex         =>  hex(hn_i*4 + 3 downto hn_i*4),      -- hexadecimal value input
+            cc_ca       =>  cc_ca,                              -- common cathode or common anode
+            seven_seg   =>  seven_seg(hn_i*8+7 downto hn_i*8)   -- seven segments output
         );
     end generate gen_seven_seg_convertors;
 

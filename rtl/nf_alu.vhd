@@ -37,7 +37,7 @@ begin
             when ALU_SUB    => result <= srcA - srcB;
             when ALU_SLL    => result <= std_logic_vector( shift_left( unsigned( srcA ) , to_integer( unsigned( shamt ) ) ) );
             when ALU_OR     => result <= srcA or srcB;
-            when others     => result <= ( others => '0' );
+            when others     => result <= srcA + srcB;
         end case;
     end process;
 

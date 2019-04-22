@@ -87,9 +87,9 @@ begin
     nf_seven_seg_0 : nf_seven_seg 
     port map
     (
-        hex         =>  hex_h,
-        cc_ca       =>  cc_ca,
-        seven_seg   =>  seven_seg
+        hex         =>  hex_h,      -- hexadecimal value input
+        cc_ca       =>  cc_ca,      -- common cathode or common anode
+        seven_seg   =>  seven_seg   -- seven segments output
     );
 
 end rtl; -- nf_seven_seg_dynamic

@@ -13,7 +13,8 @@ vcom -2008 ../rtl/nf_cpu.vhd
 vcom -2008 ../rtl/nf_registers.vhd
 vcom -2008 ../rtl/nf_top.vhd
 
-vcom -2008 ../tb/nf_tb.vhd
+vlog ../tb/nf_pars.sv
+vlog ../tb/nf_tb.sv
 
 vsim -novopt work.nf_tb
 

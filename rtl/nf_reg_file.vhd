@@ -30,7 +30,7 @@ end nf_reg_file;
 
 architecture rtl of nf_reg_file is
     type    reg_file_t is array (31 downto 0) of std_logic_vector(31 downto 0);
-    signal  reg_file : reg_file_t;
+    signal  reg_file : reg_file_t := ( others => ( others => '0' ) );
 begin
     
     rd0 <= (others => '0') when ( to_integer( unsigned( ra0 ) ) = 0 ) else reg_file( to_integer( unsigned( ra0 ) ) );
