@@ -25,9 +25,13 @@ end nf_instr_mem;
 
 architecture rtl of nf_instr_mem is
     type    mem_t is array (depth-1 downto 0) of std_logic_vector(31 downto 0); 
-    signal  mem : mem_t :=  (   others => X"00000000"   );
+    -- creating instruction memory
+    signal  mem : mem_t :=
+    (
+        others => X"00000000"
+    );
 begin
-
+    -- finding instruction value
     instr <= mem(to_integer(unsigned(addr)));
 
 end rtl; -- nf_instr_mem

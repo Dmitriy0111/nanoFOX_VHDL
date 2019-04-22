@@ -1,5 +1,5 @@
-# **nanoFOX_VHDL**
-    A small RISC-V CPU core (simple version without load/store instructions).
+# **nanoFOX**
+    A small RISC-V CPU core with lw and sw instructions.
 ## Supported instructions:
 *   lui
 *   slli
@@ -8,16 +8,18 @@
 *   sub
 *   or
 *   beq
+*   lw
+*   sw
 
 ## Quickstart:
 For loading project with git program:
 
     $ git clone https://github.com/Dmitriy0111/nanoFOX.git 
     $ cd nanoFOX 
-    $ git checkout 00_simple_risc_v_cpu 
+    $ git checkout 01_simple_risc_v_cpu_lwsw 
     $ git submodule update --init --recursive 
 
-Or download project from GitHub site <a href="https://github.com/Dmitriy0111/nanoFOX">00_simple_risc_v_cpu</a>, <a href="https://github.com/Dmitriy0111/DebugScreenCore">DebugScreenCore</a>
+Or download project from GitHub site <a href="https://github.com/Dmitriy0111/nanoFOX">01_simple_risc_v_cpu_lwsw</a>, <a href="https://github.com/Dmitriy0111/DebugScreenCore">DebugScreenCore</a>
 
 For working with project install:
 *   make
@@ -36,7 +38,7 @@ For working with project install:
 
 ## Simulation:
 *   **make sim_dir** is used for creating simulation folder;
-*   **make sim_clean** is used for cleaning simulation results folder;
+*   **make sim_clean** is used for cleaning simulation result;
 *   **make sim_cmd** is used for starting simulation in command line (CMD) mode;
 *   **make sim_gui** is used for starting simulation in graphical user interface (GUI) mode.
 
@@ -63,6 +65,7 @@ simple cpu nanoFOX currently works on these FPGA boards:
 <li>Storm_IV_E6_V2 ( Altera Cyclone IV FPGA )</li>
 <li>rz_easyFPGA_A2_1 ( Altera Cyclone IV FPGA )</li>
 <li><a href="https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=234&No=1021">Terasic DE10-Lite ( Altera MAX10 FPGA )</a></li>
+<li><a href="https://www.terasic.com.tw/cgi-bin/page/archive.pl?No=593">Terasic DE0-Nano ( Altera Cyclone IV FPGA )</a></li>
 </ol>
 
 ## Repository contents:

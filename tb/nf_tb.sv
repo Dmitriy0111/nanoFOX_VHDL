@@ -7,6 +7,7 @@
 *  Copyright(c)    :   2018 - 2019 Vlasov D.V.
 */
 
+`include "../inc/nf_settings.svh"
 `include "../tb/nf_pars.sv"
 
 module nf_tb();
@@ -18,9 +19,16 @@ module nf_tb();
                         resetn_delay = 7,
                         repeat_cycles = 200;
     // clock and reset
-    bit     [0  : 0]    clk;
-    bit     [0  : 0]    resetn;
+    bit                 clk;
+    bit                 resetn;
     bit     [25 : 0]    div;
+    // pwm side
+    bit                 pwm;
+    // gpid side
+    logic   [7  : 0]    gpi;
+    logic   [7  : 0]    gpo;
+    logic   [7  : 0]    gpd;
+    logic   [7  : 0]    gpio;
     // for debug
     bit     [4  : 0]    reg_addr;
     bit     [31 : 0]    reg_data;
@@ -29,16 +37,26 @@ module nf_tb();
     integer             log;
 
     string              instruction;
-    string              last_instr = "";
+    string              last_instr="";
     string              instr_sep;
     string              log_str;
     string              reg_str;
+
+    genvar gpio_i;
+    generate
+        for( gpio_i='0 ; gpio_i<8 ; gpio_i=gpio_i+1'b1 )
+        begin
+            assign  gpio[gpio_i] = gpd[gpio_i] ? gpo[gpio_i] : 'z;
+            // assign  gpi[gpio_i]  = gpio[gpio_i];
+        end
+    endgenerate
     // creating one nf_top_0 DUT
     nf_top 
     nf_top_0
     (
         .*
     );
+
     // generating clock
     initial
     begin
@@ -53,11 +71,12 @@ module nf_tb();
         resetn = '1;
         $display("Reset is in inactive state");
     end
-    // creating pars_instruction class
+    //creating pars_instruction class
     nf_pars nf_pars_0 = new();
-    // parsing instruction
+    //parsing instruction
     initial
     begin
+        gpi = 8'b1;
         div = 3;
         if( `log_html )
             nf_pars_0.build_html_logger("../log/log");

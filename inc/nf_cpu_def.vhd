@@ -52,6 +52,10 @@ package nf_cpu_def is
     constant I_SEL  : std_logic_vector(1 downto 0) := "00";     -- for i type instruction
     constant U_SEL  : std_logic_vector(1 downto 0) := "01";     -- for u type instruction
     constant B_SEL  : std_logic_vector(1 downto 0) := "10";     -- for b type instruction
+    constant S_SEL  : std_logic_vector(1 downto 0) := "11";     -- for s type instruction
+    -- RF src constants
+    constant RF_ALUR    :   std_logic := '0';                   -- RF write data is ALU result
+    constant RF_DMEM    :   std_logic := '1';                   -- RF write data is data memory read data
     -- command constants
     -- opcode field
     constant C_LUI  : std_logic_vector(6 downto 0) := "0110111";    -- U-type, Load upper immediate
@@ -68,6 +72,10 @@ package nf_cpu_def is
                                                                     --         rd = rs1 | rs2
     constant C_BEQ  : std_logic_vector(6 downto 0) := "1100011";    -- B-type, Branch if equal
                                                                     --         
+    constant C_LW   : std_logic_vector(6 downto 0) := "0000011";    -- I-type, Load word
+                                                                    -- 
+    constant C_SW   : std_logic_vector(6 downto 0) := "0100011";    -- S-type, Store word
+                                                                    --
     constant C_ANY  : std_logic_vector(6 downto 0) := "-------";    -- for verification
     -- function3 field
     constant F3_SLLI    : std_logic_vector(2 downto 0) := "001";    -- I-type, Shift right logical
@@ -82,6 +90,10 @@ package nf_cpu_def is
                                                                     --         rd = rs1 | rs2
     constant F3_BEQ     : std_logic_vector(2 downto 0) := "000";    -- B-type, Branch if equal
                                                                     --         
+    constant F3_LW      : std_logic_vector(2 downto 0) := "010";    -- I-type, Load word
+                                                                    -- 
+    constant F3_SW      : std_logic_vector(2 downto 0) := "010";    -- S-type, Store word
+                                                                    -- 
     constant F3_ANY     : std_logic_vector(2 downto 0) := "---";    -- if instruction haven't function3 field and for verification
     -- function7 field
     constant F7_ADD     : std_logic_vector(6 downto 0) := "0000000";    --R-type, Adding with register

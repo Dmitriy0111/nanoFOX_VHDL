@@ -22,6 +22,11 @@ entity nf_cpu is
         -- instruction memory
         instr_addr  : out   std_logic_vector(31 downto 0);  -- instruction address
         instr       : in    std_logic_vector(31 downto 0);  -- instruction data
+        -- data memory and other's
+        addr_dm     : out   std_logic_vector(31 downto 0);  -- data memory address
+        we_dm       : out   std_logic;                      -- data memory write enable
+        wd_dm       : out   std_logic_vector(31 downto 0);  -- data memory write data
+        rd_dm       : in    std_logic_vector(31 downto 0);  -- data memory read data
         -- for debug
         reg_addr    : in    std_logic_vector(4  downto 0);  -- register address
         reg_data    : out   std_logic_vector(31 downto 0)   -- register data
@@ -33,6 +38,7 @@ architecture rtl of nf_cpu is
     signal pc_i         :   std_logic_vector(31 downto 0);  -- program counter -> instruction memory address
     signal pc_nb        :   std_logic_vector(31 downto 0);  -- program counter for non branch instructions
     signal pc_b         :   std_logic_vector(31 downto 0);  -- program counter for branch instructions
+    signal pc_src       :   std_logic;                      -- program counter selecting pc_nb or pc_b
     signal instr_addr_i :   std_logic_vector(31 downto 0);  -- program counter internal
     -- register file wires
     signal ra1          :   std_logic_vector(4  downto 0);  -- read address 1 from RF
@@ -41,12 +47,14 @@ architecture rtl of nf_cpu is
     signal rd2          :   std_logic_vector(31 downto 0);  -- read data 2 from RF
     signal wa3          :   std_logic_vector(4  downto 0);  -- write address for RF
     signal wd3          :   std_logic_vector(31 downto 0);  -- write data for RF
-    signal we3          :   std_logic;                      -- write enable for RF
+    signal we_rf        :   std_logic;                      -- write enable for RF
+    signal rf_src       :   std_logic;                      -- register file source
     signal we_rf_mod    :   std_logic;                      -- write enable for RF with cpu enable signal
     -- sign extend wires
     signal imm_data_i   :   std_logic_vector(11 downto 0);  -- immediate data for i-type commands
     signal imm_data_u   :   std_logic_vector(19 downto 0);  -- immediate data for u-type commands
     signal imm_data_b   :   std_logic_vector(11 downto 0);  -- immediate data for b-type commands
+    signal imm_data_s   :   std_logic_vector(11 downto 0);  -- immediate data for s-type commands
     signal ext_data     :   std_logic_vector(31 downto 0);  -- sign extended data
     -- ALU wires
     signal srcA         :   std_logic_vector(31 downto 0);  -- source A for ALU
@@ -62,7 +70,8 @@ architecture rtl of nf_cpu is
     signal branch_hf    :   std_logic;                      -- branch help field
     signal imm_src      :   std_logic_vector(1  downto 0);  -- immediate data selecting
     signal srcBsel      :   std_logic;                      -- source B for ALU selecting
-    signal pc_src       :   std_logic;                      -- program counter selecting pc_nb or pc_b
+    -- data memory and other's
+    signal we_dm_en     :   std_logic;                      -- write enable for data memory
     -- component definition
     -- nf_alu
     component nf_alu
@@ -93,6 +102,7 @@ architecture rtl of nf_cpu is
             imm_data_i  : in    std_logic_vector(11 downto 0);  -- immediate data in i-type instruction
             imm_data_u  : in    std_logic_vector(19 downto 0);  -- immediate data in u-type instruction
             imm_data_b  : in    std_logic_vector(11 downto 0);  -- immediate data in b-type instruction
+            imm_data_s  : in    std_logic_vector(11 downto 0);  -- immediate data in s-type instruction
             imm_src     : in    std_logic_vector(1  downto 0);  -- selection immediate data input
             imm_ex      : out   std_logic_vector(31 downto 0)   -- extended immediate data
         );
@@ -125,7 +135,9 @@ architecture rtl of nf_cpu is
             srcBsel     : out   std_logic;                      -- for selecting srcB ALU
             branch_type : out   std_logic;                      -- for executing branch instructions
             branch_hf   : out   std_logic;                      -- branch help field
-            we          : out   std_logic;                      -- write enable signal for register file
+            we_rf       : out   std_logic;                      -- write enable signal for register file    
+            we_dm       : out   std_logic;                      -- write enable signal for data memory and other's
+            rf_src      : out   std_logic;                      -- write data select for register file
             ALU_Code    : out   std_logic_vector(2 downto 0)    -- output code for ALU unit
         );
     end component;
@@ -150,7 +162,7 @@ begin
     ra1 <= instr(19 downto 15);
     ra2 <= instr(24 downto 20);
     wa3 <= instr(11 downto  7);
-    we_rf_mod <= we3 and cpu_en;
+    we_rf_mod <= we_rf and cpu_en;
     -- shamt value in instruction
     shamt <= instr(24 downto 20);
     -- operation code, funct3 and funct7 field's in instruction
@@ -161,10 +173,15 @@ begin
     imm_data_i <= instr(31 downto 20);
     imm_data_u <= instr(31 downto 12);
     imm_data_b <= instr(31) & instr(7) & instr(30 downto 25) & instr(11 downto 8);
+    imm_data_s <= instr(31 downto 25) & instr(11 downto 7);
     -- ALU wire's
-    wd3  <= result;
+    wd3  <= rd_dm when rf_src else result;
     srcA <= rd1;
     srcB <= rd2 when srcBsel else ext_data;
+    -- data memory assign's and other's
+    addr_dm <= result;
+    wd_dm   <= rd2;
+    we_dm   <= we_dm_en and cpu_en;
     -- next program counter value for not branch command
     pc_nb <= instr_addr_i + 4;
     -- next program counter value for branch command
@@ -224,7 +241,9 @@ begin
         srcBsel     => srcBsel,         -- for selecting srcB ALU
         branch_type => branch_type,     -- for executing branch instructions
         branch_hf   => branch_hf,       -- branch help field
-        we          => we3,             -- write enable signal for register file
+        we_rf       => we_rf,           -- write enable signal for register file
+        we_dm       => we_dm_en,        -- write enable signal for data memory and other's
+        rf_src      => rf_src,          -- write data select for register file
         ALU_Code    => ALU_Code         -- output code for ALU unit
     );
     -- creating one  branch unit
@@ -244,6 +263,7 @@ begin
         imm_data_i  => imm_data_i,      -- immediate data in i-type instruction
         imm_data_u  => imm_data_u,      -- immediate data in u-type instruction
         imm_data_b  => imm_data_b,      -- immediate data in b-type instruction
+        imm_data_s  => imm_data_s,      -- immediate data in s-type instruction
         imm_src     => imm_src,         -- selection immediate data input
         imm_ex      => ext_data         -- extended immediate data
     );

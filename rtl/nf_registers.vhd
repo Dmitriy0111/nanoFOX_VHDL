@@ -29,7 +29,7 @@ end nf_register;
 architecture rtl of nf_register is
 begin
 
-    process(clk, resetn)
+    process(all)
     begin
         if( not resetn ) then
             datao <= (others => '0');
@@ -63,7 +63,7 @@ end nf_register_we;
 architecture rtl of nf_register_we is
 begin
 
-    process(clk, resetn)
+    process(all)
     begin
         if( not resetn ) then
             datao <= (others => '0');

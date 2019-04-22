@@ -27,7 +27,7 @@ end nf_alu;
 
 architecture rtl of nf_alu is
 begin
-
+    -- finding result of ALU operation
     alu_process : process(all)
     begin
         result <= (others => '0');

@@ -23,10 +23,12 @@ entity nf_branch_unit is
 end nf_branch_unit;
 
 architecture rtl of nf_branch_unit is
+    -- for equal and not equal operation
     signal  equal : std_logic;
 begin
-
+    -- finding equality
     equal   <= '1' when ( d1 = d2 ) else '0';
+    -- finding pc source
     pc_src  <= branch_type and ( not ( equal xor branch_hf ) );
 
 end rtl; -- nf_branch_unit

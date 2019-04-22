@@ -29,9 +29,9 @@ architecture rtl of nf_clock_div is
     signal int_div  : std_logic_vector (25 downto 0);   -- internal divider register
     signal int_c    : std_logic_vector (25 downto 0);   -- internal compare register
 begin
-
+    -- finding strobe value
     en <= '1' when ( int_div = int_c ) else '0';
-
+    -- other logic
     process(all)
     begin
         if( not resetn ) then
