@@ -80,7 +80,8 @@ architecture rtl of nf_top is
     component nf_instr_mem
         generic
         (
-            depth   : integer := 64                         -- depth of memory array
+            addr_w  : integer := ADDR_I_W;                  -- actual address memory width
+            depth   : integer := MEM_I_DEPTH                -- depth of memory array
         );
         port 
         (
@@ -104,7 +105,7 @@ architecture rtl of nf_top is
     component nf_pwm
         generic
         (
-            pwm_width   : integer := 8                                    -- width pwm register
+            pwm_width   : integer := 8                                  -- width pwm register
         );
         port 
         (
@@ -126,7 +127,7 @@ architecture rtl of nf_top is
     component nf_gpio
         generic
         (
-            gpio_w  : integer := NF_GPIO_WIDTH                       -- width gpio port
+            gpio_w  : integer := NF_GPIO_WIDTH                      -- width gpio port
         );
         port 
         (
@@ -148,7 +149,8 @@ architecture rtl of nf_top is
     component nf_ram
         generic
         (
-            depth   : integer := 64                         -- depth of memory array
+            addr_w  : integer := ADDR_D_W;                  -- actual address memory width
+            depth   : integer := MEM_D_DEPTH                -- depth of memory array
         );
         port 
         (
@@ -212,10 +214,11 @@ begin
     );
     -- creating one instruction memory 
     nf_instr_mem_0: nf_instr_mem 
-    generic map 
+    generic map
     (
-        depth       => 64               -- depth of memory array
-    ) 
+        addr_w      => ADDR_I_W,        -- actual address memory width
+        depth       => MEM_I_DEPTH      -- depth of memory array
+    )
     port map    
     (
         addr        => instr_addr_i,    -- instruction address
@@ -258,13 +261,14 @@ begin
     nf_ram_0 : nf_ram
     generic map
     (
-        depth   => RAM_DEPTH
+        addr_w  => ADDR_D_W,
+        depth   => MEM_D_DEPTH
     )
     port map
     (
         clk     => clk_s,           -- clock
         addr    => addr_dm_s_i,     -- address
-        we      => we_dm_s(0),   -- write enable
+        we      => we_dm_s(0),      -- write enable
         wd      => wd_dm_s(0),      -- write data
         rd      => rd_dm_s(0)       -- read data
     );
@@ -281,7 +285,7 @@ begin
         resetn      => resetn_s,        -- reset
         -- nf_router side
         addr        => addr_dm_s(1),    -- address
-        we          => we_dm_s(1),   -- write enable
+        we          => we_dm_s(1),      -- write enable
         wd          => wd_dm_s(1),      -- write data
         rd          => rd_dm_s(1),      -- read data
         -- gpio_side
@@ -293,7 +297,7 @@ begin
     nf_pwm_0 : nf_pwm
     generic map
     (
-        pwm_width       => 8        -- width pwm register
+        pwm_width       => 8                -- width pwm register
     )
     port map
     (
@@ -302,7 +306,7 @@ begin
         resetn          => resetn_s,        -- reset
         -- nf_router side
         addr            => addr_dm_s(2),    -- address
-        we              => we_dm_s(2),   -- write enable
+        we              => we_dm_s(2),      -- write enable
         wd              => wd_dm_s(2),      -- write data
         rd              => rd_dm_s(2),      -- read data
         -- pmw_side

@@ -1,5 +1,5 @@
 --
--- File            :   nf_ram.sv
+-- File            :   nf_ram.vhd
 -- Autor           :   Vlasov D.V.
 -- Data            :   2019.04.22
 -- Language        :   VHDL
@@ -14,7 +14,8 @@ use ieee.numeric_std.all;
 entity nf_ram is
     generic
     (
-        depth   : integer := 64                         -- depth of memory array
+        addr_w  : integer := 6;                         -- actual address memory width
+        depth   : integer := 2 ** 6                     -- depth of memory array
     );
     port 
     (
@@ -33,13 +34,13 @@ architecture rtl of nf_ram is
     -- creating memory array
     signal  ram : mem_t;
 begin
-    rd <= ram(to_integer(unsigned(addr(5 downto 0))));  -- for simulation
+    rd <= ram(to_integer(unsigned(addr(addr_w-1 downto 0))));  -- for simulation
 
     process(all)
     begin
         if( rising_edge(clk) ) then
             if( we ) then
-                ram(to_integer(unsigned(addr))) <= wd;
+                ram(to_integer(unsigned(addr(addr_w-1 downto 0)))) <= wd;
             end if;
         end if;
     end process;

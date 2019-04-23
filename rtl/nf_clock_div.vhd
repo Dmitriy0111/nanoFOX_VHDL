@@ -2,7 +2,7 @@
 -- File            :   nf_clock_div.vhd
 -- Autor           :   Vlasov D.V.
 -- Data            :   2019.04.19
--- Language        :   SystemVerilog
+-- Language        :   VHDL
 -- Description     :   This is unit for creating clock enable strobe
 -- Copyright(c)    :   2019 Vlasov D.V.
 --

@@ -1,5 +1,5 @@
-# **nanoFOX**
-    A small RISC-V CPU core with lw and sw instructions.
+# **nanoFOX_VHDL**
+    A small RISC-V CPU core (VHDL version) with lw and sw instructions.
 ## Supported instructions:
 *   lui
 *   slli
@@ -14,12 +14,12 @@
 ## Quickstart:
 For loading project with git program:
 
-    $ git clone https://github.com/Dmitriy0111/nanoFOX.git 
-    $ cd nanoFOX 
+    $ git clone https://github.com/Dmitriy0111/nanoFOX_VHDL.git 
+    $ cd nanoFOX_VHDL 
     $ git checkout 01_simple_risc_v_cpu_lwsw 
     $ git submodule update --init --recursive 
 
-Or download project from GitHub site <a href="https://github.com/Dmitriy0111/nanoFOX">01_simple_risc_v_cpu_lwsw</a>, <a href="https://github.com/Dmitriy0111/DebugScreenCore">DebugScreenCore</a>
+Or download project from GitHub site <a href="https://github.com/Dmitriy0111/nanoFOX_VHDL">01_simple_risc_v_cpu_lwsw</a>, <a href="https://github.com/Dmitriy0111/DebugScreenCore">DebugScreenCore</a>
 
 For working with project install:
 *   make
@@ -52,8 +52,8 @@ If log_en or log_html set as '1 (tb/nf_tb.svh) then you can see simulation resul
 *   **make synth_load_q** is used for loading bitstream in CPLD/FPGA.
 
 For selecting debug output (VGA or hex_display) change in verilog board file (board/[board name]/[board name].sv) value ("hex" or "vga") of localparam in string:
-```verilog
-localparam              debug_type  = "hex";
+```VHDL
+    constant    debug_type : string := "hex";
 ```
 
 ## Core structure:

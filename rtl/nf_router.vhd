@@ -72,7 +72,12 @@ begin
     resetn_s    <= resetn;
     wd_dm_s     <= (SLAVE_NUMBER-1 downto 0 => wd_dm_m);
     addr_dm_s   <= (SLAVE_NUMBER-1 downto 0 => addr_dm_m);
-    we_dm_s     <= slv_2_la((SLAVE_NUMBER-1 downto 0 => we_dm_m) and slave_sel);
+
+    we_dm_s_convertors: 
+    for i in 0 to slave_sel'length-1 generate
+        we_dm_s(i) <= we_dm_m and slave_sel(i);
+    end generate we_dm_s_convertors;
+    --we_dm_s     <= slv_2_la( slave_sel );
     --we_dm_s(0)  <= we_dm_m and slave_sel(0);
     --we_dm_s(1)  <= we_dm_m and slave_sel(1);
     --we_dm_s(2)  <= we_dm_m and slave_sel(2);

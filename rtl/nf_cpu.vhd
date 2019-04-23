@@ -2,9 +2,9 @@
 -- File            :   nf_cpu.vhd
 -- Autor           :   Vlasov D.V.
 -- Data            :   2019.04.19
--- Language        :   SystemVerilog
+-- Language        :   VHDL
 -- Description     :   This is cpu unit
--- Copyright(c)    :   2018 - 2019 Vlasov D.V.
+-- Copyright(c)    :   2019 Vlasov D.V.
 --
 
 library ieee;

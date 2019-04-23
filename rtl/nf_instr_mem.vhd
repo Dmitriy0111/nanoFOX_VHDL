@@ -14,7 +14,8 @@ use ieee.numeric_std.all;
 entity nf_instr_mem is
     generic
     (
-        depth   : integer := 64                         -- depth of memory array
+        addr_w  : integer := 6;                         -- actual address memory width
+        depth   : integer := 2 ** 6                     -- depth of memory array
     );
     port 
     (
@@ -32,6 +33,6 @@ architecture rtl of nf_instr_mem is
     );
 begin
     -- finding instruction value
-    instr <= mem(to_integer(unsigned(addr)));
+    instr <= mem(to_integer(unsigned(addr(addr_w-1 downto 0))));
 
 end rtl; -- nf_instr_mem
