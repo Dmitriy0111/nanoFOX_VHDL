@@ -1,25 +1,31 @@
-# **nanoFOX**
-    A small RISC-V CPU core with lw and sw instructions.
+# **nanoFOX_VHDL**
+    A small RISC-V CPU core. This is a pipeline version of CPU with AHB.
+    
 ## Supported instructions:
-*   lui
-*   slli
-*   addi
 *   add
+*   and
 *   sub
+*   sll
 *   or
-*   beq
+*   addi
+*   ori
+*   slli
 *   lw
+*   jalr
+*   lui
+*   beq
+*   bne
 *   sw
+*   jal
 
 ## Quickstart:
 For loading project with git program:
 
     $ git clone https://github.com/Dmitriy0111/nanoFOX.git 
     $ cd nanoFOX 
-    $ git checkout 01_simple_risc_v_cpu_lwsw 
-    $ git submodule update --init --recursive 
+    $ git checkout 02_pipe_risc_v_cpu
 
-Or download project from GitHub site <a href="https://github.com/Dmitriy0111/nanoFOX">01_simple_risc_v_cpu_lwsw</a>, <a href="https://github.com/Dmitriy0111/DebugScreenCore">DebugScreenCore</a>
+Or download project from GitHub site <a href="https://github.com/Dmitriy0111/nanoFOX">02_pipe_risc_v_cpu</a>
 
 For working with project install:
 *   make
@@ -32,8 +38,10 @@ For working with project install:
 
 ## Compilation program:
 *   **set PROG_NAME="name of folder with main program"** is used for setting current program. For example "set PROG_NAME=02_running_bit";
-*   **make prog_comp_win** is used for compiling program on windows machine;
-*   **make prog_comp_lin** is used for compiling program on linux machine;
+*   **make comp_lin_c** is used for compiling C code program on windows machine;
+*   **make comp_win_c** is used for compiling C code program on linux machine;
+*   **make comp_lin_asm** is used for compiling Assembler code program on windows machine;
+*   **make comp_win_asm** is used for compiling Assembler code program on linux machine;
 *   **make prog_clean** is used for cleaning compilation results folder.
 
 ## Simulation:
@@ -50,11 +58,6 @@ If log_en or log_html set as '1 (tb/nf_tb.svh) then you can see simulation resul
 *   **make synth_build_q** is used for building project;
 *   **make synth_gui_q** is used for open project in Quartus;
 *   **make synth_load_q** is used for loading bitstream in CPLD/FPGA.
-
-For selecting debug output (VGA or hex_display) change in verilog board file (board/[board name]/[board name].sv) value ("hex" or "vga") of localparam in string:
-```verilog
-localparam              debug_type  = "hex";
-```
 
 ## Core structure:
 ![cpu_system](doc/cpu_system.jpg)
@@ -81,7 +84,7 @@ simple cpu nanoFOX currently works on these FPGA boards:
 | tb            | Testbenches for core and separate parts           |
 | other         | Readme and license files, Makefile                |
 
-## Planns
+## Planns:
 *   Adding Xilinx support
 *   Adding other Altera boards support
 *   Adding docs

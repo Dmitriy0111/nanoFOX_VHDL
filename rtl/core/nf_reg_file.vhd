@@ -2,7 +2,7 @@
 -- File            :   nf_reg_file.vhd
 -- Autor           :   Vlasov D.V.
 -- Data            :   2019.04.19
--- Language        :   SystemVerilog
+-- Language        :   VHDL
 -- Description     :   This is register file
 -- Copyright(c)    :   2019 Vlasov D.V.
 --
@@ -21,9 +21,7 @@ entity nf_reg_file is
         rd2     : out   std_logic_vector(31 downto 0);  -- read data 2
         wa3     : in    std_logic_vector(4  downto 0);  -- write address 
         wd3     : in    std_logic_vector(31 downto 0);  -- write data
-        we3     : in    std_logic;                      -- write enable signal
-        ra0     : in    std_logic_vector(4  downto 0);  -- read address 0
-        rd0     : out   std_logic_vector(31 downto 0)   -- read data 0
+        we3     : in    std_logic                       -- write enable signal
 
     );
 end nf_reg_file;
@@ -34,16 +32,30 @@ architecture rtl of nf_reg_file is
     signal  reg_file : reg_file_t := ( others => ( others => '0' ) );
 begin
     -- getting read data 1 from register file
-    rd0 <= (others => '0') when ( to_integer( unsigned( ra0 ) ) = 0 ) else reg_file( to_integer( unsigned( ra0 ) ) );
+    rd1_proc : process( all )
+    begin
+        rd1 <= reg_file( to_integer( unsigned( ra1 ) ) );
+        if( wa3 = ra1 ) then 
+            rd1 <= wd3;
+        elsif( ra1 = 5X"00" ) then
+            rd1 <= ( others => '0' );
+        end if;
+    end process;
     -- getting read data 2 from register file
-    rd1 <= (others => '0') when ( to_integer( unsigned( ra1 ) ) = 0 ) else reg_file( to_integer( unsigned( ra1 ) ) );
-    -- for debug
-    rd2 <= (others => '0') when ( to_integer( unsigned( ra2 ) ) = 0 ) else reg_file( to_integer( unsigned( ra2 ) ) );
+    rd2_proc : process( all )
+    begin
+        rd2 <= reg_file( to_integer( unsigned( ra2 ) ) );
+        if( wa3 = ra2 ) then 
+            rd2 <= wd3;
+        elsif( ra2 = 5X"00" ) then
+            rd2 <= ( others => '0' );
+        end if;
+    end process;
     -- writing value in register file
     write2reg_file : process(all)
     begin
         if( rising_edge(clk) ) then
-            if( we3 ) then
+            if( ( we3 = '1' ) and ( wa3 = 5X"00" ) ) then
                 reg_file( to_integer( unsigned( wa3 ) ) ) <= wd3;
             end if;
         end if;

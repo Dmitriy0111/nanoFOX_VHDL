@@ -12,7 +12,11 @@ use ieee.std_logic_1164.all;
 
 package nf_settings is
     -- depth of ram module
-    constant RAM_DEPTH      : integer := 64;
+    constant ADDR_D_W       : integer := 6;
+    constant MEM_D_DEPTH    : integer := 2 ** ADDR_D_W;
+    -- depth of instruction memory module
+    constant ADDR_I_W       : integer := 6;
+    constant MEM_I_DEPTH    : integer := 2 ** ADDR_I_W;
     -- number of slave device's
     constant SLAVE_NUMBER   : integer := 4;
     -- memory map for devices
@@ -59,7 +63,7 @@ package body nf_settings is
 
     function slv_2_la(slv : std_logic_vector) 
     return logic_array is
-        variable result_l_a : logic_array(slv'length-1 downto 0);
+        variable result_l_a : logic_array(slv'range);
     begin
         for i in 0 to slv'length-1 loop
             result_l_a(i) := slv(i);

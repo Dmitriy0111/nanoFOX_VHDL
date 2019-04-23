@@ -14,7 +14,7 @@ use ieee.numeric_std.all;
 entity nf_branch_unit is
     port 
     (
-        branch_type : in    std_logic;                      -- from control unit, '1 if branch instruction
+        branch_type : in    std_logic_vector(3  downto 0);  -- from control unit, '1 if branch instruction
         branch_hf   : in    std_logic;                      -- branch help field
         d1          : in    std_logic_vector(31 downto 0);  -- from register file (rd1)
         d2          : in    std_logic_vector(31 downto 0);  -- from register file (rd2)
@@ -29,6 +29,7 @@ begin
     -- finding equality
     equal   <= '1' when ( d1 = d2 ) else '0';
     -- finding pc source
-    pc_src  <= branch_type and ( not ( equal xor branch_hf ) );
+    pc_src  <= branch_type(0) and ( not ( equal xor branch_hf ) );
 
 end rtl; -- nf_branch_unit
+

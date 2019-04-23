@@ -127,15 +127,17 @@ input 		     [1:0]		GPIO_1_IN;
 //=======================================================
 
     // clock and reset
-    logic               clk;		// clock
-    logic               resetn;		// reset
-    logic   [25 : 0]    div;		// clock divide input
+    logic   [0 : 0]     clk;		// clock
+    logic   [0 : 0]     resetn;		// reset
     // pwm side
-    logic               pwm;		// PWM output
+    logic   [0 : 0]     pwm;		// pwm output
     // gpio side
-    logic   [7 : 0]     gpi;		// GPIO input
-    logic   [7 : 0]     gpo;		// GPIO output
-    logic   [7 : 0]     gpd;		// GPIO direction
+    logic   [7 : 0]     gpio_i_0;	// gpio input
+    logic   [7 : 0]     gpio_o_0;	// gpio output
+    logic   [7 : 0]     gpio_d_0;	// gpio direction
+	// UART side
+    logic	[0 : 0]		uart_tx;    // UART tx wire
+    logic   [0 : 0]		uart_rx;    // UART rx wire
     
 //=======================================================
 //  Structural coding
@@ -143,22 +145,21 @@ input 		     [1:0]		GPIO_1_IN;
     
     assign clk      = CLOCK_50;
     assign resetn   = KEY[0];
-    assign div      = { SW[0 +: 2] , { 20 { 1'b1 } } };
-
-    assign LED[0 +: 7]	= gpo;
-	assign LED[7]		= pwm;
-    assign gpi = '0 | SW[2 +: 2];
+    assign LED      = gpio_o_0; 
+    assign gpio_i_0 = '0 | SW;
+	assign GPIO_0[4] = uart_tx;
+	assign uart_rx   = GPIO_0[5];
 	// creating one nf_top_0 unit
-    nf_top 
-	nf_top_0
+    nf_top nf_top_0
     (
-        .clk        ( clk       ),  // clock
-        .resetn     ( resetn    ),  // reset
-        .div        ( div       ),  // clock divide input
-        .pwm        ( pwm       ),  // GPIO output
-        .gpi        ( gpi       ),  // GPIO direction
-        .gpo        ( gpo       ),  // scan register address
-        .gpd        ( gpd       )   // scan register data
+        .clk        ( clk       ),
+        .resetn     ( resetn    ),
+        .pwm        ( pwm       ),
+        .gpio_i_0   ( gpio_i_0  ),
+        .gpio_o_0   ( gpio_o_0  ),
+        .gpio_d_0   ( gpio_d_0  ),
+		.uart_tx	( uart_tx	),
+		.uart_rx	( uart_rx	)
     );
 
 endmodule
