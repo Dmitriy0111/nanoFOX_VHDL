@@ -1,5 +1,5 @@
 --
--- File            :   nf_control_unit.sv
+-- File            :   nf_control_unit.vhd
 -- Autor           :   Vlasov D.V.
 -- Data            :   2019.04.19
 -- Language        :   VHDL

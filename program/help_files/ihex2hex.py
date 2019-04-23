@@ -20,7 +20,7 @@ for lines in pars_file:
     lines = lines[0:-3]
     # break if end of record
     if( lines[7:9] == "01"):
-        out_file_f.write("others => X\"00000000\"")
+        out_file_f.write("        others => X\"00000000\"")
         break
     # update high address of linear record
     elif( lines[7:9] == "04"):
@@ -41,7 +41,7 @@ for lines in pars_file:
         i = 0
         # write addr
         while(1):
-            st_addr = str("{:d}".format( ( ( hi_addr << 16 ) + lo_addr + i ) >> 2  ) )
+            st_addr = str("        {:d}".format( ( ( hi_addr << 16 ) + lo_addr + i ) >> 2  ) )
             out_file_f.write(st_addr + " => ")
             # write data
             out_file_f.write("X\"" + lines[6:8] + lines[4:6] + lines[2:4] + lines[0:2] + "\"" + ",\n")

@@ -2,7 +2,7 @@
 -- File            :   nf_reg_file.vhd
 -- Autor           :   Vlasov D.V.
 -- Data            :   2019.04.19
--- Language        :   SystemVerilog
+-- Language        :   VHDL
 -- Description     :   This is register file
 -- Copyright(c)    :   2019 Vlasov D.V.
 --
