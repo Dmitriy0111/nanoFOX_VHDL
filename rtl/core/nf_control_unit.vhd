@@ -8,11 +8,12 @@
 --
 
 library ieee;
-library work;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.std_logic_unsigned.all;
+library work;
 use work.nf_cpu_def.all;
+use work.nf_help_pkg.all;
 
 entity nf_control_unit is
     port 
@@ -37,16 +38,6 @@ end nf_control_unit;
 
 architecture rtl of nf_control_unit is
     signal instr_cf_0 : instr_cf;
-
-    function ret_code( instr_cf_in : instr_cf )
-    return std_logic_vector is
-        variable ret_v : std_logic_vector(8 downto 0);
-    begin
-        ret_v(8 downto 4) := instr_cf_in.OP;
-        ret_v(3 downto 1) := instr_cf_in.F3;
-        ret_v(0) := instr_cf_in.F7(5);
-        return ret_v;
-    end function;
 begin
 
     instr_cf_0.IT <= instr_type;
@@ -55,8 +46,8 @@ begin
     instr_cf_0.F7 <= funct7;
 
     branch_hf  <= not instr_cf_0.F3(0);
-    branch_src <= '1' when ( instr_cf_0.OP = I_JALR.OP ) else '0';
-    we_dm      <= '1' when ( instr_cf_0.OP = I_SW.OP   ) else '0';
+    branch_src <= bool2lv( instr_cf_0.OP = I_JALR.OP );
+    we_dm      <= bool2lv( instr_cf_0.OP = I_SW.OP   );
     size_dm    <= instr_cf_0.F3(1 downto 0);
 
     -- finding values of control wires

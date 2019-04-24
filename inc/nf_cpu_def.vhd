@@ -44,6 +44,19 @@ package nf_cpu_def is
         F7      : std_logic_vector(6 downto 0);     -- instruction function field 7
     end record;    -- instruction record
 
+    type s_mem_if_i is record
+        rd_dm       : std_logic_vector(31 downto 0);    -- read data memory
+        req_ack_dm  : std_logic;                        -- request acknowledge data memory signal
+    end record;
+
+    type s_mem_if_o is record
+        addr_dm     : std_logic_vector(31 downto 0);    -- address data memory
+        wd_dm       : std_logic_vector(31 downto 0);    -- write data memory
+        we_dm       : std_logic;                        -- write enable data memory signal
+        size_dm     : std_logic_vector(1  downto 0);    -- size for load/store instructions
+        req_dm      : std_logic;                        -- request data memory signal
+    end record;
+
     constant RVI    : std_logic_vector(1 downto 0) := "11";
     constant RVC_0  : std_logic_vector(1 downto 0) := "11";
     constant RVC_1  : std_logic_vector(1 downto 0) := "11";
@@ -198,4 +211,20 @@ package nf_cpu_def is
     constant RES_ALU    :   std_logic := '0';
     constant RES_UB     :   std_logic := '1';
 
+    function ret_code( instr_cf_in : instr_cf ) return std_logic_vector;
+
 end package nf_cpu_def;
+
+package body nf_cpu_def is
+
+    function ret_code( instr_cf_in : instr_cf )
+    return std_logic_vector is
+        variable ret_v : std_logic_vector(8 downto 0);
+    begin
+        ret_v(8 downto 4) := instr_cf_in.OP;
+        ret_v(3 downto 1) := instr_cf_in.F3;
+        ret_v(0) := instr_cf_in.F7(5);
+        return ret_v;
+    end function;
+
+end nf_cpu_def;

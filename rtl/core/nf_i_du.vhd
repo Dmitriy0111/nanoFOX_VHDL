@@ -112,6 +112,12 @@ begin
     opcode     <= instr(6  downto  2);
     funct3     <= instr(14 downto 12);
     funct7     <= instr(31 downto 25);
+    -- immediate data in instruction
+    imm_data_i <= instr(31 downto 20);
+    imm_data_u <= instr(31 downto 12);
+    imm_data_b <= instr(31) & instr(7) & instr(30 downto 25) & instr(11 downto 8);
+    imm_data_s <= instr(31 downto 25) & instr(11 downto 7);
+    imm_data_j <= instr(31) & instr(19 downto 12) & instr(20) & instr(30 downto 21);
 
     -- creating control unit for cpu
     nf_control_unit_0 : nf_control_unit 

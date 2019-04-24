@@ -10,6 +10,8 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+library work;
+use work.nf_help_pkg.all;
 
 entity nf_branch_unit is
     port 
@@ -27,7 +29,7 @@ architecture rtl of nf_branch_unit is
     signal  equal : std_logic;
 begin
     -- finding equality
-    equal   <= '1' when ( d1 = d2 ) else '0';
+    equal   <= bool2lv( d1 = d2 );
     -- finding pc source
     pc_src  <= branch_type(0) and ( not ( equal xor branch_hf ) );
 

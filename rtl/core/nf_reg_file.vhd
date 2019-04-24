@@ -10,6 +10,8 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+library work;
+use work.nf_mem_pkg.all;
 
 entity nf_reg_file is
     port 
@@ -27,9 +29,8 @@ entity nf_reg_file is
 end nf_reg_file;
 
 architecture rtl of nf_reg_file is
-    type    reg_file_t is array (31 downto 0) of std_logic_vector(31 downto 0);
     -- creating register file
-    signal  reg_file : reg_file_t := ( others => ( others => '0' ) );
+    signal  reg_file    : mem_t(31 downto 0)(31 downto 0) := ( others => 32X"00000000" );
 begin
     -- getting read data 1 from register file
     rd1_proc : process( all )

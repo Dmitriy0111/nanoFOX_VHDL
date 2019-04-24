@@ -8,10 +8,10 @@
 --
 
 library ieee;
-library work;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.std_logic_unsigned.all;
+library work;
 use work.nf_cpu_def.all;
 
 entity nf_i_exu is

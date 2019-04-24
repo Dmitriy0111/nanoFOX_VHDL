@@ -10,12 +10,21 @@
 
 pars_file  = open("program_file/program.ihex" , "r")
 
-out_file_0 = open("program_file/program_0.hex", "w")    # bank_0
-out_file_1 = open("program_file/program_1.hex", "w")    # bank_1
-out_file_2 = open("program_file/program_2.hex", "w")    # bank_2
-out_file_3 = open("program_file/program_3.hex", "w")    # bank_3
+out_file_f = open("program_file/nf_program.vhd"  , "w")    # full mem [31:0]
 
 hi_addr = 0
+out_file_f.write('''
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+library work;
+use work.nf_mem_pkg.all;
+
+package nf_program is
+
+    constant program : mem_t(64*4-1 downto 0)(7 downto 0) :=
+    (
+''')
 
 for lines in pars_file:
     # find checksum
@@ -23,6 +32,7 @@ for lines in pars_file:
     lines = lines[0:-3]
     # break if end of record
     if( lines[7:9] == "01"):
+        out_file_f.write("        others => X\"00\"")
         break
     # update high address of linear record
     elif( lines[7:9] == "04"):
@@ -42,20 +52,32 @@ for lines in pars_file:
         lines = lines[2:]
         i = 0
         # write addr
-        st_addr = str("@{:s}\n".format( hex( ( ( hi_addr << 16 ) + lo_addr ) >> 2 )[2:] ))
-        out_file_0.write(st_addr)
-        out_file_1.write(st_addr)
-        out_file_2.write(st_addr)
-        out_file_3.write(st_addr)
         while(1):
+            st_addr = str("        {:d}".format( ( ( hi_addr << 16 ) + lo_addr + i + 0 ) ) )
+            out_file_f.write(st_addr + " => ")
             # write data
-            out_file_0.write(lines[0:2] + "\n")
-            out_file_1.write(lines[2:4] + "\n")
-            out_file_2.write(lines[4:6] + "\n")
-            out_file_3.write(lines[6:8] + "\n")
+            out_file_f.write("X\"" + lines[0:2] + "\"" + ",\n")
+            st_addr = str("        {:d}".format( ( ( hi_addr << 16 ) + lo_addr + i + 1 ) ) )
+            out_file_f.write(st_addr + " => ")
+            # write data
+            out_file_f.write("X\"" + lines[2:4] + "\"" + ",\n")
+            st_addr = str("        {:d}".format( ( ( hi_addr << 16 ) + lo_addr + i + 2 ) ) )
+            out_file_f.write(st_addr + " => ")
+            # write data
+            out_file_f.write("X\"" + lines[4:6] + "\"" + ",\n")
+            st_addr = str("        {:d}".format( ( ( hi_addr << 16 ) + lo_addr + i + 3 ) ) )
+            out_file_f.write(st_addr + " => ")
+            # write data
+            out_file_f.write("X\"" + lines[6:8] + "\"" + ",\n")
             lines = lines[8:]
             i += 4
             if( i >= lenght ):
                 break
+
+out_file_f.write('''
+    );
+
+end package nf_program;
+''')
 
 print("Conversion comlete!")

@@ -8,11 +8,12 @@
 --
 
 library ieee;
-library work;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.std_logic_unsigned.all;
+library work;
 use work.nf_cpu_def.all;
+use work.nf_help_pkg.all;
 
 entity nf_hz_bypass_unit is
     port 
@@ -42,6 +43,10 @@ entity nf_hz_bypass_unit is
 end nf_hz_bypass_unit;
 
 architecture rtl of nf_hz_bypass_unit is
+    constant    HU_BP_NONE  : std_logic_vector(1 downto 0) := "00";
+    constant    HU_BP_MEM   : std_logic_vector(1 downto 0) := "01";
+    constant    HU_BP_WB    : std_logic_vector(1 downto 0) := "10";
+
     signal  rd1_bypass      : std_logic_vector(1 downto 0); -- bypass selecting for rd1 ( not branch operations )
     signal  rd2_bypass      : std_logic_vector(1 downto 0); -- bypass selecting for rd2 ( not branch operations )
 
@@ -52,22 +57,22 @@ begin
     cmp_d1 <= result_imem when cmp_d1_bypass else rd1_id;
     cmp_d2 <= result_imem when cmp_d2_bypass else rd2_id;
 
-    cmp_d1_bypass <= '1' when ( ( wa3_imem = ra1_id ) and ( we_rf_imem = '1' ) and ( ra1_id = 5X"00" ) ) else '0';    -- zero without bypass
-    cmp_d2_bypass <= '1' when ( ( wa3_imem = ra2_id ) and ( we_rf_imem = '1' ) and ( ra2_id = 5X"00" ) ) else '0';    -- zero without bypass
+    cmp_d1_bypass <= '1' when ( bool2lv( wa3_imem = ra1_id ) and we_rf_imem and bool2lv( ra1_id = 5X"00" ) ) else '0';    -- zero without bypass
+    cmp_d2_bypass <= '1' when ( bool2lv( wa3_imem = ra2_id ) and we_rf_imem and bool2lv( ra2_id = 5X"00" ) ) else '0';    -- zero without bypass
 
-    bypass_comp_proc : process( all )
+    bypass_comp_proc : process(all)
     begin
-        rd1_bypass <= "00";
-        rd2_bypass <= "00";
-        if( ( wa3_imem = ra1_iexe ) and ( we_rf_imem = '1' ) and ( ra1_iexe = 5X"00" ) ) then
-            rd1_bypass <= "01"; -- zero without bypass ( | ra1_iexe )
-        elsif( ( wa3_iwb  = ra1_iexe ) and ( we_rf_iwb  = '1' )  and ( ra1_iexe = 5X"00" ) ) then
-            rd1_bypass <= "10";  -- zero without bypass ( | ra1_iexe )
+        rd1_bypass <= HU_BP_NONE;
+        rd2_bypass <= HU_BP_NONE;
+        if(    bool2lv( wa3_imem = ra1_iexe ) and we_rf_imem and bool2lv( ra1_iexe = 5X"00" ) ) then
+            rd1_bypass <= HU_BP_MEM; -- zero without bypass
+        elsif( bool2lv( wa3_iwb  = ra1_iexe ) and we_rf_iwb  and bool2lv( ra1_iexe = 5X"00" ) ) then
+            rd1_bypass <= HU_BP_WB;  -- zero without bypass
         end if;
-        if( ( wa3_imem = ra2_iexe ) and ( we_rf_imem = '1' ) and ( ra2_iexe = 5X"00" ) ) then
-            rd2_bypass <= "01"; -- zero without bypass ( | ra1_iexe )
-        elsif( ( wa3_iwb  = ra2_iexe ) and ( we_rf_iwb  = '1' )  and ( ra2_iexe = 5X"00" ) ) then
-            rd2_bypass <= "10";  -- zero without bypass ( | ra1_iexe )
+        if(    bool2lv( wa3_imem = ra2_iexe ) and we_rf_imem and bool2lv( ra2_iexe = 5X"00" ) ) then
+            rd2_bypass <= HU_BP_MEM; -- zero without bypass
+        elsif( bool2lv( wa3_iwb  = ra2_iexe ) and we_rf_iwb  and bool2lv( ra2_iexe = 5X"00" ) ) then
+            rd2_bypass <= HU_BP_WB;  -- zero without bypass
         end if;
     end process;
 
@@ -76,16 +81,16 @@ begin
         rd1_i_exu <= rd1_iexe;
         rd2_i_exu <= rd2_iexe;
         case( rd1_bypass ) is
-            when "00" => rd1_i_exu <= rd1_iexe;
-            when "01" => rd1_i_exu <= result_imem;
-            when "10" => rd1_i_exu <= wd_iwb;
-            when others => 
+            when HU_BP_NONE => rd1_i_exu <= rd1_iexe;
+            when HU_BP_MEM  => rd1_i_exu <= result_imem;
+            when HU_BP_WB   => rd1_i_exu <= wd_iwb;
+            when others     => 
         end case;
         case( rd2_bypass ) is
-            when "00" => rd2_i_exu <= rd2_iexe;
-            when "01" => rd2_i_exu <= result_imem;
-            when "10" => rd2_i_exu <= wd_iwb;
-            when others => 
+            when HU_BP_NONE => rd2_i_exu <= rd2_iexe;
+            when HU_BP_MEM  => rd2_i_exu <= result_imem;
+            when HU_BP_WB   => rd2_i_exu <= wd_iwb;
+            when others     => 
         end case;
     end process;
 
