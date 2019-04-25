@@ -11,8 +11,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.std_logic_unsigned.all;
-library work;
-use work.nf_settings.all;
+library nf;
+use nf.nf_settings.all;
 
 entity nf_top is
     port 

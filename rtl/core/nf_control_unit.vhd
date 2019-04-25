@@ -11,9 +11,9 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.std_logic_unsigned.all;
-library work;
-use work.nf_cpu_def.all;
-use work.nf_help_pkg.all;
+library nf;
+use nf.nf_cpu_def.all;
+use nf.nf_help_pkg.all;
 
 entity nf_control_unit is
     port 
@@ -46,8 +46,8 @@ begin
     instr_cf_0.F7 <= funct7;
 
     branch_hf  <= not instr_cf_0.F3(0);
-    branch_src <= bool2lv( instr_cf_0.OP = I_JALR.OP );
-    we_dm      <= bool2lv( instr_cf_0.OP = I_SW.OP   );
+    branch_src <= bool2sl( instr_cf_0.OP = I_JALR.OP );
+    we_dm      <= bool2sl( instr_cf_0.OP = I_SW.OP   );
     size_dm    <= instr_cf_0.F3(1 downto 0);
 
     -- finding values of control wires

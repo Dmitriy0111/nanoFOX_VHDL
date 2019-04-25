@@ -10,9 +10,9 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-library work;
-use work.nf_mem_pkg.all;
-use work.nf_program.all;
+library nf;
+use nf.nf_mem_pkg.all;
+use nf.nf_program.all;
 
 entity nf_ram is
     generic

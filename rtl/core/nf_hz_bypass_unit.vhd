@@ -11,9 +11,9 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.std_logic_unsigned.all;
-library work;
-use work.nf_cpu_def.all;
-use work.nf_help_pkg.all;
+library nf;
+use nf.nf_cpu_def.all;
+use nf.nf_help_pkg.all;
 
 entity nf_hz_bypass_unit is
     port 
@@ -57,21 +57,21 @@ begin
     cmp_d1 <= result_imem when cmp_d1_bypass else rd1_id;
     cmp_d2 <= result_imem when cmp_d2_bypass else rd2_id;
 
-    cmp_d1_bypass <= '1' when ( bool2lv( wa3_imem = ra1_id ) and we_rf_imem and bool2lv( ra1_id = 5X"00" ) ) else '0';    -- zero without bypass
-    cmp_d2_bypass <= '1' when ( bool2lv( wa3_imem = ra2_id ) and we_rf_imem and bool2lv( ra2_id = 5X"00" ) ) else '0';    -- zero without bypass
+    cmp_d1_bypass <= '1' when ( bool2sl( wa3_imem = ra1_id ) and we_rf_imem and bool2sl( ra1_id = 5X"00" ) ) else '0';    -- zero without bypass
+    cmp_d2_bypass <= '1' when ( bool2sl( wa3_imem = ra2_id ) and we_rf_imem and bool2sl( ra2_id = 5X"00" ) ) else '0';    -- zero without bypass
 
     bypass_comp_proc : process(all)
     begin
         rd1_bypass <= HU_BP_NONE;
         rd2_bypass <= HU_BP_NONE;
-        if(    bool2lv( wa3_imem = ra1_iexe ) and we_rf_imem and bool2lv( ra1_iexe = 5X"00" ) ) then
+        if(    bool2sl( wa3_imem = ra1_iexe ) and we_rf_imem and bool2sl( ra1_iexe = 5X"00" ) ) then
             rd1_bypass <= HU_BP_MEM; -- zero without bypass
-        elsif( bool2lv( wa3_iwb  = ra1_iexe ) and we_rf_iwb  and bool2lv( ra1_iexe = 5X"00" ) ) then
+        elsif( bool2sl( wa3_iwb  = ra1_iexe ) and we_rf_iwb  and bool2sl( ra1_iexe = 5X"00" ) ) then
             rd1_bypass <= HU_BP_WB;  -- zero without bypass
         end if;
-        if(    bool2lv( wa3_imem = ra2_iexe ) and we_rf_imem and bool2lv( ra2_iexe = 5X"00" ) ) then
+        if(    bool2sl( wa3_imem = ra2_iexe ) and we_rf_imem and bool2sl( ra2_iexe = 5X"00" ) ) then
             rd2_bypass <= HU_BP_MEM; -- zero without bypass
-        elsif( bool2lv( wa3_iwb  = ra2_iexe ) and we_rf_iwb  and bool2lv( ra2_iexe = 5X"00" ) ) then
+        elsif( bool2sl( wa3_iwb  = ra2_iexe ) and we_rf_iwb  and bool2sl( ra2_iexe = 5X"00" ) ) then
             rd2_bypass <= HU_BP_WB;  -- zero without bypass
         end if;
     end process;

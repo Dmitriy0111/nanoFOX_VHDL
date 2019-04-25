@@ -10,8 +10,8 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-library work;
-use work.nf_mem_pkg.all;
+library nf;
+use nf.nf_mem_pkg.all;
 
 entity nf_reg_file is
     port 

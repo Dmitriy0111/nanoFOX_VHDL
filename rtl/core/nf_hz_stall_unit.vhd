@@ -11,9 +11,9 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.std_logic_unsigned.all;
-library work;
-use work.nf_cpu_def.all;
-use work.nf_help_pkg.all;
+library nf;
+use nf.nf_cpu_def.all;
+use nf.nf_help_pkg.all;
 
 entity nf_hz_stall_unit is
     port 
@@ -49,14 +49,14 @@ architecture rtl of nf_hz_stall_unit is
     signal lw_instr_stall       : std_logic;    -- stall pipe if load instruction from memory
 begin
 
-    lw_stall_id_iexe    <=  ( bool2lv( ra1_id = wa3_iexe ) or bool2lv( ra2_id = wa3_iexe ) or bool2lv( ra1_id = wa3_imem ) or bool2lv( ra2_id = wa3_imem ) ) and 
+    lw_stall_id_iexe    <=  ( bool2sl( ra1_id = wa3_iexe ) or bool2sl( ra2_id = wa3_iexe ) or bool2sl( ra1_id = wa3_imem ) or bool2sl( ra2_id = wa3_imem ) ) and 
                             ( we_rf_iexe  or we_rf_imem  ) and 
                             ( rf_src_iexe or rf_src_imem );
 
-    branch_exe_id_stall <=  ( not ( bool2lv( branch_type(2 downto 0) = B_NONE(2 downto 0) ) or branch_type(3) ) ) and 
+    branch_exe_id_stall <=  ( not ( bool2sl( branch_type(2 downto 0) = B_NONE(2 downto 0) ) or branch_type(3) ) ) and 
                             we_rf_iexe and 
-                            ( bool2lv( wa3_iexe = ra1_id ) or bool2lv( wa3_iexe = ra2_id ) ) and 
-                            ( bool2lv( ra1_id /= 5X"00"  ) or bool2lv( ra2_id /= 5X"00"  ) );
+                            ( bool2sl( wa3_iexe = ra1_id ) or bool2sl( wa3_iexe = ra2_id ) ) and 
+                            ( bool2sl( ra1_id /= 5X"00"  ) or bool2sl( ra2_id /= 5X"00"  ) );
 
     sw_lw_data_stall    <=   lsu_busy;
 

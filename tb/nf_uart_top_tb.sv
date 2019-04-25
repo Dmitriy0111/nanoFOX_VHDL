@@ -1,13 +1,13 @@
 /*
 *  File            :   nf_uart_top_tb.sv
 *  Autor           :   Vlasov D.V.
-*  Data            :   2019.02.21
+*  Data            :   2019.04.25
 *  Language        :   SystemVerilog
-*  Description     :   This uart top module
-*  Copyright(c)    :   2018 Vlasov D.V.
+*  Description     :   This uart top module testbench
+*  Copyright(c)    :   2019 Vlasov D.V.
 */
 
-`include "../../inc/nf_settings.svh"
+`include "../inc/nf_settings.svh"
 
 `define     tx_req      0
 `define     rx_valid    1
@@ -18,6 +18,8 @@ module nf_uart_top_tb ();
 
     timeprecision   1ns;
     timeunit        1ns;
+
+    parameter       tx_rx_test = "rx_test"; // "tx_test";
 
     localparam      T = 20;
     localparam      rst_delay  = 7;
@@ -82,10 +84,10 @@ module nf_uart_top_tb ();
         for( int i=0; i<message.len(); i++ )
         begin
             write_tr(message[i]);
-            write_cr( ( 1'b1 << `tr_en ) | ( 1'b1 << `rec_en ) );
+            write_cr( ( 1'b1 << `tr_en ) | ( 1'b1 << `tx_req ) );
             do
                 read_reg('0 | `NF_UART_CR );
-            while(read_data[0]!=0);
+            while(read_data == ( ( 1'b1 << `tr_en ) | ( 1'b1 << `tx_req ) ) );
         end
     endtask : send_message
     // task for sending symbol over uart to receive module
@@ -106,7 +108,10 @@ module nf_uart_top_tb ();
     // task for sending message over uart to receive module
     task send_uart_message( string message );
         for( int i=0; i<message.len(); i++ )
+        begin
             send_uart_symbol(message[i]);
+            write_cr(1 << `rec_en);
+        end
     endtask : send_uart_message
 
     // clock generation
@@ -132,9 +137,15 @@ module nf_uart_top_tb ();
         uart_rx = '1;
         @(posedge resetn);
         set_bw( work_freq / uart_speed );
-        write_cr( ( 1'b1 << `tr_en ) | ( 1'b1 << `rec_en ) );
-        send_uart_message("Hello World!");
-        //send_message("Hello World!");
+        if( tx_rx_test == "rx_test" )
+        begin
+            write_cr( ( 1'b1 << `rec_en ) );
+            send_uart_message("Hello World!");
+        end
+        else if( tx_rx_test == "tx_test" )
+        begin
+            send_message("Hello World!");
+        end
         $stop;
     end
 

@@ -12,13 +12,13 @@ use ieee.std_logic_1164.all;
 
 package nf_help_pkg is
 
-    function bool2lv(bool_v : boolean) return std_logic;
+    function bool2sl(bool_v : boolean) return std_logic;
 
 end package nf_help_pkg;
 
 package body nf_help_pkg is
 
-    function bool2lv(bool_v : boolean) return std_logic is
+    function bool2sl(bool_v : boolean) return std_logic is
         begin
             if bool_v then
                 return '1';

@@ -18,9 +18,10 @@ package nf_settings is
     constant ADDR_I_W       : integer := 6;
     constant MEM_I_DEPTH    : integer := 2 ** ADDR_I_W;
     -- number of slave device's
-    constant SLAVE_NUMBER   : integer := 4;
-    -- memory map for devices
+    constant SLAVE_COUNT    : integer := 4;
     --
+    -- memory map for devices
+    -- 
     -- 0x0000_0000\
     --             \
     --              RAM
@@ -38,24 +39,44 @@ package nf_settings is
     -- 0x0002_ffff/
     -- 0x0003_0000\
     --             \
+    --              UART
+    --             /
+    -- 0x0003_ffff/
+    -- 0x0004_0000\
+    --             \
     --              Unused
     --             /
     -- 0xffff_ffff/
     --
-
-    constant NF_RAM_ADDR_MATCH  : std_logic_vector(15 downto 0) := 16X"0000";
-    constant NF_GPIO_ADDR_MATCH : std_logic_vector(15 downto 0) := 16X"0001";
-    constant NF_PWM_ADDR_MATCH  : std_logic_vector(15 downto 0) := 16X"0002";
+    
     -- constant's for gpio module
     constant NF_GPIO_WIDTH      : integer := 8;
-    constant NF_GPIO_GPI        : std_logic_vector(3 downto 0) := 4X"0";
-    constant NF_GPIO_GPO        : std_logic_vector(3 downto 0) := 4X"4";
-    constant NF_GPIO_DIR        : std_logic_vector(3 downto 0) := 4X"8";
+    constant NF_GPIO_GPI        : std_logic_vector(3  downto 0) := 4X"0";
+    constant NF_GPIO_GPO        : std_logic_vector(3  downto 0) := 4X"4";
+    constant NF_GPIO_DIR        : std_logic_vector(3  downto 0) := 4X"8";
+    -- constant's for uart module
+    constant NF_UART_CR         : std_logic_vector(3  downto 0) := 4X"0";
+    constant NF_UART_TX         : std_logic_vector(3  downto 0) := 4X"4";
+    constant NF_UART_RX         : std_logic_vector(3  downto 0) := 4X"8";
+    constant NF_UART_DR         : std_logic_vector(3  downto 0) := 4X"C";
 
     --
     type    logic_array is array(natural range <>) of std_logic;
     type    logic_v_array is array(natural range <>) of std_logic_vector;
     function slv_2_la(slv : std_logic_vector) return logic_array;
+
+    constant NF_RAM_ADDR_MATCH  : std_logic_vector(31 downto 0) := 32X"0000----";
+    constant NF_GPIO_ADDR_MATCH : std_logic_vector(31 downto 0) := 32X"0001----";
+    constant NF_PWM_ADDR_MATCH  : std_logic_vector(31 downto 0) := 32X"0002----";
+    constant NF_UART_ADDR_MATCH : std_logic_vector(31 downto 0) := 32X"0003----";
+
+    constant ahb_vector : logic_v_array(SLAVE_COUNT-1 downto 0)(31 downto 0) := 
+                                                                                (
+                                                                                    NF_RAM_ADDR_MATCH,
+                                                                                    NF_GPIO_ADDR_MATCH,
+                                                                                    NF_PWM_ADDR_MATCH,
+                                                                                    NF_UART_ADDR_MATCH
+                                                                                );
 
 end package nf_settings;
 

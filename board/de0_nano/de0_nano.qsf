@@ -38,7 +38,6 @@
 
 set_global_assignment -name FAMILY "Cyclone IV E"
 set_global_assignment -name DEVICE EP4CE22F17C6
-set_global_assignment -name TOP_LEVEL_ENTITY nf_i_du
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 10.1
 set_global_assignment -name LAST_QUARTUS_VERSION "11.1 SP2.11"
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "16:22:00 FEBRUARY 21,2011"
@@ -411,6 +410,8 @@ set_global_assignment -name VHDL_FILE ../../inc/nf_mem_pkg.vhd
 set_global_assignment -name VHDL_FILE ../../inc/nf_help_pkg.vhd
 set_global_assignment -name VHDL_FILE ../../inc/nf_cpu_def.vhd
 set_global_assignment -name VHDL_FILE ../../inc/nf_settings.vhd
+set_global_assignment -name VHDL_FILE ../../inc/nf_uart_pkg.vhd
+set_global_assignment -name VHDL_FILE ../../inc/nf_ahb_pkg.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/core/nf_alu.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/core/nf_branch_unit.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/core/nf_sign_ex.vhd
@@ -427,8 +428,16 @@ set_global_assignment -name VHDL_FILE ../../rtl/periphery/nf_ram.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/periphery/nf_cdc.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/periphery/pwm/nf_pwm.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/periphery/gpio/nf_gpio.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/periphery/uart/nf_uart_transmitter.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/periphery/uart/nf_uart_receiver.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/periphery/uart/nf_uart_top.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/ahb/nf_ahb_mux.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/ahb/nf_ahb_dec.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/ahb/nf_ahb_router.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/ahb/nf_ahb2core.vhd
 set_global_assignment -name VHDL_FILE ../../program_file/nf_program.vhd
 set_global_assignment -name VHDL_FILE de0_nano.vhd
+set_global_assignment -name TOP_LEVEL_ENTITY nf_uart_transmitter
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
