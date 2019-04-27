@@ -84,7 +84,7 @@ entity nf_register_we_r is
     generic
     (
         width   : integer   := 1;
-        rst_val : std_logic_vector(1 downto 0) := (others => '0')
+        rst_val : integer   := 0
     );
     port
     (
@@ -101,7 +101,7 @@ begin
     reg_proc : process(all)
     begin
         if( not resetn ) then
-            datao <= rst_val;
+            datao <= std_logic_vector(to_unsigned(rst_val,width));
         elsif( rising_edge(clk) ) then
             if( we ) then
                 datao <= datai;

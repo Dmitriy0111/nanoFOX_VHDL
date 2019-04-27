@@ -423,6 +423,7 @@ set_global_assignment -name VHDL_FILE ../../rtl/core/nf_i_du.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/core/nf_hz_stall_unit.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/core/nf_i_lsu.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/core/nf_cpu_cc.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/core/nf_cpu.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/common/nf_registers.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/periphery/nf_ram.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/periphery/nf_cdc.vhd
@@ -435,9 +436,16 @@ set_global_assignment -name VHDL_FILE ../../rtl/ahb/nf_ahb_mux.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/ahb/nf_ahb_dec.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/ahb/nf_ahb_router.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/ahb/nf_ahb2core.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/ahb/nf_ahb_top.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/ahb/nf_ahb_pwm.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/ahb/nf_ahb_gpio.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/ahb/nf_ahb_uart.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/ahb/nf_ahb_ram.vhd
 set_global_assignment -name VHDL_FILE ../../program_file/nf_program.vhd
 set_global_assignment -name VHDL_FILE de0_nano.vhd
-set_global_assignment -name TOP_LEVEL_ENTITY nf_uart_transmitter
+set_global_assignment -name SYSTEMVERILOG_FILE ../../rtl/core/nf_i_fu.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../../rtl/nf_top.sv
+set_global_assignment -name TOP_LEVEL_ENTITY de0_nano
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top

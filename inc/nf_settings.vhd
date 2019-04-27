@@ -12,10 +12,10 @@ use ieee.std_logic_1164.all;
 
 package nf_settings is
     -- depth of ram module
-    constant ADDR_D_W       : integer := 6;
+    constant ADDR_D_W       : integer := 20;
     constant MEM_D_DEPTH    : integer := 2 ** ADDR_D_W;
     -- depth of instruction memory module
-    constant ADDR_I_W       : integer := 6;
+    constant ADDR_I_W       : integer := 20;
     constant MEM_I_DEPTH    : integer := 2 ** ADDR_I_W;
     -- number of slave device's
     constant SLAVE_COUNT    : integer := 4;

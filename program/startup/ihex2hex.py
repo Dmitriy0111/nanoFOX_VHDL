@@ -22,7 +22,7 @@ use work.nf_mem_pkg.all;
 
 package nf_program is
 
-    constant program : mem_t(64*4-1 downto 0)(7 downto 0) :=
+    constant program : mem_t(1024*4-1 downto 0)(7 downto 0) :=
     (
 ''')
 
@@ -32,7 +32,7 @@ for lines in pars_file:
     lines = lines[0:-3]
     # break if end of record
     if( lines[7:9] == "01"):
-        out_file_f.write("        others => X\"00\"")
+        out_file_f.write("        others => X\"XX\"")
         break
     # update high address of linear record
     elif( lines[7:9] == "04"):

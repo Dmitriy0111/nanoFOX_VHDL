@@ -31,7 +31,7 @@ begin
     -- finding equality
     equal   <= bool2sl( d1 = d2 );
     -- finding pc source
-    pc_src  <= branch_type(0) and ( not ( equal xor branch_hf ) );
+    pc_src  <= ( branch_type(0) and ( not ( equal xor branch_hf ) ) ) or branch_type(3);
 
 end rtl; -- nf_branch_unit
 

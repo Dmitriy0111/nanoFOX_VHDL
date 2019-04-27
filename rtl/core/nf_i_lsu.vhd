@@ -53,7 +53,8 @@ begin
         elsif( rising_edge(clk) ) then
             if( we_dm_imem or rf_src_imem ) then
                 lsu_busy_i <= '1';
-            elsif( req_ack_dm ) then
+            end if;
+            if( req_ack_dm ) then
                 lsu_busy_i <= '0';
             end if;
         end if;

@@ -31,10 +31,10 @@ entity nf_ram is
 end nf_ram;
 
 architecture rtl of nf_ram is
-    signal  bank_0  : mem_t(depth-1   downto 0)(7 downto 0) := bank_init(0,program,depth);
-    signal  bank_1  : mem_t(depth-1   downto 0)(7 downto 0) := bank_init(1,program,depth);
-    signal  bank_2  : mem_t(depth-1   downto 0)(7 downto 0) := bank_init(2,program,depth);
-    signal  bank_3  : mem_t(depth-1   downto 0)(7 downto 0) := bank_init(3,program,depth);
+    signal  bank_0  : mem_t(depth-1 downto 0)(7 downto 0) := bank_init(0,program,depth);
+    signal  bank_1  : mem_t(depth-1 downto 0)(7 downto 0) := bank_init(1,program,depth);
+    signal  bank_2  : mem_t(depth-1 downto 0)(7 downto 0) := bank_init(2,program,depth);
+    signal  bank_3  : mem_t(depth-1 downto 0)(7 downto 0) := bank_init(3,program,depth);
 begin
 
     rd(31 downto 24) <= bank_3(to_integer(unsigned(addr(addr_w-1 downto 0))));

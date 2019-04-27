@@ -79,7 +79,7 @@ module nf_tb();
     );
     */
     // overload path to program file
-    defparam nf_top_0.nf_ram_i_d_0.path2file = "../program_file/program";
+    //defparam nf_top_0.nf_ram_i_d_0.path2file = "../program_file/program";
     initial
     begin
         uart_rx = '1;
@@ -91,11 +91,11 @@ module nf_tb();
         end
     end
     // reset all registers to '0
-    initial
-        for( int i=0 ; i<32 ; i++ )
-        begin
-            nf_top_0.nf_cpu_0.nf_reg_file_0.reg_file[i] = '0;
-        end
+    //initial
+    //    for( int i=0 ; i<32 ; i++ )
+    //    begin
+    //        nf_top_0.nf_cpu_0.nf_reg_file_0.reg_file[i] = '0;
+    //    end
     // generating clock
     initial
     begin

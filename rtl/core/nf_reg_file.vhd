@@ -24,7 +24,6 @@ entity nf_reg_file is
         wa3     : in    std_logic_vector(4  downto 0);  -- write address 
         wd3     : in    std_logic_vector(31 downto 0);  -- write data
         we3     : in    std_logic                       -- write enable signal
-
     );
 end nf_reg_file;
 
@@ -56,7 +55,7 @@ begin
     write2reg_file : process(all)
     begin
         if( rising_edge(clk) ) then
-            if( ( we3 = '1' ) and ( wa3 = 5X"00" ) ) then
+            if( ( we3 = '1' ) and ( wa3 /= 5X"00" ) ) then
                 reg_file( to_integer( unsigned( wa3 ) ) ) <= wd3;
             end if;
         end if;
