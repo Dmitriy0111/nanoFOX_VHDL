@@ -46,48 +46,120 @@ begin
     instr_cf_0.F7 <= funct7;
 
     branch_hf  <= not instr_cf_0.F3(0);
-    branch_src <= bool2sl( instr_cf_0.OP = I_JALR.OP );
-    we_dm      <= bool2sl( instr_cf_0.OP = I_SW.OP   );
+    branch_src <= bool2sl( instr_cf_0.OP = I_OP2 );
+    we_dm      <= bool2sl( instr_cf_0.OP = S_OP0 );
     size_dm    <= instr_cf_0.F3(1 downto 0);
-
-    -- finding values of control wires
-    control_process : process(all)
+    -- immediate source selecting
+    imm_proc : process(all)
     begin
-        we_rf       <= '0';
-        rf_src      <= RF_ALUR;
-        ALU_Code    <= ALU_ADD;
-        srcBsel     <= SRCB_IMM(0);
-        res_sel     <= RES_ALU;
-        imm_src     <= I_SEL;
+        imm_src <= I_SEL;
+        case( instr_cf_0.IT ) is
+            when RVI    =>
+                case( instr_cf_0.OP ) is
+                    when J_OP0                  => imm_src <= J_SEL;
+                    when S_OP0                  => imm_src <= S_SEL;
+                    when B_OP0                  => imm_src <= B_SEL;
+                    when U_OP0 | U_OP1          => imm_src <= U_SEL;
+                    when I_OP0 | I_OP1 | I_OP2  => imm_src <= I_SEL;
+                    when others                 =>
+                end case;
+            when others =>
+        end case;
+    end process;
+    -- register file source selecting
+    rf_src_proc : process(all)
+    begin
+        rf_src <= RF_ALUR;
+        case( instr_cf_0.IT ) is
+            when RVI    =>
+                case( instr_cf_0.OP ) is
+                    when I_OP1                  => rf_src <= RF_DMEM;
+                    when others                 =>
+                end case;
+            when others =>
+        end case;
+    end process;
+    -- write enable register file
+    we_rf_proc : process(all)
+    begin
+        we_rf <= '0';
+        case( instr_cf_0.IT ) is
+            when RVI    =>
+                case( instr_cf_0.OP ) is
+                    when R_OP0                  => we_rf <= '1';
+                    when J_OP0                  => we_rf <= '1';
+                    when S_OP0                  => we_rf <= '0';
+                    when B_OP0                  => we_rf <= '0';
+                    when U_OP0 | U_OP1          => we_rf <= '1';
+                    when I_OP0 | I_OP1 | I_OP2  => we_rf <= '1';
+                    when others                 =>
+                end case;
+            when others =>
+        end case;
+    end process;
+    -- source B for ALU selecting
+    srcBsel_proc : process(all)
+    begin
+        srcBsel <= SRCB_IMM(0);
+        case( instr_cf_0.IT ) is
+            when RVI    =>
+                case( instr_cf_0.OP ) is
+                    when R_OP0 | B_OP0  => srcBsel <= SRCB_RD2(0) ;
+                    when others         =>
+                end case;
+            when others =>
+        end case;
+    end process;
+    -- branch type finding
+    branch_type_proc : process(all)
+    begin
         branch_type <= B_NONE;
         case( instr_cf_0.IT ) is
             when RVI    =>
-                case? ( ret_code(instr_cf_0) ) is
-                    -- R - type command's
-                    when ret_code( I_ADD  ) => we_rf <= '1' ; ALU_Code <= ALU_ADD ; srcBsel <= SRCB_RD2(0) ; res_sel <= RES_ALU ;
-                    when ret_code( I_AND  ) => we_rf <= '1' ; ALU_Code <= ALU_AND ; srcBsel <= SRCB_RD2(0) ; res_sel <= RES_ALU ;
-                    when ret_code( I_SUB  ) => we_rf <= '1' ; ALU_Code <= ALU_SUB ; srcBsel <= SRCB_RD2(0) ; res_sel <= RES_ALU ;
-                    when ret_code( I_SLL  ) => we_rf <= '1' ; ALU_Code <= ALU_SLL ; srcBsel <= SRCB_RD2(0) ; res_sel <= RES_ALU ;
-                    when ret_code( I_OR   ) => we_rf <= '1' ; ALU_Code <= ALU_OR  ; srcBsel <= SRCB_RD2(0) ; res_sel <= RES_ALU ;
-                    -- I - type command's
-                    when ret_code( I_ADDI ) => we_rf <= '1' ; ALU_Code <= ALU_ADD ; srcBsel <= SRCB_IMM(0) ; res_sel <= RES_ALU ; imm_src <= I_SEL ;
-                    when ret_code( I_ORI  ) => we_rf <= '1' ; ALU_Code <= ALU_OR  ; srcBsel <= SRCB_IMM(0) ; res_sel <= RES_ALU ; imm_src <= I_SEL ;
-                    when ret_code( I_SLLI ) => we_rf <= '1' ; ALU_Code <= ALU_SLL ; srcBsel <= SRCB_IMM(0) ; res_sel <= RES_ALU ; imm_src <= I_SEL ;
-                    when ret_code( I_LW   ) => we_rf <= '1' ; ALU_Code <= ALU_ADD ; srcBsel <= SRCB_IMM(0) ; res_sel <= RES_ALU ; imm_src <= I_SEL ;                          rf_src <= RF_DMEM;
-                    when ret_code( I_JALR ) => we_rf <= '1' ; ALU_Code <= ALU_ADD ; srcBsel <= SRCB_IMM(0) ; res_sel <= RES_UB  ; imm_src <= I_SEL ; branch_type <= B_UB;
-                    -- U - type command's
-                    when ret_code( I_LUI  ) => we_rf <= '1' ; ALU_Code <= ALU_LUI ; srcBsel <= SRCB_IMM(0) ; res_sel <= RES_ALU ; imm_src <= U_SEL ;
-                    -- B - type command's
-                    when ret_code( I_BEQ  ) => we_rf <= '0' ; ALU_Code <= ALU_ADD ; srcBsel <= SRCB_RD2(0) ; res_sel <= RES_ALU ; imm_src <= B_SEL ; branch_type <= B_EQ_NEQ;
-                    when ret_code( I_BNE  ) => we_rf <= '0' ; ALU_Code <= ALU_ADD ; srcBsel <= SRCB_RD2(0) ; res_sel <= RES_ALU ; imm_src <= B_SEL ; branch_type <= B_EQ_NEQ;
-                    -- S - type command's
-                    when ret_code( I_SW   ) => we_rf <= '0' ; ALU_Code <= ALU_ADD ; srcBsel <= SRCB_IMM(0) ; res_sel <= RES_ALU ; imm_src <= S_SEL ;                                              
-                    -- J - type command's
-                    when ret_code( I_JAL  ) => we_rf <= '1' ; ALU_Code <= ALU_ADD ; srcBsel <= SRCB_IMM(0) ; res_sel <= RES_UB  ; imm_src <= J_SEL ; branch_type <= B_UB;
-                    -- in the future
-                    when others => 
-                end case ?;
-            when others => 
+                case( instr_cf_0.OP ) is
+                    when B_OP0          => 
+                        case( instr_cf_0.F3(2 downto 1) ) is
+                            when "00"   => branch_type <= B_EQ_NEQ;
+                            when others => 
+                        end case;
+                    when J_OP0 | I_OP2  => branch_type <= B_UB;
+                    when others                 =>
+                end case;
+            when others =>
+        end case;
+    end process;
+    -- result select
+    res_sel_proc : process(all)
+    begin
+        res_sel <= RES_ALU;
+        case( instr_cf_0.IT ) is
+            when RVI    =>
+                case( instr_cf_0.OP ) is
+                    when J_OP0 | I_OP2  => res_sel <= RES_UB;   -- JAL or JALR
+                    when others         =>
+                end case;
+            when others =>
+        end case;
+    end process;
+
+    ALU_Code_proc : process(all)
+    begin
+        ALU_Code <= ALU_ADD;
+        case( instr_cf_0.IT ) is
+            when RVI    =>
+                case( instr_cf_0.OP ) is
+                    when U_OP0          => ALU_Code <= ALU_LUI;
+                    when R_OP0 | I_OP0  => 
+                        case( instr_cf_0.F3 )is
+                            when    I_ADD   =>  ALU_Code <= ALU_ADD;
+                            when    I_AND   =>  ALU_Code <= ALU_AND;
+                            when    I_OR    =>  ALU_Code <= ALU_OR;
+                            when    I_SLL   =>  ALU_Code <= ALU_SLL;
+                            when    others  =>
+                        end case;    
+                    when others         =>
+                end case;
+            when others =>
         end case;
     end process;
 

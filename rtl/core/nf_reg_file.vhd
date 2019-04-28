@@ -35,20 +35,20 @@ begin
     rd1_proc : process( all )
     begin
         rd1 <= reg_file( to_integer( unsigned( ra1 ) ) );
-        if( wa3 = ra1 ) then 
-            rd1 <= wd3;
-        elsif( ra1 = 5X"00" ) then
+        if( ra1 = 5X"00" ) then
             rd1 <= ( others => '0' );
+        elsif( wa3 = ra1 ) then 
+            rd1 <= wd3;
         end if;
     end process;
     -- getting read data 2 from register file
     rd2_proc : process( all )
     begin
         rd2 <= reg_file( to_integer( unsigned( ra2 ) ) );
-        if( wa3 = ra2 ) then 
-            rd2 <= wd3;
-        elsif( ra2 = 5X"00" ) then
+        if( ra2 = 5X"00" ) then 
             rd2 <= ( others => '0' );
+        elsif( wa3 = ra2 ) then 
+            rd2 <= wd3;
         end if;
     end process;
     -- writing value in register file

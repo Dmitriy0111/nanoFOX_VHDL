@@ -8,6 +8,7 @@
 #
 
 vlib work
+vlib nf
 
 #set test "nf_uart_transmitter test"
 #set test "nf_uart_receiver test"
@@ -58,9 +59,6 @@ if {$test == "nf_uart_transmitter test"} {
 
 } elseif {$test == "nf_top test"} {
 
-    #set sub_test "rx_test"
-    set sub_test "tx_test"
-
     vcom -2008 ../inc/nf_help_pkg.vhd           -work nf
     vcom -2008 ../inc/nf_ahb_pkg.vhd            -work nf
     vcom -2008 ../inc/nf_mem_pkg.vhd            -work nf
@@ -71,6 +69,7 @@ if {$test == "nf_uart_transmitter test"} {
 
     vcom -2008  ../rtl/core/nf_alu.vhd
     vcom -2008  ../rtl/core/nf_branch_unit.vhd
+    vcom -2008  ../rtl/core/nf_control_unit.vhd
     vcom -2008  ../rtl/core/nf_sign_ex.vhd
     vcom -2008  ../rtl/core/nf_reg_file.vhd
     vcom -2008  ../rtl/core/nf_i_exu.vhd
@@ -88,7 +87,7 @@ if {$test == "nf_uart_transmitter test"} {
     vcom -2008  ../rtl/periphery/uart/nf_uart_receiver.vhd
     vcom -2008  ../rtl/periphery/uart/nf_uart_top.vhd
     vcom -2008  ../rtl/ahb/nf_ahb_mux.vhd
-    vcom -2008   ../rtl/ahb/nf_ahb_dec.vhd 
+    vcom -2008  ../rtl/ahb/nf_ahb_dec.vhd 
     vcom -2008  ../rtl/ahb/nf_ahb_router.vhd
     vcom -2008  ../rtl/ahb/nf_ahb2core.vhd
     vcom -2008  ../rtl/ahb/nf_ahb_top.vhd
@@ -96,7 +95,6 @@ if {$test == "nf_uart_transmitter test"} {
     vcom -2008  ../rtl/ahb/nf_ahb_gpio.vhd
     vcom -2008  ../rtl/ahb/nf_ahb_uart.vhd
     vcom -2008  ../rtl/ahb/nf_ahb_ram.vhd
-    vcom -2008   ../rtl/core/nf_control_unit.vhd
     vcom -2008  ../rtl/core/nf_cpu.vhd
 
     vlog ../rtl/core/nf_i_fu.sv ../rtl/nf_top.sv
@@ -112,9 +110,9 @@ if {$test == "nf_uart_transmitter test"} {
     add wave -position insertpoint sim:/nf_tb/instruction_imem_stage
     add wave -position insertpoint sim:/nf_tb/instruction_iwb_stage
     add wave -divider  "core singals"
-    add wave -position insertpoint sim:/nf_tb/nf_top_0/nf_cpu_0/*
+    add wave -radix hexadecimal -position insertpoint sim:/nf_tb/nf_top_0/nf_cpu_0/*
     add wave -divider  "testbench signals"
-    add wave -position insertpoint sim:/nf_tb/*
+    add wave -radix hexadecimal -position insertpoint sim:/nf_tb/*
 
 }
 

@@ -63,121 +63,24 @@ package nf_cpu_def is
     constant RVC_2  : std_logic_vector(1 downto 0) := "11";
     constant ANY    : std_logic_vector(1 downto 0) := "--";
 
-    -- LUI      -    Load Upper Immediate
-    --          rd = Immed << 12
-    constant I_LUI   : instr_cf := ( RVI , "01101" , "---" , "-------" );
-    -- AUIPC    -  U-type, Add upper immediate to PC
-    --          rd = PC + Immed << 12
-    constant I_AUIPC : instr_cf := ( RVI , "00101" , "---" , "-------" );
-    -- JAL      -   J-type, Jump and load PC + 4 in register
-    --          rd = PC + 4
-    --          PC = Immed << 12
-    constant I_JAL   : instr_cf := ( RVI , "11011" , "---" , "-------" );
-    -- JAL      -    J-type, Jump and load PC + 4 in register
-    --          rd = PC + 4
-    --          PC = Immed << 12
-    constant I_JALR  : instr_cf := ( RVI , "11001" , "---" , "-------" );
-    -- BEQ      -    B-type, Branch if equal
-    -- 
-    constant I_BEQ   : instr_cf := ( RVI , "11000" , "000" , "-------" );
-    -- BNE      -    B-type, Branch if not equal
-    -- 
-    constant I_BNE   : instr_cf := ( RVI , "11000" , "001" , "-------" );
-    -- BLT      -    B-type, Branch if less
-    -- 
-    constant I_BLT   : instr_cf := ( RVI , "11000" , "100" , "-------" );
-    -- BGE      -    B-type, Branch if greater
-    -- 
-    constant I_BGE   : instr_cf := ( RVI , "11000" , "101" , "-------" );
-    -- BLTU     -   B-type, Branch if less unsigned
-    -- 
-    constant I_BLTU  : instr_cf := ( RVI , "11000" , "110" , "-------" );
-    -- BGEU     -   B-type, Branch if greater unsigned
-    --
-    constant I_BGEU  : instr_cf := ( RVI , "11000" , "111" , "-------" );
-    -- LB       -     I-type, Load byte
-    --          rd = mem[addr]
-    constant I_LB    : instr_cf := ( RVI , "00000" , "000" , "-------" );
-    -- LH       -     I-type, Load half word
-    --          rd = mem[addr]
-    constant I_LH    : instr_cf := ( RVI , "00000" , "001" , "-------" );
-    -- LW       -     I-type, Load word
-    --          rd = mem[addr]
-    constant I_LW    : instr_cf := ( RVI , "00000" , "010" , "-------" );
-    -- LBU      -    I-type, Load byte unsigned
-    --          rd = mem[addr]
-    constant I_LBU   : instr_cf := ( RVI , "00000" , "100" , "-------" );
-    -- LHU      -    I-type, Load half word unsigned
-    --          rd = mem[addr]
-    constant I_LHU   : instr_cf := ( RVI , "00000" , "101" , "-------" );
-    -- SB       -     S-type, Store byte
-    --          mem[addr] = rs1
-    constant I_SB    : instr_cf := ( RVI , "01000" , "000" , "-------" );
-    -- SH       -     S-type, Store half word
-    --          mem[addr] = rs1
-    constant I_SH    : instr_cf := ( RVI , "01000" , "001" , "-------" );
-    -- SW       -     S-type, Store word
-    --          mem[addr] = rs1
-    constant I_SW    : instr_cf := ( RVI , "01000" , "010" , "-------" );
-    -- ADDI     -   I-type, Adding with immidiate
-    --          rd = rs1 + Immed
-    constant I_ADDI  : instr_cf := ( RVI , "00100" , "000" , "-------" );
-    -- SLTI     -   I-type, Set less immidiate
-    --          rd = rs1 < signed   ( Immed ) - '0 : '1
-    constant I_SLTI  : instr_cf := ( RVI , "00100" , "010" , "-------" );
-    -- SLTIU    -  I-type, Set less unsigned immidiate
-    --          rd = rs1 < unsigned ( Immed ) - '0 : '1
-    constant I_SLTIU : instr_cf := ( RVI , "00100" , "011" , "-------" );
-    -- XORI     -   I-type, Excluding Or operation with immidiate
-    --          rd = rs1 ^ Immed
-    constant I_XORI  : instr_cf := ( RVI , "00100" , "100" , "-------" );
-    -- ORI      -    I-type, Or operation with immidiate
-    --          rd = rs1 | Immed
-    constant I_ORI   : instr_cf := ( RVI , "00100" , "110" , "-------" );
-    -- ANDI     -   I-type, And operation with immidiate
-    --          rd = rs1 , Immed
-    constant I_ANDI  : instr_cf := ( RVI , "00100" , "111" , "-------" );
-    -- SLLI     -   I-type, Shift Left Logical
-    --          rd = rs1 << shamt
-    constant I_SLLI  : instr_cf := ( RVI , "00100" , "001" , "0000000" );
-    -- SRLI     -   I-type, Shift Right Logical
-    --          rd = rs1 >> shamt
-    constant I_SRLI  : instr_cf := ( RVI , "00100" , "101" , "0000000" );
-    -- SRAI     -   I-type, Shift Right Arifmetical
-    --          rd = rs1 >> shamt
-    constant I_SRAI  : instr_cf := ( RVI , "00100" , "101" , "0100000" );
-    -- ADD      -    R-type, Adding with register
-    --          rd = rs1 + rs2
-    constant I_ADD   : instr_cf := ( RVI , "01100" , "000" , "0000000" );
-    -- SUB      -    R-type, Adding with register
-    --          rd = rs1 - rs2
-    constant I_SUB   : instr_cf := ( RVI , "01100" , "000" , "0100000" );
-    -- SLL      -    R-type, Set left logical
-    --          rd = rs1 << rs2
-    constant I_SLL   : instr_cf := ( RVI , "01100" , "001" , "0000000" );
-    -- SLT      -    R-type, Set less
-    --          rd = rs1 < rs2 - '0 : '1
-    constant I_SLT   : instr_cf := ( RVI , "01100" , "010" , "0000000" );
-    -- SLTU     -   R-type, Set less unsigned
-    --          rd = rs1 < rs2 - '0 : '1
-    constant I_SLTU  : instr_cf := ( RVI , "01100" , "011" , "0000000" );
-    -- XOR      -    R-type, Excluding Or two register
-    --          rd = rs1 ^ rs2
-    constant I_XOR   : instr_cf := ( RVI , "01100" , "100" , "0000000" );
-    -- SRL      -    R-type, Set right logical
-    --          rd = rs1 >> rs2
-    constant I_SRL   : instr_cf := ( RVI , "01100" , "101" , "0000000" );
-    -- SRA      -    R-type, Set right arifmetical
-    --          rd = rs1 >> rs2
-    constant I_SRA   : instr_cf := ( RVI , "01100" , "101" , "0100000" );
-    -- OR       -     R-type, Or two register
-    --          rd = rs1 | rs2
-    constant I_OR    : instr_cf := ( RVI , "01100" , "110" , "0000000" );
-    -- AND      -    R-type, And two register
-    --          rd = rs1 , rs2
-    constant I_AND   : instr_cf := ( RVI , "01100" , "111" , "0000000" );
-    -- VER      -    For verification
-    constant I_VER   : instr_cf := ( RVI , "-----" , "---" , "-------" );
+    constant R_OP0  : std_logic_vector(4 downto 0) := "01100";  
+    constant U_OP0  : std_logic_vector(4 downto 0) := "01101";  -- LUI
+    constant U_OP1  : std_logic_vector(4 downto 0) := "00101";  -- AUIPC
+    constant J_OP0  : std_logic_vector(4 downto 0) := "11011";  -- JAL
+    constant S_OP0  : std_logic_vector(4 downto 0) := "01000";  -- SW,SH,SB,SHU,SBU
+    constant B_OP0  : std_logic_vector(4 downto 0) := "11000";  -- BEQ,BNE,BGE,BLT,BGEU,BLTU
+    constant I_OP0  : std_logic_vector(4 downto 0) := "00100";  
+    constant I_OP1  : std_logic_vector(4 downto 0) := "00000";  -- LW,LH,LB
+    constant I_OP2  : std_logic_vector(4 downto 0) := "11001";  -- JALR
+
+    constant I_ADD  : std_logic_vector(2 downto 0) := "000";
+    constant I_SLL  : std_logic_vector(2 downto 0) := "001";
+    constant I_SLT  : std_logic_vector(2 downto 0) := "010";
+    constant I_SLTU : std_logic_vector(2 downto 0) := "011";
+    constant I_XOR  : std_logic_vector(2 downto 0) := "100";
+    constant I_SRL  : std_logic_vector(2 downto 0) := "101";
+    constant I_OR   : std_logic_vector(2 downto 0) := "110";
+    constant I_AND  : std_logic_vector(2 downto 0) := "111";
 
     -- ALU commands
     constant ALU_ADD : std_logic_vector(3 downto 0) := "0000";

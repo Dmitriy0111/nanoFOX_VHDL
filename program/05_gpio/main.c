@@ -11,7 +11,7 @@
 
 #define SYNTH   1
 #define SIM     0
-#define RUNTYPE SYNTH
+#define RUNTYPE SIM
 
 #if   RUNTYPE == SIM
     #define delay_value 10

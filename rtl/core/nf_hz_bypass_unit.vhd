@@ -66,14 +66,12 @@ begin
         rd2_bypass <= HU_BP_NONE;
         if(    bool2sl( wa3_imem = ra1_iexe ) and we_rf_imem and bool2sl( ra1_iexe /= 5X"00" ) ) then
             rd1_bypass <= HU_BP_MEM; -- zero without bypass
-        end if;
-        if( bool2sl( wa3_iwb  = ra1_iexe ) and we_rf_iwb  and bool2sl( ra1_iexe /= 5X"00" ) ) then
+        elsif( bool2sl( wa3_iwb  = ra1_iexe ) and we_rf_iwb  and bool2sl( ra1_iexe /= 5X"00" ) ) then
             rd1_bypass <= HU_BP_WB;  -- zero without bypass
         end if;
         if(    bool2sl( wa3_imem = ra2_iexe ) and we_rf_imem and bool2sl( ra2_iexe /= 5X"00" ) ) then
             rd2_bypass <= HU_BP_MEM; -- zero without bypass
-        end if;
-        if( bool2sl( wa3_iwb  = ra2_iexe ) and we_rf_iwb  and bool2sl( ra2_iexe /= 5X"00" ) ) then
+        elsif( bool2sl( wa3_iwb  = ra2_iexe ) and we_rf_iwb  and bool2sl( ra2_iexe /= 5X"00" ) ) then
             rd2_bypass <= HU_BP_WB;  -- zero without bypass
         end if;
     end process;
