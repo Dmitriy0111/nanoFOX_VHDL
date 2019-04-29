@@ -85,7 +85,8 @@ begin
 
     clk       <= CLOCK_50;
     resetn    <= KEY(0);
-    LED       <= gpio_o_0;
+    LED(6 downto 0) <= gpio_o_0(6 downto 0);
+    LED(7)          <= pwm;
     gpio_i_0  <= 4X"0" & SW;
     GPIO_0(4) <= uart_tx;
     uart_rx   <= GPIO_0(5);

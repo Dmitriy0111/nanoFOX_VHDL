@@ -28,17 +28,6 @@ end nf_ahb_dec;
 
 architecture rtl of nf_ahb_dec is
 begin
-
-    --generate_hsel :
-    --for i in 0 to slave_c-1 generate
-    --    dec_proc : process(all)
-    --    begin
-    --        hsel(i) <= '0';
-    --        if( std_match(haddr , ahb_vector(i))) then
-    --            hsel(i) <= '1';
-    --        end if;
-    --    end process;
-    --end generate generate_hsel;
     
     dec_proc : process(all)
         begin

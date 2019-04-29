@@ -11,6 +11,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 package nf_settings is
+    constant PROG_START     : integer := 0;
     -- depth of ram module
     constant ADDR_D_W       : integer := 20;
     constant MEM_D_DEPTH    : integer := 2 ** ADDR_D_W;

@@ -141,7 +141,7 @@ begin
             when others =>
         end case;
     end process;
-
+    -- setting code for ALU    
     ALU_Code_proc : process(all)
     begin
         ALU_Code <= ALU_ADD;

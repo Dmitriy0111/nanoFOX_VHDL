@@ -28,13 +28,19 @@ architecture rtl of Storm_IV_E6_V2 is
     -- clock and reset
     signal clk      : std_logic;                        -- clock
     signal resetn   : std_logic;                        -- reset
-    signal div      : std_logic_vector(25 downto 0);    -- clock divide input
-    -- for debug
-    signal reg_addr : std_logic_vector(4  downto 0);    -- scan register address
-    signal reg_data : std_logic_vector(31 downto 0);    -- scan register data
-    -- hex
-    signal hex      : std_logic_vector(7  downto 0);    -- hex values from convertors
-    signal dig      : std_logic_vector(3  downto 0);
+    -- GPIO
+    signal gpio_i_0 :   std_logic_vector(7  downto 0);  -- GPIO_0 input
+    signal gpio_o_0 :   std_logic_vector(7  downto 0);  -- GPIO_0 output
+    signal gpio_d_0 :   std_logic_vector(7  downto 0);  -- GPIO_0 direction
+    -- PWM
+    signal pwm      :   std_logic;                      -- PWM output signal
+    -- UART side
+    signal uart_tx  :   std_logic;                      -- UART tx wire
+    signal uart_rx  :   std_logic;                      -- UART rx wire
+
+    signal gpio2hex :   std_logic_vector(31 downto 0);  -- gpio to hex
+    signal hex      :   std_logic_vector(7  downto 0);  -- for hex display
+    signal dig      :   std_logic_vector(3  downto 0);
     -- component definition
     -- nf_top
     component nf_top
@@ -43,10 +49,15 @@ architecture rtl of Storm_IV_E6_V2 is
             -- clock and reset
             clk         : in    std_logic;                      -- clock
             resetn      : in    std_logic;                      -- reset
-            div         : in    std_logic_vector(25 downto 0);  -- clock divide input
-            -- for debug
-            reg_addr    : in    std_logic_vector(4  downto 0);  -- scan register address
-            reg_data    : out   std_logic_vector(31 downto 0)   -- scan register data
+            -- PWM side
+            pwm         : out   std_logic;                      -- PWM output
+            -- GPIO side
+            gpio_i_0    : in    std_logic_vector(7 downto 0);   -- GPIO input
+            gpio_o_0    : out   std_logic_vector(7 downto 0);   -- GPIO output
+            gpio_d_0    : out   std_logic_vector(7 downto 0);   -- GPIO direction
+            -- UART side
+            uart_tx     : out   std_logic;                      -- UART tx wire
+            uart_rx     : in    std_logic                       -- UART rx wire
         );
     end component;
     -- nf_seven_seg_dynamic
@@ -63,34 +74,41 @@ architecture rtl of Storm_IV_E6_V2 is
     end component;
 begin
 
-    hex0 <= hex;
-    clk <= clk50mhz;
-    resetn <= rst_key;
-    div <= sw(3 downto 1) & 23X"7fffff";
-    reg_addr <= sw(0) & key(3 downto 0);
-    b <= dig(0);
-    g <= dig(1);
-    hsync <= dig(2);
-    vsync <= dig(3);
+    -- assigns
+    hex0     <= hex;
+    clk      <= clk50mhz;
+    resetn   <= rst_key;
+    gpio2hex <= 24X"0" & gpio_o_0;
+    gpio_i_0 <= 4X"00" & sw;
+    b        <= dig(0);
+    g        <= dig(1);
+    hsync    <= dig(2);
+    vsync    <= dig(3);
+    led(0)   <= pwm; 
     -- creating one nf_top_0 unit
     nf_top_0 : nf_top 
-    port map 
+    port map
     (
         -- clock and reset
         clk         => clk,         -- clock
         resetn      => resetn,      -- reset
-        div         => div,         -- clock divide input
-        -- for debug
-        reg_addr    => reg_addr,    -- scan register address
-        reg_data    => reg_data     -- scan register data
+        -- PWM side
+        pwm         => pwm,         -- PWM output
+        -- GPIO side
+        gpio_o_0    => gpio_o_0,    -- GPIO output
+        gpio_d_0    => gpio_d_0,    -- GPIO direction
+        gpio_i_0    => gpio_i_0,    -- GPIO input
+        -- UART side
+        uart_tx     => uart_tx,     -- UART tx wire
+        uart_rx     => uart_rx      -- UART rx wire
     );
     -- creating one nf_seven_seg_dynamic_0 unit
-    nf_seven_seg_dynamic_0 : nf_seven_seg_dynamic
+    nf_seven_seg_dynamic_0 : nf_seven_seg_dynamic 
     port map
     (
         clk         => clk,         -- clock
         resetn      => resetn,      -- reset
-        hex         => reg_data,    -- hexadecimal value input
+        hex         => gpio2hex,    -- hexadecimal value input
         cc_ca       => '0',         -- common cathode or common anode
         seven_seg   => hex,         -- seven segments output
         dig         => dig          -- digital tube selector

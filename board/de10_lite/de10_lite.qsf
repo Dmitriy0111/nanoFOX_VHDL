@@ -337,6 +337,6 @@ set_global_assignment -name VHDL_FILE ../../rtl/ahb/nf_ahb_ram.vhd
 set_global_assignment -name VHDL_FILE ../../program_file/nf_program.vhd
 set_global_assignment -name VHDL_FILE ../../brd_rtl/hex_display/nf_seven_seg.vhd
 set_global_assignment -name VHDL_FILE ../../brd_rtl/hex_display/nf_seven_seg_static.vhd
-set_global_assignment -name SYSTEMVERILOG_FILE ../../rtl/core/nf_i_fu.sv
-set_global_assignment -name SYSTEMVERILOG_FILE ../../rtl/nf_top.sv
-set_global_assignment -name SYSTEMVERILOG_FILE de10_lite.sv
+set_global_assignment -name VHDL_FILE ../../rtl/core/nf_i_fu.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/nf_top.vhd
+set_global_assignment -name VHDL_FILE de10_lite.vhd

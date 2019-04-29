@@ -17,12 +17,6 @@ entity de10_lite is
         hex3            : out   std_logic_vector(7  downto 0);
         hex4            : out   std_logic_vector(7  downto 0);
         hex5            : out   std_logic_vector(7  downto 0);
-        -- vga
-        hsync           : out   std_logic;
-        vsync           : out   std_logic;
-        R               : out   std_logic_vector(3  downto 0);
-        G               : out   std_logic_vector(3  downto 0);
-        B               : out   std_logic_vector(3  downto 0);
         -- button's
         key             : in    std_logic_vector(1  downto 0);
         -- led's
@@ -39,10 +33,15 @@ architecture rtl of de10_lite is
     -- clock and reset
     signal clk      : std_logic;                        -- clock
     signal resetn   : std_logic;                        -- reset
-    signal div      : std_logic_vector(25 downto 0);    -- clock divide input
-    -- for debug
-    signal reg_addr : std_logic_vector(4  downto 0);    -- scan register address
-    signal reg_data : std_logic_vector(31 downto 0);    -- scan register data
+    -- GPIO
+    signal gpio_i_0 :   std_logic_vector(7  downto 0);  -- GPIO_0 input
+    signal gpio_o_0 :   std_logic_vector(7  downto 0);  -- GPIO_0 output
+    signal gpio_d_0 :   std_logic_vector(7  downto 0);  -- GPIO_0 direction
+    -- PWM
+    signal pwm      :   std_logic;                      -- PWM output signal
+    -- UART side
+    signal uart_tx  :   std_logic;                      -- UART tx wire
+    signal uart_rx  :   std_logic;                      -- UART rx wire
     -- hex
     signal hex      : std_logic_vector(47 downto 0);    -- hex values from convertors
     -- component definition
@@ -53,10 +52,15 @@ architecture rtl of de10_lite is
             -- clock and reset
             clk         : in    std_logic;                      -- clock
             resetn      : in    std_logic;                      -- reset
-            div         : in    std_logic_vector(25 downto 0);  -- clock divide input
-            -- for debug
-            reg_addr    : in    std_logic_vector(4  downto 0);  -- scan register address
-            reg_data    : out   std_logic_vector(31 downto 0)   -- scan register data
+            -- PWM side
+            pwm         : out   std_logic;                      -- PWM output
+            -- GPIO side
+            gpio_i_0    : in    std_logic_vector(7 downto 0);   -- GPIO input
+            gpio_o_0    : out   std_logic_vector(7 downto 0);   -- GPIO output
+            gpio_d_0    : out   std_logic_vector(7 downto 0);   -- GPIO direction
+            -- UART side
+            uart_tx     : out   std_logic;                      -- UART tx wire
+            uart_rx     : in    std_logic                       -- UART rx wire
         );
     end component;
     -- nf_seven_seg_static
@@ -74,6 +78,8 @@ architecture rtl of de10_lite is
     end component;
 begin
 
+    
+
     hex0 <= hex(7 downto 0);
     hex1 <= hex(15 downto 8);
     hex2 <= hex(23 downto 16);
@@ -82,24 +88,26 @@ begin
     hex5 <= hex(47 downto 40);
     clk <= max10_clk1_50;
     resetn <= key(0);
-    div <= sw(9 downto 5) & (20 downto 0 => '0');
-    reg_addr <= sw(4 downto 0);
-    R <= "0000";
-    G <= "0000";
-    B <= "0000";
-    hsync <= '0';
-    vsync <= '0';
+    gpio_i_0 <= sw(4 downto 0);
+    ledr(8)  = pwm;
+    ledr(7 downto 0) = gpio_o_0;
+    
     -- creating one nf_top_0 unit
     nf_top_0 : nf_top 
-    port map 
+    port map
     (
         -- clock and reset
         clk         => clk,         -- clock
         resetn      => resetn,      -- reset
-        div         => div,         -- clock divide input
-        -- for debug
-        reg_addr    => reg_addr,    -- scan register address
-        reg_data    => reg_data     -- scan register data
+        -- PWM side
+        pwm         => pwm,         -- PWM output
+        -- GPIO side
+        gpio_i_0    => gpio_i_0,    -- GPIO input
+        gpio_o_0    => gpio_o_0,    -- GPIO output
+        gpio_d_0    => gpio_d_0,    -- GPIO direction
+        -- UART side
+        uart_tx     => uart_tx,     -- UART tx wire
+        uart_rx     => uart_rx      -- UART rx wire
     );
     -- creating one nf_seven_seg_static_0 unit
     nf_seven_seg_static_0 : nf_seven_seg_static 
@@ -109,9 +117,9 @@ begin
     )
     port map
     (
-        hex         => reg_data,    -- hexadecimal value input
-        cc_ca       => '0',         -- common cathode or common anode
-        seven_seg   => hex          -- seven segments output
+        hex         => 32D"2019",
+        cc_ca       => '0',
+        seven_seg   => hex
     );
 
 end rtl; -- de10_lite

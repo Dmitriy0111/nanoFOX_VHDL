@@ -10,6 +10,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use std.standard.boolean;
 library nf;
 use nf.nf_mem_pkg.all;
 use nf.nf_program.all;
@@ -18,7 +19,9 @@ entity nf_ram is
     generic
     (
         addr_w  : integer := 6;                         -- actual address memory width
-        depth   : integer := 2 ** 6                     -- depth of memory array
+        depth   : integer := 2 ** 6;                    -- depth of memory array
+        init    : boolean := False;                     -- init memory?
+        i_mem   : mem_t                                 -- init memory
     );
     port 
     (
@@ -31,10 +34,10 @@ entity nf_ram is
 end nf_ram;
 
 architecture rtl of nf_ram is
-    signal  bank_0  : mem_t(depth-1 downto 0)(7 downto 0) := bank_init(0,program,depth);
-    signal  bank_1  : mem_t(depth-1 downto 0)(7 downto 0) := bank_init(1,program,depth);
-    signal  bank_2  : mem_t(depth-1 downto 0)(7 downto 0) := bank_init(2,program,depth);
-    signal  bank_3  : mem_t(depth-1 downto 0)(7 downto 0) := bank_init(3,program,depth);
+    signal  bank_0  : mem_t(depth-1 downto 0)(7 downto 0) := mem_i( init , bank_init( 0 , i_mem , depth ) , depth );
+    signal  bank_1  : mem_t(depth-1 downto 0)(7 downto 0) := mem_i( init , bank_init( 1 , i_mem , depth ) , depth );
+    signal  bank_2  : mem_t(depth-1 downto 0)(7 downto 0) := mem_i( init , bank_init( 2 , i_mem , depth ) , depth );
+    signal  bank_3  : mem_t(depth-1 downto 0)(7 downto 0) := mem_i( init , bank_init( 3 , i_mem , depth ) , depth );
 begin
 
     rd(31 downto 24) <= bank_3(to_integer(unsigned(addr(addr_w-1 downto 0))));

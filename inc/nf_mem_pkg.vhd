@@ -17,6 +17,8 @@ package nf_mem_pkg is
 
     function bank_init( bank_number : integer; full_ram : mem_t; bank_depth : integer ) return mem_t;
 
+    function mem_i( init_i : boolean ; in_mem : mem_t ; ram_depth : integer ) return mem_t;
+
 end package nf_mem_pkg;
 
 package body nf_mem_pkg is
@@ -28,6 +30,15 @@ package body nf_mem_pkg is
             bank_ret(i) := full_ram( i*4 + bank_number );
         end loop;
         return bank_ret;
-    end function;
+    end function; -- bank_init
+
+    function mem_i( init_i : boolean ; in_mem : mem_t ; ram_depth : integer ) return mem_t is
+        variable mem_ret : mem_t(ram_depth-1 downto 0)(7 downto 0) := ( others => X"XX" );
+    begin
+        if( init_i ) then
+            mem_ret := in_mem;
+        end if;
+        return mem_ret;
+    end function; -- mem_i
 
 end nf_mem_pkg;

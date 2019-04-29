@@ -74,6 +74,7 @@ if {$test == "nf_uart_transmitter test"} {
     vcom -2008  ../rtl/core/nf_reg_file.vhd
     vcom -2008  ../rtl/core/nf_i_exu.vhd
     vcom -2008  ../rtl/core/nf_hz_bypass_unit.vhd
+    vcom -2008  ../rtl/core/nf_i_fu.vhd
     vcom -2008  ../rtl/core/nf_i_du.vhd
     vcom -2008  ../rtl/core/nf_hz_stall_unit.vhd
     vcom -2008  ../rtl/core/nf_i_lsu.vhd
@@ -96,8 +97,7 @@ if {$test == "nf_uart_transmitter test"} {
     vcom -2008  ../rtl/ahb/nf_ahb_uart.vhd
     vcom -2008  ../rtl/ahb/nf_ahb_ram.vhd
     vcom -2008  ../rtl/core/nf_cpu.vhd
-
-    vlog ../rtl/core/nf_i_fu.sv ../rtl/nf_top.sv
+    vcom -2008  ../rtl/nf_top.vhd
 
     vlog ../tb/nf_bt_class.sv ../tb/nf_log_writer.sv ../tb/nf_pars_instr.sv ../tb/nf_tb.sv
 
