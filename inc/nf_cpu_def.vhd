@@ -88,9 +88,8 @@ package nf_cpu_def is
     constant ALU_LUI : std_logic_vector(3 downto 0) := "0010";
     constant ALU_SLL : std_logic_vector(3 downto 0) := "0011";
     constant ALU_SRL : std_logic_vector(3 downto 0) := "0100";
-    constant ALU_SUB : std_logic_vector(3 downto 0) := "0101";
-    constant ALU_AND : std_logic_vector(3 downto 0) := "0110";
-    constant ALU_XOR : std_logic_vector(3 downto 0) := "0111";
+    constant ALU_AND : std_logic_vector(3 downto 0) := "0101";
+    constant ALU_XOR : std_logic_vector(3 downto 0) := "0110";
     
     -- branch type constants
     constant B_NONE     : std_logic_vector(3 downto 0) := 4X"0";
@@ -101,6 +100,9 @@ package nf_cpu_def is
     -- srcB select constants
     constant SRCB_IMM   : std_logic_vector(0 downto 0) := "0";
     constant SRCB_RD2   : std_logic_vector(0 downto 0) := "1";
+    -- src shift select constants
+    constant SRCS_SHAMT : std_logic_vector(0 downto 0) := "0";
+    constant SRCS_RD2   : std_logic_vector(0 downto 0) := "1";
     -- sign imm select
     constant I_SEL  : std_logic_vector(4 downto 0) := 5X"01";     -- for i type instruction
     constant U_SEL  : std_logic_vector(4 downto 0) := 5X"02";     -- for u type instruction

@@ -19,7 +19,7 @@ entity nf_alu is
     (
         srcA        : in    std_logic_vector(31 downto 0);  -- source A for ALU unit
         srcB        : in    std_logic_vector(31 downto 0);  -- source B for ALU unit
-        shamt       : in    std_logic_vector(4  downto 0);  -- for shift operation
+        shift       : in    std_logic_vector(31 downto 0);  -- for shift operation
         ALU_Code    : in    std_logic_vector(3  downto 0);  -- ALU code from control unit
         result      : out   std_logic_vector(31 downto 0)   -- result of ALU operation
     );
@@ -28,15 +28,14 @@ end nf_alu;
 architecture rtl of nf_alu is
 begin
     -- finding result of ALU operation
-    alu_process : process(all)
+    alu_process : process( all )
     begin
         result <= (others => '0');
         case( ALU_Code ) is
-            when ALU_LUI    => result <= std_logic_vector( shift_left( unsigned( srcB ) , 12 ) );
+            when ALU_LUI    => result <= srcB(19 downto 0) & 12X"0";
             when ALU_ADD    => result <= srcA + srcB;
-            when ALU_SUB    => result <= srcA - srcB;
-            when ALU_SLL    => result <= std_logic_vector( shift_left ( unsigned( srcA ) , to_integer( unsigned( shamt ) ) ) );
-            when ALU_SRL    => result <= std_logic_vector( shift_right( unsigned( srcA ) , to_integer( unsigned( shamt ) ) ) );
+            when ALU_SLL    => result <= std_logic_vector( shift_left ( unsigned( srcA ) , to_integer( unsigned( shift ) ) ) );
+            when ALU_SRL    => result <= std_logic_vector( shift_right( unsigned( srcA ) , to_integer( unsigned( shift ) ) ) );
             when ALU_OR     => result <= srcA or srcB;
             when ALU_XOR    => result <= srcA xor srcB;
             when ALU_AND    => result <= srcA and srcB;

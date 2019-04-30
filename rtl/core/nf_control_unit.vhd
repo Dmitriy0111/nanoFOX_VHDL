@@ -24,6 +24,7 @@ entity nf_control_unit is
         funct7      : in    std_logic_vector(6 downto 0);   -- funct 7 field in instruction code
         imm_src     : out   std_logic_vector(4 downto 0);   -- for selecting immediate data
         srcBsel     : out   std_logic;                      -- for selecting srcB ALU
+        shift_sel   : out   std_logic;                      -- for selecting shift input
         res_sel     : out   std_logic;                      -- for selecting result
         branch_type : out   std_logic_vector(3 downto 0);   -- for executing branch instructions
         branch_hf   : out   std_logic;                      -- branch help field
@@ -47,6 +48,7 @@ begin
 
     branch_hf  <= not instr_cf_0.F3(0);
     branch_src <= bool2sl( instr_cf_0.OP = I_OP2 );
+    shift_sel  <= SRCS_RD2(0) when ( instr_cf_0.OP = R_OP0 ) else SRCS_SHAMT(0);
     we_dm      <= bool2sl( instr_cf_0.OP = S_OP0 );
     size_dm    <= instr_cf_0.F3(1 downto 0);
     -- immediate source selecting
@@ -73,8 +75,8 @@ begin
         case( instr_cf_0.IT ) is
             when RVI    =>
                 case( instr_cf_0.OP ) is
-                    when I_OP1                  => rf_src <= RF_DMEM;
-                    when others                 =>
+                    when I_OP1  => rf_src <= RF_DMEM;
+                    when others =>
                 end case;
             when others =>
         end case;
@@ -123,7 +125,7 @@ begin
                             when others => 
                         end case;
                     when J_OP0 | I_OP2  => branch_type <= B_UB;
-                    when others                 =>
+                    when others         =>
                 end case;
             when others =>
         end case;

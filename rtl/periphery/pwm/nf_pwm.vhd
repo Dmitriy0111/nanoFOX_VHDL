@@ -44,16 +44,16 @@ begin
     pwm <= '1' when (pwm_i >= pwm_c) else '0';
     rd  <= (31 downto pwm_width => '0') & pwm_c;
 
-    pwm_i_inc : process(all)
+    pwm_i_inc : process( pwm_clk, pwm_resetn )
     begin
         if( not pwm_resetn ) then
             pwm_i <= (others => '0');
-        elsif( rising_edge(clk) ) then
+        elsif( rising_edge(pwm_clk) ) then
             pwm_i <= pwm_i + 1;
         end if;
     end process;
 
-    pwm_c_set : process(all)
+    pwm_c_set : process( clk, resetn )
     begin
         if( not resetn ) then
             pwm_c <= (others => '0');

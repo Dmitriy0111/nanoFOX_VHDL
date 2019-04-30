@@ -17,24 +17,25 @@ use nf.nf_cpu_def.all;
 entity nf_i_du is
     port 
     (
-        instr       : in   std_logic_vector(31 downto 0);   -- Instruction input
-        ext_data    : out  std_logic_vector(31 downto 0);   -- decoded extended data
-        srcB_sel    : out  std_logic;                       -- decoded source B selection for ALU
-        res_sel     : out  std_logic;                       -- for selecting result
-        ALU_Code    : out  std_logic_vector(3  downto 0);   -- decoded ALU code
-        shamt       : out  std_logic_vector(4  downto 0);   -- decoded for shift command's
-        ra1         : out  std_logic_vector(4  downto 0);   -- decoded read address 1 for register file
-        rd1         : in   std_logic_vector(31 downto 0);   -- read data 1 from register file
-        ra2         : out  std_logic_vector(4  downto 0);   -- decoded read address 2 for register file
-        rd2         : in   std_logic_vector(31 downto 0);   -- read data 2 from register file
-        wa3         : out  std_logic_vector(4  downto 0);   -- decoded write address 2 for register file
-        pc_src      : out  std_logic;                       -- decoded next program counter value enable
-        we_rf       : out  std_logic;                       -- decoded write register file
-        we_dm_en    : out  std_logic;                       -- decoded write data memory
-        rf_src      : out  std_logic;                       -- decoded source register file signal
-        size_dm     : out  std_logic_vector(1  downto 0);   -- size for load/store instructions
-        branch_src  : out  std_logic;                       -- for selecting branch source (JALR)
-        branch_type : out  std_logic_vector(3  downto 0)    -- branch type
+        instr       : in    std_logic_vector(31 downto 0);  -- Instruction input
+        ext_data    : out   std_logic_vector(31 downto 0);  -- decoded extended data
+        srcB_sel    : out   std_logic;                      -- decoded source B selection for ALU
+        shift_sel   : out   std_logic;                      -- for selecting shift input
+        res_sel     : out   std_logic;                      -- for selecting result
+        ALU_Code    : out   std_logic_vector(3  downto 0);  -- decoded ALU code
+        shamt       : out   std_logic_vector(4  downto 0);  -- decoded for shift command's
+        ra1         : out   std_logic_vector(4  downto 0);  -- decoded read address 1 for register file
+        rd1         : in    std_logic_vector(31 downto 0);  -- read data 1 from register file
+        ra2         : out   std_logic_vector(4  downto 0);  -- decoded read address 2 for register file
+        rd2         : in    std_logic_vector(31 downto 0);  -- read data 2 from register file
+        wa3         : out   std_logic_vector(4  downto 0);  -- decoded write address 2 for register file
+        pc_src      : out   std_logic;                      -- decoded next program counter value enable
+        we_rf       : out   std_logic;                      -- decoded write register file
+        we_dm_en    : out   std_logic;                      -- decoded write data memory
+        rf_src      : out   std_logic;                      -- decoded source register file signal
+        size_dm     : out   std_logic_vector(1  downto 0);  -- size for load/store instructions
+        branch_src  : out   std_logic;                      -- for selecting branch source (JALR)
+        branch_type : out   std_logic_vector(3  downto 0)   -- branch type
     );
 end nf_i_du;
 
@@ -63,6 +64,7 @@ architecture rtl of nf_i_du is
             funct7      : in    std_logic_vector(6 downto 0);   -- funct 7 field in instruction code
             imm_src     : out   std_logic_vector(4 downto 0);   -- for selecting immediate data
             srcBsel     : out   std_logic;                      -- for selecting srcB ALU
+            shift_sel   : out   std_logic;                      -- for selecting shift input
             res_sel     : out   std_logic;                      -- for selecting result
             branch_type : out   std_logic_vector(3 downto 0);   -- for executing branch instructions
             branch_hf   : out   std_logic;                      -- branch help field
@@ -128,6 +130,7 @@ begin
         funct3          => funct3,          -- funct 3 field in instruction code
         funct7          => funct7,          -- funct 7 field in instruction code
         srcBsel         => srcB_sel,        -- for selecting srcB ALU
+        shift_sel       => shift_sel,       -- for selecting shift input
         res_sel         => res_sel,         -- for selecting result
         branch_type     => branch_type_i,   -- branch type 
         branch_hf       => branch_hf,       -- branch help field

@@ -85,6 +85,7 @@ architecture rtl of nf_cpu is
     signal rd1_id           :   std_logic_vector(31 downto 0);  -- read data 1 from register file ( decode stage )
     signal rd2_id           :   std_logic_vector(31 downto 0);  -- read data 2 from register file ( decode stage )
     signal srcB_sel_id      :   std_logic_vector(0  downto 0);  -- source B selection ( decode stage )
+    signal shift_sel_id     :   std_logic_vector(0  downto 0);  -- for selecting shift input ( decode stage )
     signal res_sel_id       :   std_logic_vector(0  downto 0);  -- result select ( decode stage )
     signal we_rf_id         :   std_logic_vector(0  downto 0);  -- write enable register file ( decode stage )
     signal we_dm_id         :   std_logic_vector(0  downto 0);  -- write enable data memory ( decode stage )
@@ -105,6 +106,7 @@ architecture rtl of nf_cpu is
     signal rd2_iexe         :   std_logic_vector(31 downto 0);  -- read data 2 from register file ( execution stage )
     signal pc_iexe          :   std_logic_vector(31 downto 0);  -- program counter value ( execution stage )
     signal srcB_sel_iexe    :   std_logic_vector(0  downto 0);  -- source B selection ( execution stage )
+    signal shift_sel_iexe   :   std_logic_vector(0  downto 0);  -- for selecting shift input ( execution stage )
     signal res_sel_iexe     :   std_logic_vector(0  downto 0);  -- result select ( execution stage )
     signal we_rf_iexe       :   std_logic_vector(0  downto 0);  -- write enable register file ( execution stage )
     signal we_dm_iexe       :   std_logic_vector(0  downto 0);  -- write enable data memory ( execution stage )
@@ -163,24 +165,25 @@ architecture rtl of nf_cpu is
     component nf_i_du
         port 
         (
-            instr       : in   std_logic_vector(31 downto 0);   -- Instruction input
-            ext_data    : out  std_logic_vector(31 downto 0);   -- decoded extended data
-            srcB_sel    : out  std_logic;                       -- decoded source B selection for ALU
-            res_sel     : out  std_logic;                       -- for selecting result
-            ALU_Code    : out  std_logic_vector(3  downto 0);   -- decoded ALU code
-            shamt       : out  std_logic_vector(4  downto 0);   -- decoded for shift command's
-            ra1         : out  std_logic_vector(4  downto 0);   -- decoded read address 1 for register file
-            rd1         : in   std_logic_vector(31 downto 0);   -- read data 1 from register file
-            ra2         : out  std_logic_vector(4  downto 0);   -- decoded read address 2 for register file
-            rd2         : in   std_logic_vector(31 downto 0);   -- read data 2 from register file
-            wa3         : out  std_logic_vector(4  downto 0);   -- decoded write address 2 for register file
-            pc_src      : out  std_logic;                       -- decoded next program counter value enable
-            we_rf       : out  std_logic;                       -- decoded write register file
-            we_dm_en    : out  std_logic;                       -- decoded write data memory
-            rf_src      : out  std_logic;                       -- decoded source register file signal
-            size_dm     : out  std_logic_vector(1  downto 0);   -- size for load/store instructions
-            branch_src  : out  std_logic;                       -- for selecting branch source (JALR)
-            branch_type : out  std_logic_vector(3  downto 0)    -- branch type
+            instr       : in    std_logic_vector(31 downto 0);  -- Instruction input
+            ext_data    : out   std_logic_vector(31 downto 0);  -- decoded extended data
+            srcB_sel    : out   std_logic;                      -- decoded source B selection for ALU
+            shift_sel   : out   std_logic;                      -- for selecting shift input
+            res_sel     : out   std_logic;                      -- for selecting result
+            ALU_Code    : out   std_logic_vector(3  downto 0);  -- decoded ALU code
+            shamt       : out   std_logic_vector(4  downto 0);  -- decoded for shift command's
+            ra1         : out   std_logic_vector(4  downto 0);  -- decoded read address 1 for register file
+            rd1         : in    std_logic_vector(31 downto 0);  -- read data 1 from register file
+            ra2         : out   std_logic_vector(4  downto 0);  -- decoded read address 2 for register file
+            rd2         : in    std_logic_vector(31 downto 0);  -- read data 2 from register file
+            wa3         : out   std_logic_vector(4  downto 0);  -- decoded write address 2 for register file
+            pc_src      : out   std_logic;                      -- decoded next program counter value enable
+            we_rf       : out   std_logic;                      -- decoded write register file
+            we_dm_en    : out   std_logic;                      -- decoded write data memory
+            rf_src      : out   std_logic;                      -- decoded source register file signal
+            size_dm     : out   std_logic_vector(1  downto 0);  -- size for load/store instructions
+            branch_src  : out   std_logic;                      -- for selecting branch source (JALR)
+            branch_type : out   std_logic_vector(3  downto 0)   -- branch type
         );
     end component;
     -- nf_i_exu
@@ -191,6 +194,7 @@ architecture rtl of nf_cpu is
             rd2         : in    std_logic_vector(31 downto 0);  -- read data from reg file (port2)
             ext_data    : in    std_logic_vector(31 downto 0);  -- sign extended immediate data
             srcB_sel    : in    std_logic;                      -- source enable signal for ALU
+            shift_sel   : in    std_logic;                      -- for selecting shift input
             shamt       : in    std_logic_vector(4  downto 0);  -- for shift operation
             ALU_Code    : in    std_logic_vector(3  downto 0);  -- ALU code from control unit
             result      : out   std_logic_vector(31 downto 0)   -- result of ALU operation
@@ -331,42 +335,43 @@ begin
     we_rf  <= we_rf_iwb(0);
     addr_i <= addr_i_i;
     -- if2id
-    instr_if_id         : nf_register_we     generic map ( 32 ) port map ( clk , resetn , not stall_id   ,              instr_if      , instr_id      );
-    pc_if_id            : nf_register_we     generic map ( 32 ) port map ( clk , resetn , not stall_id   ,              addr_i_i      , pc_id         );
-    -- id2iexe
-    wa3_id_iexe         : nf_register_we_clr generic map (  5 ) port map ( clk , resetn , not stall_iexe , flush_iexe , wa3_id        , wa3_iexe      );
-    ra1_id_iexe         : nf_register_we_clr generic map (  5 ) port map ( clk , resetn , not stall_iexe , flush_iexe , ra1_id        , ra1_iexe      );
-    ra2_id_iexe         : nf_register_we_clr generic map (  5 ) port map ( clk , resetn , not stall_iexe , flush_iexe , ra2_id        , ra2_iexe      );
-    shamt_id_iexe       : nf_register_we_clr generic map (  5 ) port map ( clk , resetn , not stall_iexe , flush_iexe , shamt_id      , shamt_iexe    );
-    sign_ex_id_iexe     : nf_register_we_clr generic map ( 32 ) port map ( clk , resetn , not stall_iexe , flush_iexe , ext_data_id   , ext_data_iexe );
-    rd1_id_iexe         : nf_register_we_clr generic map ( 32 ) port map ( clk , resetn , not stall_iexe , flush_iexe , rd1_id        , rd1_iexe      );
-    rd2_id_iexe         : nf_register_we_clr generic map ( 32 ) port map ( clk , resetn , not stall_iexe , flush_iexe , rd2_id        , rd2_iexe      );
-    pc_id_iexe          : nf_register_we_clr generic map ( 32 ) port map ( clk , resetn , not stall_iexe , flush_iexe , pc_id         , pc_iexe       );
-    size_dm_id_iexe     : nf_register_we_clr generic map (  2 ) port map ( clk , resetn , not stall_iexe , flush_iexe , size_dm_id    , size_dm_iexe  );
-    srcB_sel_id_iexe    : nf_register_we_clr generic map (  1 ) port map ( clk , resetn , not stall_iexe , flush_iexe , srcB_sel_id   , srcB_sel_iexe );
-    res_sel_id_iexe     : nf_register_we_clr generic map (  1 ) port map ( clk , resetn , not stall_iexe , flush_iexe , res_sel_id    , res_sel_iexe  );
-    we_rf_id_iexe       : nf_register_we_clr generic map (  1 ) port map ( clk , resetn , not stall_iexe , flush_iexe , we_rf_id      , we_rf_iexe    );
-    we_dm_id_iexe       : nf_register_we_clr generic map (  1 ) port map ( clk , resetn , not stall_iexe , flush_iexe , we_dm_id      , we_dm_iexe    );
-    rf_src_id_iexe      : nf_register_we_clr generic map (  1 ) port map ( clk , resetn , not stall_iexe , flush_iexe , rf_src_id     , rf_src_iexe   );
-    ALU_Code_id_iexe    : nf_register_we_clr generic map (  4 ) port map ( clk , resetn , not stall_iexe , flush_iexe , ALU_Code_id   , ALU_Code_iexe );
+    instr_if_id         : nf_register_we     generic map ( 32 ) port map ( clk , resetn , not stall_id   ,              instr_if      , instr_id       );
+    pc_if_id            : nf_register_we     generic map ( 32 ) port map ( clk , resetn , not stall_id   ,              addr_i_i      , pc_id          );
+    -- id2iexe 
+    wa3_id_iexe         : nf_register_we_clr generic map (  5 ) port map ( clk , resetn , not stall_iexe , flush_iexe , wa3_id        , wa3_iexe       );
+    ra1_id_iexe         : nf_register_we_clr generic map (  5 ) port map ( clk , resetn , not stall_iexe , flush_iexe , ra1_id        , ra1_iexe       );
+    ra2_id_iexe         : nf_register_we_clr generic map (  5 ) port map ( clk , resetn , not stall_iexe , flush_iexe , ra2_id        , ra2_iexe       );
+    shamt_id_iexe       : nf_register_we_clr generic map (  5 ) port map ( clk , resetn , not stall_iexe , flush_iexe , shamt_id      , shamt_iexe     );
+    sign_ex_id_iexe     : nf_register_we_clr generic map ( 32 ) port map ( clk , resetn , not stall_iexe , flush_iexe , ext_data_id   , ext_data_iexe  );
+    rd1_id_iexe         : nf_register_we_clr generic map ( 32 ) port map ( clk , resetn , not stall_iexe , flush_iexe , rd1_id        , rd1_iexe       );
+    rd2_id_iexe         : nf_register_we_clr generic map ( 32 ) port map ( clk , resetn , not stall_iexe , flush_iexe , rd2_id        , rd2_iexe       );
+    pc_id_iexe          : nf_register_we_clr generic map ( 32 ) port map ( clk , resetn , not stall_iexe , flush_iexe , pc_id         , pc_iexe        );
+    size_dm_id_iexe     : nf_register_we_clr generic map (  2 ) port map ( clk , resetn , not stall_iexe , flush_iexe , size_dm_id    , size_dm_iexe   );
+    srcB_sel_id_iexe    : nf_register_we_clr generic map (  1 ) port map ( clk , resetn , not stall_iexe , flush_iexe , srcB_sel_id   , srcB_sel_iexe  );
+    shift_sel_id_iexe   : nf_register_we_clr generic map (  1 ) port map ( clk , resetn , not stall_iexe , flush_iexe , shift_sel_id  , shift_sel_iexe );
+    res_sel_id_iexe     : nf_register_we_clr generic map (  1 ) port map ( clk , resetn , not stall_iexe , flush_iexe , res_sel_id    , res_sel_iexe   );
+    we_rf_id_iexe       : nf_register_we_clr generic map (  1 ) port map ( clk , resetn , not stall_iexe , flush_iexe , we_rf_id      , we_rf_iexe     );
+    we_dm_id_iexe       : nf_register_we_clr generic map (  1 ) port map ( clk , resetn , not stall_iexe , flush_iexe , we_dm_id      , we_dm_iexe     );
+    rf_src_id_iexe      : nf_register_we_clr generic map (  1 ) port map ( clk , resetn , not stall_iexe , flush_iexe , rf_src_id     , rf_src_iexe    );
+    ALU_Code_id_iexe    : nf_register_we_clr generic map (  4 ) port map ( clk , resetn , not stall_iexe , flush_iexe , ALU_Code_id   , ALU_Code_iexe  );
     -- iexe2imem
-    we_dm_iexe_imem     : nf_register_we     generic map (  1 ) port map ( clk , resetn , not stall_imem ,              we_dm_iexe    , we_dm_imem    );
-    we_rf_iexe_imem     : nf_register_we     generic map (  1 ) port map ( clk , resetn , not stall_imem ,              we_rf_iexe    , we_rf_imem    );
-    rf_src_iexe_imem    : nf_register_we     generic map (  1 ) port map ( clk , resetn , not stall_imem ,              rf_src_iexe   , rf_src_imem   );
-    size_dm_iexe_imem   : nf_register_we     generic map (  2 ) port map ( clk , resetn , not stall_imem ,              size_dm_iexe  , size_dm_imem  );
-    wa3_iexe_imem       : nf_register_we     generic map (  5 ) port map ( clk , resetn , not stall_imem ,              wa3_iexe      , wa3_imem      );
-    rd2_i_exu_imem      : nf_register_we     generic map ( 32 ) port map ( clk , resetn , not stall_imem ,              rd2_i_exu     , rd2_imem      );
-    result_iexe_imem    : nf_register_we     generic map ( 32 ) port map ( clk , resetn , not stall_imem ,              result_iexe_e , result_imem   );
+    we_dm_iexe_imem     : nf_register_we     generic map (  1 ) port map ( clk , resetn , not stall_imem ,              we_dm_iexe    , we_dm_imem     );
+    we_rf_iexe_imem     : nf_register_we     generic map (  1 ) port map ( clk , resetn , not stall_imem ,              we_rf_iexe    , we_rf_imem     );
+    rf_src_iexe_imem    : nf_register_we     generic map (  1 ) port map ( clk , resetn , not stall_imem ,              rf_src_iexe   , rf_src_imem    );
+    size_dm_iexe_imem   : nf_register_we     generic map (  2 ) port map ( clk , resetn , not stall_imem ,              size_dm_iexe  , size_dm_imem   );
+    wa3_iexe_imem       : nf_register_we     generic map (  5 ) port map ( clk , resetn , not stall_imem ,              wa3_iexe      , wa3_imem       );
+    rd2_i_exu_imem      : nf_register_we     generic map ( 32 ) port map ( clk , resetn , not stall_imem ,              rd2_i_exu     , rd2_imem       );
+    result_iexe_imem    : nf_register_we     generic map ( 32 ) port map ( clk , resetn , not stall_imem ,              result_iexe_e , result_imem    );
     -- imem2iwb             
-    we_rf_imem_iwb      : nf_register_we     generic map (  1 ) port map ( clk , resetn , not stall_iwb  ,              we_rf_imem    , we_rf_iwb     );
-    rf_src_imem_iwb     : nf_register_we     generic map (  1 ) port map ( clk , resetn , not stall_iwb  ,              rf_src_imem   , rf_src_iwb    );
-    wa3_imem_iwb        : nf_register_we     generic map (  5 ) port map ( clk , resetn , not stall_iwb  ,              wa3_imem      , wa3_iwb       );
-    result_imem_iwb     : nf_register_we     generic map ( 32 ) port map ( clk , resetn , not stall_iwb  ,              result_imem   , result_iwb    );
+    we_rf_imem_iwb      : nf_register_we     generic map (  1 ) port map ( clk , resetn , not stall_iwb  ,              we_rf_imem    , we_rf_iwb      );
+    rf_src_imem_iwb     : nf_register_we     generic map (  1 ) port map ( clk , resetn , not stall_iwb  ,              rf_src_imem   , rf_src_iwb     );
+    wa3_imem_iwb        : nf_register_we     generic map (  5 ) port map ( clk , resetn , not stall_iwb  ,              wa3_imem      , wa3_iwb        );
+    result_imem_iwb     : nf_register_we     generic map ( 32 ) port map ( clk , resetn , not stall_iwb  ,              result_imem   , result_iwb     );
     -- for verification
     -- synthesis translate_off
-    instr_id_iexe       : nf_register_we_clr generic map ( 32 ) port map ( clk , resetn , not stall_iexe , flush_iexe , instr_id      , instr_iexe    );
-    instr_iexe_imem     : nf_register_we_clr generic map ( 32 ) port map ( clk , resetn , not stall_imem , '0'        , instr_iexe    , instr_imem    );
-    instr_imem_iwb      : nf_register_we_clr generic map ( 32 ) port map ( clk , resetn , not stall_iwb  , '0'        , instr_imem    , instr_iwb     );
+    instr_id_iexe       : nf_register_we_clr generic map ( 32 ) port map ( clk , resetn , not stall_iexe , flush_iexe , instr_id      , instr_iexe     );
+    instr_iexe_imem     : nf_register_we_clr generic map ( 32 ) port map ( clk , resetn , not stall_imem , '0'        , instr_iexe    , instr_imem     );
+    instr_imem_iwb      : nf_register_we_clr generic map ( 32 ) port map ( clk , resetn , not stall_iwb  , '0'        , instr_imem    , instr_iwb      );
     -- synthesis translate_on
 
     -- creating one instruction fetch unit
@@ -411,6 +416,7 @@ begin
         instr           => instr_id,        -- Instruction input
         ext_data        => ext_data_id,     -- decoded extended data
         srcB_sel        => srcB_sel_id(0),  -- decoded source B selection for ALU
+        shift_sel       => shift_sel_id(0), -- for selecting shift input
         res_sel         => res_sel_id(0),   -- for selecting result
         ALU_Code        => ALU_Code_id,     -- decoded ALU code
         shamt           => shamt_id,        -- decoded for shift command's
@@ -435,6 +441,7 @@ begin
         rd2             => rd2_i_exu,           -- read data from reg file (port2)
         ext_data        => ext_data_iexe,       -- sign extended immediate data
         srcB_sel        => srcB_sel_iexe(0),    -- source B enable signal for ALU
+        shift_sel       => shift_sel_iexe(0),   -- for selecting shift input
         shamt           => shamt_iexe,          -- for shift operations
         ALU_Code        => ALU_Code_iexe,       -- code for ALU
         result          => result_iexe          -- result of ALU operation

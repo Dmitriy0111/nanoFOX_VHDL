@@ -43,7 +43,7 @@ begin
     data_1_out <= int_reg1;
     data_2_out <= int_reg2;
 
-    write2first_reg : process(all)
+    write2first_reg : process( clk_1, resetn_1 )
     begin
         if( not resetn_1 ) then
             int_reg1 <= '0';
@@ -56,7 +56,7 @@ begin
         end if;
     end process;
 
-    answer_first : process(all)
+    answer_first : process( clk_1, resetn_1 )
     begin
         if( not resetn_1 ) then
             ack_1 <= '0';
@@ -65,7 +65,7 @@ begin
         end if;
     end process;
 
-    request_first : process(all)
+    request_first : process( clk_1, resetn_1 )
     begin
         if( not resetn_1 ) then
             req_1 <= '0';
@@ -78,7 +78,7 @@ begin
         end if;
     end process;
 
-    write2second_reg : process(all)
+    write2second_reg : process( clk_2, resetn_2 )
     begin
         if( not resetn_2 ) then
             int_reg2 <= '0';
@@ -91,7 +91,7 @@ begin
         end if;
     end process;
 
-    answer_second : process(all)
+    answer_second : process( clk_2, resetn_2 )
     begin
         if( not resetn_2 ) then
             ack_2 <= '0';
@@ -100,7 +100,7 @@ begin
         end if;
     end process;
 
-    request_second : process(all)
+    request_second : process( clk_2, resetn_2 )
     begin
         if( not resetn_2 ) then
             req_2 <= '0';

@@ -65,7 +65,7 @@ begin
     req_ack    <= req_ack_i;
     
     --FSM state change
-    fsm_state_change_proc : process(all)
+    fsm_state_change_proc : process( clk, resetn )
     begin
         if( not resetn ) then
             state <= IDLE_s;
@@ -90,7 +90,7 @@ begin
         end case;
     end process;
     -- Other FSM sequence logic
-    fsm_seq_proc : process(all)
+    fsm_seq_proc : process( clk, resetn )
     begin
         if( not resetn ) then
             bit_counter <= (others => '0');

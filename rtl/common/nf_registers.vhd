@@ -29,7 +29,7 @@ end nf_register;
 
 architecture rtl of nf_register is
 begin
-    reg_proc : process(all)
+    reg_proc : process( clk, resetn )
     begin
         if( not resetn ) then
             datao <= (others => '0');
@@ -62,7 +62,7 @@ end nf_register_we;
 
 architecture rtl of nf_register_we is
 begin
-    reg_proc : process(all)
+    reg_proc : process( clk, resetn )
     begin
         if( not resetn ) then
             datao <= (others => '0');
@@ -98,7 +98,7 @@ end nf_register_we_r;
 
 architecture rtl of nf_register_we_r is
 begin
-    reg_proc : process(all)
+    reg_proc : process( clk, resetn )
     begin
         if( not resetn ) then
             datao <= std_logic_vector(to_unsigned(rst_val,width));
@@ -133,7 +133,7 @@ end nf_register_clr;
 
 architecture rtl of nf_register_clr is
 begin
-    reg_proc : process(all)
+    reg_proc : process( clk, resetn )
     begin
         if( not resetn ) then
             datao <= (others => '0');
@@ -171,7 +171,7 @@ end nf_register_we_clr;
 
 architecture rtl of nf_register_we_clr is
 begin
-    reg_proc : process(all)
+    reg_proc : process( clk, resetn )
     begin
         if( not resetn ) then
             datao <= (others => '0');

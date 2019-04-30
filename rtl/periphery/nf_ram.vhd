@@ -45,7 +45,7 @@ begin
     rd(15 downto  8) <= bank_1(to_integer(unsigned(addr(addr_w-1 downto 0))));
     rd(7  downto  0) <= bank_0(to_integer(unsigned(addr(addr_w-1 downto 0))));
 
-    bank_0_write_proc : process(all)
+    bank_0_write_proc : process( clk )
     begin
         if( rising_edge(clk) ) then
             if( we(0) ) then
@@ -53,7 +53,7 @@ begin
             end if;
         end if;
     end process;
-    bank_1_write_proc : process(all)
+    bank_1_write_proc : process( clk )
     begin
         if( rising_edge(clk) ) then
             if( we(1) ) then
@@ -61,7 +61,7 @@ begin
             end if;
         end if;
     end process;
-    bank_2_write_proc : process(all)
+    bank_2_write_proc : process( clk )
     begin
         if( rising_edge(clk) ) then
             if( we(2) ) then
@@ -69,7 +69,7 @@ begin
             end if;
         end if;
     end process;
-    bank_3_write_proc : process(all)
+    bank_3_write_proc : process( clk )
     begin
         if( rising_edge(clk) ) then
             if( we(3) ) then

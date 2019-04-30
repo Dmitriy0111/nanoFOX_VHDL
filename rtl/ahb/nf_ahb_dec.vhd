@@ -28,7 +28,7 @@ end nf_ahb_dec;
 
 architecture rtl of nf_ahb_dec is
 begin
-    
+
     dec_proc : process(all)
         begin
             hsel <= 4X"0";

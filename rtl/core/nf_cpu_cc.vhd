@@ -79,7 +79,7 @@ begin
         end case;
     end process;
 
-    sel_proc : process(all)
+    sel_proc : process( clk, resetn )
     begin
         if( not resetn ) then
             master_sel_out <= MASTER_0;

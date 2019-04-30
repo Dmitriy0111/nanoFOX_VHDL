@@ -29,32 +29,17 @@ end nf_reg_file;
 
 architecture rtl of nf_reg_file is
     -- creating register file
-    signal  reg_file    : mem_t(31 downto 0)(31 downto 0) := ( others => 32X"00000000" );
+    signal  reg_file    :   mem_t(31 downto 0)(31 downto 0) := ( others => 32X"00000000" );
 begin
+
     -- getting read data 1 from register file
-    rd1_proc : process( all )
-    begin
-        rd1 <= reg_file( to_integer( unsigned( ra1 ) ) );
-        if( ra1 = 5X"00" ) then
-            rd1 <= ( others => '0' );
-        elsif( wa3 = ra1 ) then 
-            rd1 <= wd3;
-        end if;
-    end process;
+    rd1 <= ( others => '0' ) when ( ra1 = 5X"00" ) else wd3 when ( wa3 = ra1 ) else reg_file( to_integer( unsigned( ra1 ) ) );
     -- getting read data 2 from register file
-    rd2_proc : process( all )
-    begin
-        rd2 <= reg_file( to_integer( unsigned( ra2 ) ) );
-        if( ra2 = 5X"00" ) then 
-            rd2 <= ( others => '0' );
-        elsif( wa3 = ra2 ) then 
-            rd2 <= wd3;
-        end if;
-    end process;
+    rd2 <= ( others => '0' ) when ( ra2 = 5X"00" ) else wd3 when ( wa3 = ra2 ) else reg_file( to_integer( unsigned( ra2 ) ) );
     -- writing value in register file
-    write2reg_file : process(all)
+    write2reg_file : process( clk )
     begin
-        if( rising_edge(clk) ) then
+        if( rising_edge( clk ) ) then
             if( ( we3 = '1' ) and ( wa3 /= 5X"00" ) ) then
                 reg_file( to_integer( unsigned( wa3 ) ) ) <= wd3;
             end if;

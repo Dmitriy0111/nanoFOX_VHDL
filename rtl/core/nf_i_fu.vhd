@@ -18,22 +18,22 @@ entity nf_i_fu is
     port
     (
         -- clock and reset
-        clk         : in   std_logic;                       -- clock
-        resetn      : in   std_logic;                       -- reset
+        clk         : in    std_logic;                      -- clock
+        resetn      : in    std_logic;                      -- reset
         -- program counter inputs   
-        pc_branch   : in   std_logic_vector(31 downto 0);   -- program counter branch value from decode stage
-        pc_src      : in   std_logic;                       -- next program counter source
-        branch_type : in   std_logic_vector(3  downto 0);   -- branch type
-        stall_if    : in   std_logic;                       -- stalling instruction fetch stage
-        instr_if    : out  std_logic_vector(31 downto 0);   -- instruction fetch
+        pc_branch   : in    std_logic_vector(31 downto 0);  -- program counter branch value from decode stage
+        pc_src      : in    std_logic;                      -- next program counter source
+        branch_type : in    std_logic_vector(3  downto 0);  -- branch type
+        stall_if    : in    std_logic;                      -- stalling instruction fetch stage
+        instr_if    : out   std_logic_vector(31 downto 0);  -- instruction fetch
         -- memory inputs/outputs
-        addr_i      : out  std_logic_vector(31 downto 0);   -- address instruction memory
-        rd_i        : in   std_logic_vector(31 downto 0);   -- read instruction memory
-        wd_i        : out  std_logic_vector(31 downto 0);   -- write instruction memory
-        we_i        : out  std_logic;                       -- write enable instruction memory signal
-        size_i      : out  std_logic_vector(1  downto 0);   -- size for load/store instructions
-        req_i       : out  std_logic;                       -- request instruction memory signal
-        req_ack_i   : in   std_logic                        -- request acknowledge instruction memory signal
+        addr_i      : out   std_logic_vector(31 downto 0);  -- address instruction memory
+        rd_i        : in    std_logic_vector(31 downto 0);  -- read instruction memory
+        wd_i        : out   std_logic_vector(31 downto 0);  -- write instruction memory
+        we_i        : out   std_logic;                      -- write enable instruction memory signal
+        size_i      : out   std_logic_vector(1  downto 0);  -- size for load/store instructions
+        req_i       : out   std_logic;                      -- request instruction memory signal
+        req_ack_i   : in    std_logic                       -- request acknowledge instruction memory signal
     );
 end nf_i_fu;
 

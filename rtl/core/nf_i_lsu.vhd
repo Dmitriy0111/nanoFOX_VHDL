@@ -46,7 +46,7 @@ begin
     lsu_busy <= lsu_busy_i;
     req_dm   <= lsu_busy_i;
 
-    busy_proc : process(all)
+    busy_proc : process( clk, resetn )
     begin
         if( not resetn ) then
             lsu_busy_i <= '0';
@@ -60,7 +60,7 @@ begin
         end if;
     end process;
 
-    dm_proc : process(all)
+    dm_proc : process( clk, resetn )
     begin
         if( not resetn ) then
             addr_dm <= (others => '0');
@@ -77,7 +77,7 @@ begin
         end if;
     end process;
     
-    rd_dm_iwb_proc : process(all)
+    rd_dm_iwb_proc : process( clk, resetn )
     begin
         if( not resetn ) then
             rd_dm_iwb <= (others => '0');

@@ -71,7 +71,7 @@ begin
         end case;
     end process;
 
-    gpo_set : process(all)
+    gpo_set : process( clk, resetn )
     begin
         if( not resetn ) then
             gpio_o <= (others => '0');
@@ -82,7 +82,7 @@ begin
         end if;
     end process;
 
-    gpd_set : process(all)
+    gpd_set : process( clk, resetn )
     begin
         if( not resetn ) then
             gpio_d <= (others => '0');

@@ -12,7 +12,7 @@ vlib nf
 
 #set test "nf_uart_transmitter test"
 #set test "nf_uart_receiver test"
-set test "nf_uart_top test"
+#set test "nf_uart_top test"
 set test "nf_top test"
 
 if {$test == "nf_uart_transmitter test"} {
@@ -99,7 +99,9 @@ if {$test == "nf_uart_transmitter test"} {
     vcom -2008  ../rtl/core/nf_cpu.vhd
     vcom -2008  ../rtl/nf_top.vhd
 
-    vlog ../tb/nf_bt_class.sv ../tb/nf_log_writer.sv ../tb/nf_pars_instr.sv ../tb/nf_tb.sv
+    vcom -2008  ../tb/nf_tb.vhd
+
+    #vlog ../tb/nf_bt_class.sv ../tb/nf_log_writer.sv ../tb/nf_pars_instr.sv ../tb/nf_tb.sv
 
     vsim -novopt work.nf_tb
 

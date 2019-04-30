@@ -21,6 +21,7 @@ entity nf_i_exu is
         rd2         : in    std_logic_vector(31 downto 0);  -- read data from reg file (port2)
         ext_data    : in    std_logic_vector(31 downto 0);  -- sign extended immediate data
         srcB_sel    : in    std_logic;                      -- source enable signal for ALU
+        shift_sel   : in    std_logic;                      -- for selecting shift input
         shamt       : in    std_logic_vector(4  downto 0);  -- for shift operation
         ALU_Code    : in    std_logic_vector(3  downto 0);  -- ALU code from control unit
         result      : out   std_logic_vector(31 downto 0)   -- result of ALU operation
@@ -29,15 +30,16 @@ end nf_i_exu;
 
 architecture rtl of nf_i_exu is
     -- wires for ALU inputs
-    signal srcA : std_logic_vector(31 downto 0);    -- source A ALU
-    signal srcB : std_logic_vector(31 downto 0);    -- source B ALU
+    signal srcA     : std_logic_vector(31 downto 0);    -- source A ALU
+    signal srcB     : std_logic_vector(31 downto 0);    -- source B ALU
+    signal shift    : std_logic_vector(31 downto 0);    -- for shamt ALU input
     -- nf_alu
     component nf_alu
         port 
         (
             srcA        : in    std_logic_vector(31 downto 0);  -- source A for ALU unit
             srcB        : in    std_logic_vector(31 downto 0);  -- source B for ALU unit
-            shamt       : in    std_logic_vector(4  downto 0);  -- for shift operation
+            shift       : in    std_logic_vector(31 downto 0);  -- for shift operation
             ALU_Code    : in    std_logic_vector(3  downto 0);  -- ALU code from control unit
             result      : out   std_logic_vector(31 downto 0)   -- result of ALU operation
         );
@@ -45,15 +47,16 @@ architecture rtl of nf_i_exu is
 begin
 
     -- assign's ALU signals
-    srcA <= rd1;
-    srcB <= rd2 when ( srcB_sel = SRCB_RD2(0) ) else ext_data;
+    srcA  <= rd1;
+    srcB  <= rd2 when ( srcB_sel  = SRCB_RD2(0) ) else ext_data;
+    shift <= rd2 when ( shift_sel = SRCS_RD2(0) ) else ( 27X"0" & shamt );
     -- creating ALU unit
     nf_alu_0 : nf_alu
     port map
     (
         srcA        => srcA,        -- source A for ALU unit
         srcB        => srcB,        -- source B for ALU unit
-        shamt       => shamt,       -- for shift operation
+        shift       => shift,       -- for shift operation
         ALU_Code    => ALU_Code,    -- ALU code from control unit
         result      => result       -- result of ALU operation
     );

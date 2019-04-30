@@ -31,8 +31,8 @@ end de10_lite;
 architecture rtl of de10_lite is
     -- wires & inputs
     -- clock and reset
-    signal clk      : std_logic;                        -- clock
-    signal resetn   : std_logic;                        -- reset
+    signal clk      :   std_logic;                      -- clock
+    signal resetn   :   std_logic;                      -- reset
     -- GPIO
     signal gpio_i_0 :   std_logic_vector(7  downto 0);  -- GPIO_0 input
     signal gpio_o_0 :   std_logic_vector(7  downto 0);  -- GPIO_0 output
@@ -43,7 +43,7 @@ architecture rtl of de10_lite is
     signal uart_tx  :   std_logic;                      -- UART tx wire
     signal uart_rx  :   std_logic;                      -- UART rx wire
     -- hex
-    signal hex      : std_logic_vector(47 downto 0);    -- hex values from convertors
+    signal hex      :   std_logic_vector(47 downto 0);  -- hex values from convertors
     -- component definition
     -- nf_top
     component nf_top
@@ -78,8 +78,6 @@ architecture rtl of de10_lite is
     end component;
 begin
 
-    
-
     hex0 <= hex(7 downto 0);
     hex1 <= hex(15 downto 8);
     hex2 <= hex(23 downto 16);
@@ -88,9 +86,9 @@ begin
     hex5 <= hex(47 downto 40);
     clk <= max10_clk1_50;
     resetn <= key(0);
-    gpio_i_0 <= sw(4 downto 0);
-    ledr(8)  = pwm;
-    ledr(7 downto 0) = gpio_o_0;
+    gpio_i_0 <= 3X"000" & sw(4 downto 0);
+    ledr(8)  <= pwm;
+    ledr(7 downto 0) <= gpio_o_0;
     
     -- creating one nf_top_0 unit
     nf_top_0 : nf_top 
