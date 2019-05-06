@@ -37,7 +37,7 @@ use ieee.std_logic_1164.all;
 package nf_cpu_def is
 
     type instr_cf is record
-        --I_NAME  : string;                           -- instruction name
+        I_NAME  : string          (5 downto 1);     -- instruction name
         IT      : std_logic_vector(1 downto 0);     -- instruction type
         OP      : std_logic_vector(4 downto 0);     -- instruction opcode
         F3      : std_logic_vector(2 downto 0);     -- instruction function field 3

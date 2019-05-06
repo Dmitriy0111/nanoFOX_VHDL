@@ -9,8 +9,16 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.std_logic_unsigned.all;
+use ieee.numeric_std.all;
 
 use std.env.stop;
+use std.textio.all;
+
+library nf;
+use nf.nf_tb_def.all;
+use nf.nf_cpu_def.all;
+use nf.nf_mem_pkg.all;
 
 entity nf_tb is
 end nf_tb;
@@ -34,31 +42,34 @@ architecture testbench of nf_tb is
     signal pwm              : std_logic;                    -- PWM output signal
     signal uart_tx          : std_logic;                    -- UART tx wire
     signal uart_rx          : std_logic;                    -- UART rx wire
-    -- help variables
+    -- help signals
     signal cycle_counter    : integer := 0;                 -- variable for cpu cycle
-    signal rep_c            : integer := 0;
     signal rst_c            : integer := 0;
 
+    signal pc_value     : std_logic_vector(31 downto 0);
     signal instr_if     : std_logic_vector(31 downto 0);  
     signal instr_id     : std_logic_vector(31 downto 0);  
     signal instr_iexe   : std_logic_vector(31 downto 0);
     signal instr_imem   : std_logic_vector(31 downto 0);
     signal instr_iwb    : std_logic_vector(31 downto 0); 
 
+    signal reg_file     : mem_t(31 downto 0)(31 downto 0);
+    signal reg_file_l   : mem_t(31 downto 0)(31 downto 0) := (others => 32X"00000000" );
+    signal reg_file_c   : mem_t(31 downto 0)(1  downto 0) := (others => 2X"0" );
+
     -- instructions
-    signal instruction_if_stage   : string(20 downto 1);
-    signal instruction_id_stage   : string(20 downto 1);
-    signal instruction_iexe_stage : string(20 downto 1);
-    signal instruction_imem_stage : string(20 downto 1);
-    signal instruction_iwb_stage  : string(20 downto 1);
+    signal instruction_if_stage   : string(50 downto 1);
+    signal instruction_id_stage   : string(50 downto 1);
+    signal instruction_iexe_stage : string(50 downto 1);
+    signal instruction_imem_stage : string(50 downto 1);
+    signal instruction_iwb_stage  : string(50 downto 1);
+
     -- string for debug_lev0
-    --signal instr_sep_s_if_stage   : string;
-    --signal instr_sep_s_id_stage   : string;
-    --signal instr_sep_s_iexe_stage : string;
-    --signal instr_sep_s_imem_stage : string;
-    --signal instr_sep_s_iwb_stage  : string;
-    -- string for txt, html and terminal logging
-    --signal log_str                : string   = "";
+    signal instr_sep_s_if_stage   : string(50 downto 1);
+    signal instr_sep_s_id_stage   : string(50 downto 1);
+    signal instr_sep_s_iexe_stage : string(50 downto 1);
+    signal instr_sep_s_imem_stage : string(50 downto 1);
+    signal instr_sep_s_iwb_stage  : string(50 downto 1);
     -- nf_top
     component nf_top
         port 
@@ -77,24 +88,19 @@ architecture testbench of nf_tb is
             uart_rx     : in    std_logic                       -- UART rx wire
         );
     end component;
-
-    function pars_pipe_stage(pipe_slv : std_logic_vector) return string is
-        variable pipe_str : string(20 downto 1) := "                    ";
-    begin
-        if( pipe_slv(1 downto 0) = "11" ) then
-            pipe_str := "RVI                 ";
-        end if;
-        return pipe_str;
-    end function;
 begin
 
     gpio_i_0 <= 8X"01";
+    -- associate signals
+    pc_value   <= << signal .nf_tb.nf_top_0.nf_cpu_0.addr_i : std_logic_vector(31 downto 0) >>;
 
     instr_if   <= << signal .nf_tb.nf_top_0.nf_cpu_0.instr_if   : std_logic_vector(31 downto 0) >>;
     instr_id   <= << signal .nf_tb.nf_top_0.nf_cpu_0.instr_id   : std_logic_vector(31 downto 0) >>;
     instr_iexe <= << signal .nf_tb.nf_top_0.nf_cpu_0.instr_iexe : std_logic_vector(31 downto 0) >>;
     instr_imem <= << signal .nf_tb.nf_top_0.nf_cpu_0.instr_imem : std_logic_vector(31 downto 0) >>;
     instr_iwb  <= << signal .nf_tb.nf_top_0.nf_cpu_0.instr_iwb  : std_logic_vector(31 downto 0) >>;
+
+    reg_file   <= << signal .nf_tb.nf_top_0.nf_cpu_0.nf_reg_file_0.reg_file  : mem_t(31 downto 0)(31 downto 0) >>;
 
     nf_top_0 : nf_top 
     port map
@@ -115,14 +121,94 @@ begin
 
     -- pars_instr
     pars_proc : process
+        variable term_line  : line;
+        variable log_line   : line;
+        variable log_h_line : line;
+        file     log_file   : text;
+        file     log_html   : text;
+        variable file_s     : file_open_status;
+        variable i          : integer;
+        variable td_i       : integer;
     begin
+        file_open(file_s , log_file , "../log/log.log" , write_mode);
+        file_open(file_s , log_html , "../log/log.html" , write_mode);
         wait until rising_edge(clk);
         if( resetn ) then
-            instruction_if_stage    <= pars_pipe_stage(instr_if  );
-            instruction_id_stage    <= pars_pipe_stage(instr_id  );
-            instruction_iexe_stage  <= pars_pipe_stage(instr_iexe);
-            instruction_imem_stage  <= pars_pipe_stage(instr_imem);
-            instruction_iwb_stage   <= pars_pipe_stage(instr_iwb );
+            wait for 1 ns;
+            -- form debug strings
+            instruction_if_stage   <= update_pipe_str( pars_pipe_stage( instr_if   ) );
+            instruction_id_stage   <= update_pipe_str( pars_pipe_stage( instr_id   ) );
+            instruction_iexe_stage <= update_pipe_str( pars_pipe_stage( instr_iexe ) );
+            instruction_imem_stage <= update_pipe_str( pars_pipe_stage( instr_imem ) );
+            instruction_iwb_stage  <= update_pipe_str( pars_pipe_stage( instr_iwb  ) );
+
+            write(term_line, string'("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>") & LF );
+            write(term_line, "cycle = " & to_string(cycle_counter) & ", pc = 0x" & to_hstring(pc_value) & " " & time'image(now) & LF );
+            write(term_line, "Instruction fetch stage         : " & pars_pipe_stage( instr_if  ) & LF );
+            write(term_line, "Instruction decode stage        : " & pars_pipe_stage( instr_id  ) & LF );
+            write(term_line, "Instruction execute stage       : " & pars_pipe_stage( instr_iexe) & LF );
+            write(term_line, "Instruction memory stage        : " & pars_pipe_stage( instr_imem) & LF );
+            write(term_line, "Instruction write back stage    : " & pars_pipe_stage( instr_iwb ) & LF );
+            write(term_line, string'("register list :") & LF );
+            -- copy terminal message in html message
+            write(log_h_line, string'("<font size = ""4"">") );
+            write(log_h_line, string'("<pre>") );
+            writeline(log_html, log_h_line);
+            log_h_line := new string'(term_line.all);
+            writeline(log_html, log_h_line);
+            -- form register file table for terminal and log file
+            write(term_line, write_txt_table(reg_file) & LF );
+            -- copy terminal message in log message
+            log_line := new string'(term_line.all);
+            -- write data in log file and terminal
+            writeline(output, term_line);
+            writeline(log_file, log_line);
+            -- starting write data in html file
+            write(log_h_line, string'("</pre>") );
+            write(log_h_line, string'("</font>") );
+            writeline(log_html, log_h_line);
+            i := 0;
+            reg_list_loop : loop
+                reg_file_c(i) <= "00" when (reg_file_l(i) = reg_file(i)) else "01";
+                if(reg_file(i) = 32X"XXXXXXXX") then
+                    reg_file_c(i) <= "10";
+                end if;
+                reg_file_l(i) <= reg_file_l(i) when reg_file_c(i) = "00" else reg_file(i);
+                i := i + 1;
+                exit reg_list_loop when (i = 32);
+            end loop;
+            i := 0;
+            td_i := 0;
+            write(log_h_line, string'("<table border=""1"">") );
+            writeline(log_html, log_h_line);
+            html_table_loop : loop
+                if( td_i = 0 ) then
+                    write(log_h_line, string'("    <tr>") & LF );
+                end if;
+                write(log_h_line, string'("        <td "));
+                if(reg_file_c(i)="00") then
+                    write(log_h_line, string'("bgcolor = ""white"""));
+                elsif(reg_file_c(i)="01") then
+                    write(log_h_line, string'("bgcolor = ""green"""));
+                else
+                    write(log_h_line, string'("bgcolor = ""red"""));
+                end if;
+                    
+                write(log_h_line, string'(">"));
+                write(log_h_line, string'("<pre>") );
+                write(log_h_line, reg_list(i) & " = 0x" & to_hstring(reg_file_l(i)));
+                write(log_h_line, string'("</pre>") );
+                write(log_h_line, string'("</td>") & LF );
+                td_i := td_i + 1;
+                if( td_i = 4 ) then
+                    td_i := 0;
+                    write(log_h_line, string'("    </tr>") & LF );
+                end if;
+                i := i + 1;
+                exit html_table_loop when (i = 32);
+            end loop;
+            write(log_h_line, string'("</table>") );
+            writeline(log_html, log_h_line);
         end if;
     end process pars_proc;
 
@@ -130,15 +216,15 @@ begin
     clk_gen : process
     begin
         if( resetn ) then
-            rep_c <= rep_c + 1;
+            cycle_counter <= cycle_counter + 1;
         end if;
         clk <= '0';
         wait for (T / 2 * timescale);
         clk <= '1';
         wait for (T / 2 * timescale);
-        if( rep_c = repeat_cycles) then
+        if( cycle_counter = repeat_cycles) then
             stop;
-            rep_c <= rep_c + 1; 
+            cycle_counter <= cycle_counter + 1; 
             clk <= '0';
             wait for (T / 2 * timescale);
             clk <= '1';
@@ -170,65 +256,3 @@ begin
     end process uart_rx_gen;
 
 end testbench; -- nf_tb  
-
-    -- creating pars_instruction class
-    --nf_pars_instr nf_pars_instr_0 = new();
-    --nf_log_writer nf_log_writer_0 = new();
-    -- parsing instruction
-    --initial
-    --begin
-    --    nf_log_writer_0.build("../log/log");
-    --    
-    --    forever
-    --    begin
-    --        @( posedge nf_top_0.clk );
-    --        if( resetn )
-    --        begin
-    --            if( `log_en )
-    --            begin
-    --                #1ns;   -- for current instructions
-    --                nf_pars_instr_0.pars( nf_top_0.nf_cpu_0.instr_if   , instruction_if_stage   , instr_sep_s_if_stage   );
-    --                nf_pars_instr_0.pars( nf_top_0.nf_cpu_0.instr_id   , instruction_id_stage   , instr_sep_s_id_stage   );
-    --                nf_pars_instr_0.pars( nf_top_0.nf_cpu_0.instr_iexe , instruction_iexe_stage , instr_sep_s_iexe_stage );
-    --                nf_pars_instr_0.pars( nf_top_0.nf_cpu_0.instr_imem , instruction_imem_stage , instr_sep_s_imem_stage );
-    --                nf_pars_instr_0.pars( nf_top_0.nf_cpu_0.instr_iwb  , instruction_iwb_stage  , instr_sep_s_iwb_stage  );
-    --                -- form title
-    --                log_str = "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n";
-    --                log_str = { log_str , $psprintf("cycle = %d, pc = 0x%h ", cycle_counter, nf_top_0.nf_cpu_0.addr_i     ) };
-    --                log_str = { log_str , $psprintf("%t\n", $time                                                         ) };
-    --                -- form instruction fetch stage output
-    --                log_str = { log_str , "Instruction decode stage        : "                                              };
-    --                log_str = { log_str , $psprintf("%s\n", instruction_if_stage                                          ) };
-    --                if( `debug_lev0 ) 
-    --                    log_str = { log_str , $psprintf("                                  %s \n", instr_sep_s_if_stage   ) };
-    --                -- form instruction decode stage output
-    --                log_str = { log_str , "Instruction decode stage        : "                                              };
-    --                log_str = { log_str , $psprintf("%s\n", instruction_id_stage                                          ) };
-    --                if( `debug_lev0 ) 
-    --                    log_str = { log_str , $psprintf("                                  %s \n", instr_sep_s_id_stage   ) };
-    --                -- form instruction execution stage output
-    --                log_str = { log_str , "Instruction execute stage       : "                                              };
-    --                log_str = { log_str , $psprintf("%s\n", instruction_iexe_stage                                        ) };
-    --                if( `debug_lev0 ) 
-    --                    log_str = { log_str , $psprintf("                                  %s \n", instr_sep_s_iexe_stage ) };
-    --                -- form instruction memory stage output
-    --                log_str = { log_str , "Instruction memory stage        : "                                              };
-    --                log_str = { log_str , $psprintf("%s\n", instruction_imem_stage                                        ) };
-    --                if( `debug_lev0 ) 
-    --                    log_str = { log_str , $psprintf("                                  %s \n", instr_sep_s_imem_stage ) };
-    --                -- form instruction write back stage output
-    --                log_str = { log_str , "Instruction write back stage    : "                                              };
-    --                log_str = { log_str , $psprintf("%s\n", instruction_iwb_stage                                         ) };
-    --                if( `debug_lev0 ) 
-    --                    log_str = { log_str , $psprintf("                                  %s \n", instr_sep_s_iwb_stage  ) };
-    --                -- write debug info in log file
-    --                nf_log_writer_0.write_log(nf_top_0.nf_cpu_0.nf_reg_file_0.reg_file, log_str);
-    --            end
-    --            -- increment cycle counter
-    --            cycle_counter++;
-    --            if( cycle_counter == repeat_cycles )
-    --                $stop;
-    --        end
-    --    end
-    --end
-
