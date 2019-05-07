@@ -43,6 +43,18 @@ use nf.nf_cpu_def.all;
 use nf.nf_mem_pkg.all;
 
 package nf_tb_def is
+    -- enable debug instruction messages
+    constant debug_lev0     : boolean   := true;
+    -- enable term logging
+    constant log_term       : boolean   := true;
+    -- enable txt logging
+    constant log_txt        : boolean   := true;
+    -- enable html logging
+    constant log_html       : boolean   := true;
+    -- enable logging
+    constant log_en         : boolean   := true;
+
+    -- instructions
     -- LUI      -    Load Upper Immediate
     --          rd = Immed << 12
     constant I_LUI    : instr_cf := ( "  LUI", RVI , "01101" , "---" , "-------" );
@@ -242,7 +254,7 @@ package nf_tb_def is
                                             "t6   "
                                         );
 
-    function pars_pipe_stage(pipe_slv : std_logic_vector) return string;
+    function pars_pipe_stage(pipe_slv : std_logic_vector ; param_str : string := "lv_1") return string;
 
     function ret_i_code(instr_cf_in : instr_cf) return std_logic_vector;
 
@@ -262,7 +274,7 @@ package body nf_tb_def is
         return ret_v;
     end function;
 
-    function pars_pipe_stage(pipe_slv : std_logic_vector) return string is
+    function pars_pipe_stage(pipe_slv : std_logic_vector ; param_str : string := "lv_1") return string is
         -- destination and sources registers
         variable ra1        : std_logic_vector(4  downto 0) := pipe_slv(19 downto 15);
         variable ra2        : std_logic_vector(4  downto 0) := pipe_slv(24 downto 20);
@@ -300,24 +312,46 @@ package body nf_tb_def is
         end if;
         if( instr_type = RVI ) then
             if( opcode = U_OP0 ) then
-                return "RVI " & (I_C_LIST(i).I_NAME & " rd  = " & reg_list(to_integer(unsigned(wa3))) & ", Imm = 0x" & to_hstring(imm_data_u));
+                if(param_str = "lv_1") then
+                    return "RVI " & (I_C_LIST(i).I_NAME & " rd  = " & reg_list(to_integer(unsigned(wa3))) & ", Imm = 0x" & to_hstring(imm_data_u));
+                elsif(param_str = "lv_0") then
+                    return ("U-type  : " & to_string(imm_data_u) & "_" & to_string(wa3) & "_" & to_string(opcode) & "_" & to_string(instr_type) );
+                end if;
             end if;
             if( opcode = B_OP0 ) then
-                return "RVI " & (I_C_LIST(i).I_NAME & " rs1 = " & reg_list(to_integer(unsigned(ra1))) & ", rs2 = " & reg_list(to_integer(unsigned(ra2))) & ", Imm = 0x" & to_hstring(imm_data_b));
+                if(param_str = "lv_1") then
+                    return "RVI " & (I_C_LIST(i).I_NAME & " rs1 = " & reg_list(to_integer(unsigned(ra1))) & ", rs2 = " & reg_list(to_integer(unsigned(ra2))) & ", Imm = 0x" & to_hstring(imm_data_b));
+                elsif(param_str = "lv_0") then
+                    return ("B-type  : " & to_string(pipe_slv(31)) & "_" & to_string(pipe_slv(30 downto 25)) & "_" & to_string(ra2) & "_" & to_string(ra1) & "_" & to_string(funct3) & "_" & to_string(pipe_slv(12 downto 8)) & "_" & to_string(pipe_slv(7)) & "_" & to_string(opcode) & "_" & to_string(instr_type) );
+                end if;
             end if;
             if( opcode = S_OP0 ) then
-                return "RVI " & (I_C_LIST(i).I_NAME & " rs1 = " & reg_list(to_integer(unsigned(ra1))) & ", rs2 = " & reg_list(to_integer(unsigned(ra2))) & ", Imm = 0x" & to_hstring(imm_data_s));
+                if(param_str = "lv_1") then
+                    return "RVI " & (I_C_LIST(i).I_NAME & " rs1 = " & reg_list(to_integer(unsigned(ra1))) & ", rs2 = " & reg_list(to_integer(unsigned(ra2))) & ", Imm = 0x" & to_hstring(imm_data_s));
+                elsif(param_str = "lv_0") then
+                    return ("S-type  : " & to_string(pipe_slv(31 downto 25)) & "_" & to_string(ra2) & "_" & to_string(ra1) & "_" & to_string(funct3) & "_" & to_string(pipe_slv(11 downto 7)) & "_" & to_string(opcode) & "_" & to_string(instr_type) );
+                end if;
             end if;
             if( ( opcode = I_OP0 ) or ( opcode = I_OP1 ) or ( opcode = I_OP2 ) ) then
-                --return "RVI " & (I_C_LIST(i).I_NAME & " rd  = " & reg_list(to_integer(unsigned(wa3))) & ", rs1 = " & reg_list(to_integer(unsigned(ra1))) & ", Imm = 0x" & to_hstring(imm_data_i));
-                return ("I-type  : " & to_string(imm_data_i) & "_" & to_string(ra1) & "_" & to_string(funct3) & "_" & to_string(wa3) & "_" & to_string(opcode) & "_" & to_string(instr_type) );
+                if(param_str = "lv_1") then
+                    return "RVI " & (I_C_LIST(i).I_NAME & " rd  = " & reg_list(to_integer(unsigned(wa3))) & ", rs1 = " & reg_list(to_integer(unsigned(ra1))) & ", Imm = 0x" & to_hstring(imm_data_i));
+                elsif(param_str = "lv_0") then
+                    return ("I-type  : " & to_string(imm_data_i) & "_" & to_string(ra1) & "_" & to_string(funct3) & "_" & to_string(wa3) & "_" & to_string(opcode) & "_" & to_string(instr_type) );
+                end if;
             end if;
             if( opcode = R_OP0 ) then
-                --return "RVI " & (I_C_LIST(i).I_NAME & " rd  = " & reg_list(to_integer(unsigned(wa3))) & ", rs1 = " & reg_list(to_integer(unsigned(ra1))) & ", rs2 = " & reg_list(to_integer(unsigned(ra2))));
-                return ( "R-type  : " & to_string(funct7) & "_" & to_string(ra2) & "_" & to_string(ra1) & "_" & to_string(funct3) & "_" & to_string(wa3) & "_" & to_string(opcode) & "_" & to_string(instr_type) );
+                if(param_str = "lv_1") then
+                    return "RVI " & (I_C_LIST(i).I_NAME & " rd  = " & reg_list(to_integer(unsigned(wa3))) & ", rs1 = " & reg_list(to_integer(unsigned(ra1))) & ", rs2 = " & reg_list(to_integer(unsigned(ra2))));
+                elsif(param_str = "lv_0") then
+                    return ("R-type  : " & to_string(funct7) & "_" & to_string(ra2) & "_" & to_string(ra1) & "_" & to_string(funct3) & "_" & to_string(wa3) & "_" & to_string(opcode) & "_" & to_string(instr_type) );
+                end if;
             end if;
             if( opcode = J_OP0 ) then
-                return "RVI " & (I_C_LIST(i).I_NAME & " rd  = " & reg_list(to_integer(unsigned(wa3))) & ", Imm = 0x" & to_hstring(imm_data_j));
+                if(param_str = "lv_1") then
+                    return "RVI " & (I_C_LIST(i).I_NAME & " rd  = " & reg_list(to_integer(unsigned(wa3))) & ", Imm = 0x" & to_hstring(imm_data_j));
+                elsif(param_str = "lv_0") then
+                    return ("J-type  : " & to_string(pipe_slv(31)) & "_" & to_string(pipe_slv(30 downto 21)) & "_" & to_string(pipe_slv(20)) & "_" & to_string(pipe_slv(19 downto 12)) & "_" & to_string(wa3) & "_" & to_string(opcode) & "_" & to_string(instr_type) );
+                end if;
             end if;
         end if;
         return ("ERROR! Unknown instruction = " & to_string(pipe_slv));

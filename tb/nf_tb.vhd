@@ -24,7 +24,6 @@ entity nf_tb is
 end nf_tb;
 
 architecture testbench of nf_tb is
-
     constant timescale          : time      := 1 ns;
     constant T                  : integer   := 20;
     constant repeat_cycles      : integer   := 200;
@@ -58,18 +57,18 @@ architecture testbench of nf_tb is
     signal reg_file_c   : mem_t(31 downto 0)(1  downto 0) := (others => 2X"0" );
 
     -- instructions
-    signal instruction_if_stage   : string(50 downto 1);
-    signal instruction_id_stage   : string(50 downto 1);
-    signal instruction_iexe_stage : string(50 downto 1);
-    signal instruction_imem_stage : string(50 downto 1);
-    signal instruction_iwb_stage  : string(50 downto 1);
+    signal instruction_if_stage   : string(50 downto 1) := (others => ' ');
+    signal instruction_id_stage   : string(50 downto 1) := (others => ' ');
+    signal instruction_iexe_stage : string(50 downto 1) := (others => ' ');
+    signal instruction_imem_stage : string(50 downto 1) := (others => ' ');
+    signal instruction_iwb_stage  : string(50 downto 1) := (others => ' ');
 
     -- string for debug_lev0
-    signal instr_sep_s_if_stage   : string(50 downto 1);
-    signal instr_sep_s_id_stage   : string(50 downto 1);
-    signal instr_sep_s_iexe_stage : string(50 downto 1);
-    signal instr_sep_s_imem_stage : string(50 downto 1);
-    signal instr_sep_s_iwb_stage  : string(50 downto 1);
+    signal instr_sep_s_if_stage   : string(50 downto 1) := (others => ' ');
+    signal instr_sep_s_id_stage   : string(50 downto 1) := (others => ' ');
+    signal instr_sep_s_iexe_stage : string(50 downto 1) := (others => ' ');
+    signal instr_sep_s_imem_stage : string(50 downto 1) := (others => ' ');
+    signal instr_sep_s_iwb_stage  : string(50 downto 1) := (others => ' ');
     -- nf_top
     component nf_top
         port 
@@ -125,90 +124,127 @@ begin
         variable log_line   : line;
         variable log_h_line : line;
         file     log_file   : text;
-        file     log_html   : text;
+        file     html_log   : text;
         variable file_s     : file_open_status;
         variable i          : integer;
         variable td_i       : integer;
     begin
-        file_open(file_s , log_file , "../log/log.log" , write_mode);
-        file_open(file_s , log_html , "../log/log.html" , write_mode);
+        if( log_txt ) then
+            file_open(file_s , log_file , "../log/log.log" , write_mode);
+        end if;
+        if( log_html ) then
+            file_open(file_s , html_log , "../log/log.html" , write_mode);
+        end if;
         wait until rising_edge(clk);
         if( resetn ) then
-            wait for 1 ns;
-            -- form debug strings
-            instruction_if_stage   <= update_pipe_str( pars_pipe_stage( instr_if   ) );
-            instruction_id_stage   <= update_pipe_str( pars_pipe_stage( instr_id   ) );
-            instruction_iexe_stage <= update_pipe_str( pars_pipe_stage( instr_iexe ) );
-            instruction_imem_stage <= update_pipe_str( pars_pipe_stage( instr_imem ) );
-            instruction_iwb_stage  <= update_pipe_str( pars_pipe_stage( instr_iwb  ) );
-
-            write(term_line, string'("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>") & LF );
-            write(term_line, "cycle = " & to_string(cycle_counter) & ", pc = 0x" & to_hstring(pc_value) & " " & time'image(now) & LF );
-            write(term_line, "Instruction fetch stage         : " & pars_pipe_stage( instr_if  ) & LF );
-            write(term_line, "Instruction decode stage        : " & pars_pipe_stage( instr_id  ) & LF );
-            write(term_line, "Instruction execute stage       : " & pars_pipe_stage( instr_iexe) & LF );
-            write(term_line, "Instruction memory stage        : " & pars_pipe_stage( instr_imem) & LF );
-            write(term_line, "Instruction write back stage    : " & pars_pipe_stage( instr_iwb ) & LF );
-            write(term_line, string'("register list :") & LF );
-            -- copy terminal message in html message
-            write(log_h_line, string'("<font size = ""4"">") );
-            write(log_h_line, string'("<pre>") );
-            writeline(log_html, log_h_line);
-            log_h_line := new string'(term_line.all);
-            writeline(log_html, log_h_line);
-            -- form register file table for terminal and log file
-            write(term_line, write_txt_table(reg_file) & LF );
-            -- copy terminal message in log message
-            log_line := new string'(term_line.all);
-            -- write data in log file and terminal
-            writeline(output, term_line);
-            writeline(log_file, log_line);
-            -- starting write data in html file
-            write(log_h_line, string'("</pre>") );
-            write(log_h_line, string'("</font>") );
-            writeline(log_html, log_h_line);
-            i := 0;
-            reg_list_loop : loop
-                reg_file_c(i) <= "00" when (reg_file_l(i) = reg_file(i)) else "01";
-                if(reg_file(i) = 32X"XXXXXXXX") then
-                    reg_file_c(i) <= "10";
+            if( log_en ) then
+                wait for 1 ns;
+                -- form debug strings
+                instruction_if_stage   <= update_pipe_str( pars_pipe_stage( instr_if   ) );
+                instruction_id_stage   <= update_pipe_str( pars_pipe_stage( instr_id   ) );
+                instruction_iexe_stage <= update_pipe_str( pars_pipe_stage( instr_iexe ) );
+                instruction_imem_stage <= update_pipe_str( pars_pipe_stage( instr_imem ) );
+                instruction_iwb_stage  <= update_pipe_str( pars_pipe_stage( instr_iwb  ) );
+                if(debug_lev0) then
+                    instr_sep_s_if_stage   <= update_pipe_str( pars_pipe_stage( instr_if   , "lv_0" ) );
+                    instr_sep_s_id_stage   <= update_pipe_str( pars_pipe_stage( instr_id   , "lv_0" ) );
+                    instr_sep_s_iexe_stage <= update_pipe_str( pars_pipe_stage( instr_iexe , "lv_0" ) );
+                    instr_sep_s_imem_stage <= update_pipe_str( pars_pipe_stage( instr_imem , "lv_0" ) );
+                    instr_sep_s_iwb_stage  <= update_pipe_str( pars_pipe_stage( instr_iwb  , "lv_0" ) );
                 end if;
-                reg_file_l(i) <= reg_file_l(i) when reg_file_c(i) = "00" else reg_file(i);
-                i := i + 1;
-                exit reg_list_loop when (i = 32);
-            end loop;
-            i := 0;
-            td_i := 0;
-            write(log_h_line, string'("<table border=""1"">") );
-            writeline(log_html, log_h_line);
-            html_table_loop : loop
-                if( td_i = 0 ) then
-                    write(log_h_line, string'("    <tr>") & LF );
+                write(term_line, string'("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>") & LF );
+                write(term_line, "cycle = " & to_string(cycle_counter) & ", pc = 0x" & to_hstring(pc_value) & " " & time'image(now) & LF );
+                write(term_line, "Instruction fetch stage         : " & pars_pipe_stage( instr_if   ) & LF );
+                if(debug_lev0) then
+                    write(term_line, "                                  " & pars_pipe_stage( instr_if   , "lv_0" ) & LF );
                 end if;
-                write(log_h_line, string'("        <td "));
-                if(reg_file_c(i)="00") then
-                    write(log_h_line, string'("bgcolor = ""white"""));
-                elsif(reg_file_c(i)="01") then
-                    write(log_h_line, string'("bgcolor = ""green"""));
-                else
-                    write(log_h_line, string'("bgcolor = ""red"""));
+                write(term_line, "Instruction decode stage        : " & pars_pipe_stage( instr_id   ) & LF );
+                if(debug_lev0) then
+                    write(term_line, "                                  " & pars_pipe_stage( instr_id   , "lv_0" ) & LF );
                 end if;
-                    
-                write(log_h_line, string'(">"));
+                write(term_line, "Instruction execute stage       : " & pars_pipe_stage( instr_iexe ) & LF );
+                if(debug_lev0) then
+                    write(term_line, "                                  " & pars_pipe_stage( instr_iexe , "lv_0" ) & LF );
+                end if;
+                write(term_line, "Instruction memory stage        : " & pars_pipe_stage( instr_imem ) & LF );
+                if(debug_lev0) then
+                    write(term_line, "                                  " & pars_pipe_stage( instr_imem , "lv_0" ) & LF );
+                end if;
+                write(term_line, "Instruction write back stage    : " & pars_pipe_stage( instr_iwb  ) & LF );
+                if(debug_lev0) then
+                    write(term_line, "                                  " & pars_pipe_stage( instr_iwb  , "lv_0" ) & LF );
+                end if;
+                write(term_line, string'("register list :") & LF );
+                -- copy terminal message in html message
+                write(log_h_line, string'("<font size = ""4"">") );
                 write(log_h_line, string'("<pre>") );
-                write(log_h_line, reg_list(i) & " = 0x" & to_hstring(reg_file_l(i)));
-                write(log_h_line, string'("</pre>") );
-                write(log_h_line, string'("</td>") & LF );
-                td_i := td_i + 1;
-                if( td_i = 4 ) then
-                    td_i := 0;
-                    write(log_h_line, string'("    </tr>") & LF );
+                writeline(html_log, log_h_line);
+                log_h_line := new string'(term_line.all);
+                writeline(html_log, log_h_line);
+                -- form register file table for terminal and log file
+                write(term_line, write_txt_table(reg_file) & LF );
+                -- copy terminal message in log message
+                log_line := new string'(term_line.all);
+                -- write data in log file and terminal
+                if( log_term ) then
+                    writeline(output, term_line);
                 end if;
-                i := i + 1;
-                exit html_table_loop when (i = 32);
-            end loop;
-            write(log_h_line, string'("</table>") );
-            writeline(log_html, log_h_line);
+                if( log_txt ) then
+                    writeline(log_file, log_line);
+                end if;
+                -- starting write data in html file
+                write(log_h_line, string'("</pre>") );
+                write(log_h_line, string'("</font>") );
+                if( log_html ) then
+                    writeline(html_log, log_h_line);
+                end if;
+                i := 0;
+                reg_list_loop : loop
+                    reg_file_c(i) <= "00" when (reg_file_l(i) = reg_file(i)) else "01";
+                    if(reg_file(i) = 32X"XXXXXXXX") then
+                        reg_file_c(i) <= "10";
+                    end if;
+                    reg_file_l(i) <= reg_file_l(i) when reg_file_c(i) = "00" else reg_file(i);
+                    i := i + 1;
+                    exit reg_list_loop when (i = 32);
+                end loop;
+                i := 0;
+                td_i := 0;
+                write(log_h_line, string'("<table border=""1"">") );
+                if( log_html ) then
+                    writeline(html_log, log_h_line);
+                end if;
+                html_table_loop : loop
+                    if( td_i = 0 ) then
+                        write(log_h_line, string'("    <tr>") & LF );
+                    end if;
+                    write(log_h_line, string'("        <td "));
+                    if(reg_file_c(i)="00") then
+                        write(log_h_line, string'("bgcolor = ""white"""));
+                    elsif(reg_file_c(i)="01") then
+                        write(log_h_line, string'("bgcolor = ""green"""));
+                    else
+                        write(log_h_line, string'("bgcolor = ""red"""));
+                    end if;
+
+                    write(log_h_line, string'(">"));
+                    write(log_h_line, string'("<pre>") );
+                    write(log_h_line, reg_list(i) & " = 0x" & to_hstring(reg_file_l(i)));
+                    write(log_h_line, string'("</pre>") );
+                    write(log_h_line, string'("</td>") & LF );
+                    td_i := td_i + 1;
+                    if( td_i = 4 ) then
+                        td_i := 0;
+                        write(log_h_line, string'("    </tr>") & LF );
+                    end if;
+                    i := i + 1;
+                    exit html_table_loop when (i = 32);
+                end loop;
+                write(log_h_line, string'("</table>") );
+                if( log_html ) then
+                    writeline(html_log, log_h_line);
+                end if;
+            end if;
         end if;
     end process pars_proc;
 
@@ -245,10 +281,12 @@ begin
     end process rst_gen;
     -- uart rx generation
     uart_rx_gen : process
+        variable term_log : line;
     begin
         uart_rx <= '1';
         if( uart_rec_example ) then
-            report "This is code for uart rx example";
+            write(term_log, string'("This is code for uart rx example") );
+            writeline(output, term_log);
             wait;
         else 
             wait;
