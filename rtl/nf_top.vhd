@@ -12,6 +12,10 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.std_logic_unsigned.all;
 
+library nf;
+use nf.nf_program.all;
+use nf.nf_mem_pkg.all;
+
 entity nf_top is
     port 
     (
@@ -52,7 +56,10 @@ architecture rtl of nf_top is
     component nf_instr_mem
         generic
         (
-            depth   : integer := 64                         -- depth of memory array
+            addr_w  : integer := 6;                         -- actual address memory width
+            depth   : integer := 2 ** 6;                    -- depth of memory array
+            init    : boolean := False;                     -- init memory?
+            i_mem   : mem_t                                 -- init memory
         );
         port 
         (
@@ -90,11 +97,14 @@ begin
         reg_data    => reg_data         -- register data
     );
     -- creating one instruction memory 
-    nf_instr_mem_0: nf_instr_mem 
-    generic map 
+    nf_instr_mem_0: nf_instr_mem  
+    generic map
     (
-        depth       => 64               -- depth of memory array
-    ) 
+        addr_w      => 6,               -- actual address memory width
+        depth       => 2 ** 6,          -- depth of memory array
+        init        => true,            -- init memory?
+        i_mem       => program          -- init memory
+    )
     port map    
     (
         addr        => instr_addr_i,    -- instruction address

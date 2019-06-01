@@ -48,6 +48,8 @@ set_global_assignment -name SYSTEMVERILOG_FILE ../../brd_rtl/DebugScreenCore/rtl
 set_global_assignment -name SYSTEMVERILOG_FILE ../../brd_rtl/DebugScreenCore/rtl/symbol_mem.sv
 set_global_assignment -name SYSTEMVERILOG_FILE ../../brd_rtl/DebugScreenCore/rtl/display_mem.sv
 set_global_assignment -name VHDL_FILE ../../inc/nf_cpu_def.vhd
+set_global_assignment -name VHDL_FILE ../../inc/nf_mem_pkg.vhd
+set_global_assignment -name VHDL_FILE ../../program_file/nf_program.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/nf_branch_unit.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/nf_sign_ex.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/nf_registers.vhd

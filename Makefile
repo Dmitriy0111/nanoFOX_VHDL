@@ -13,8 +13,7 @@ help:
 	$(info make synth_gui_q    - open the board project with quartus)
 	$(info make synth_load_q   - program the default FPGA board with quartus)
 	$(info make board_all      - run synthesis for all the supported boards)
-	$(info make prog_comp_win  - compile program on windows and copy program.hex to program_file)
-	$(info make prog_comp_lin  - compile program on linux and copy program.hex to program_file)
+	$(info make prog_comp      - compile program and copy program.vhd to program_file folder)
 	$(info Open and read the Makefile for details)
 	@true
 
@@ -24,8 +23,8 @@ RUN_DIR  = $(PWD)/run
 RTL_DIR  = $(PWD)/rtl
 TB_DIR   = $(PWD)/tb
 
-BOARDS_SUPPORTED ?= de10_lite
-BOARD            ?= de10_lite
+BOARDS_SUPPORTED ?= de10_lite rz_easyFPGA_A2_1 Storm_IV_E6_V2
+BOARD            ?= rz_easyFPGA_A2_1
 
 ########################################################
 # common make targets
@@ -93,20 +92,12 @@ CCF	= -march=rv32i -mabi=ilp32
 LDF	= -b elf32-littleriscv
 CPF = ihex -O ihex
 
-prog_comp_win:
+prog_comp:
 	mkdir -p program_file
 	riscv-none-embed-gcc program/$(PROG_NAME)/main.S -c -o program_file/main.o $(CCF)
 	riscv-none-embed-ld -o program_file/main.elf -Map program_file/main.map -T program/help_files/program.ld program_file/main.o $(LDF)
 	riscv-none-embed-objdump -S -w --disassemble-zeroes program_file/main.elf > program_file/main.lst
 	riscv-none-embed-objcopy program_file/main.elf program_file/program.$(CPF)
-	python program/help_files/ihex2hex.py
-
-prog_comp_lin:
-	mkdir -p program_file
-	riscv64-unknown-elf-gcc program/$(PROG_NAME)/main.S -c -o program_file/main.o $(CCF)
-	riscv64-unknown-elf-ld -o program_file/main.elf -Map program_file/main.map -T program/help_files/program.ld program_file/main.o $(LDF)
-	riscv64-unknown-elf-objdump -S -w --disassemble-zeroes program_file/main.elf > program_file/main.lst
-	riscv64-unknown-elf-objcopy program_file/main.elf program_file/program.$(CPF)
 	python program/help_files/ihex2hex.py
 
 prog_clean:

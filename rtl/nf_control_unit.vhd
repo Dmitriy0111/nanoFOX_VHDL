@@ -8,10 +8,11 @@
 --
 
 library ieee;
-library work;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.nf_cpu_def.all;
+
+library nf;
+use nf.nf_cpu_def.all;
 
 entity nf_control_unit is
     port 

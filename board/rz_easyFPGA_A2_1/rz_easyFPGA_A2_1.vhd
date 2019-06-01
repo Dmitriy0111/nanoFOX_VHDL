@@ -26,7 +26,7 @@ end rz_easyFPGA_A2_1;
 
 architecture rtl of rz_easyFPGA_A2_1 is
     -- generic params
-    constant    debug_type  : string := "vga";
+    constant    debug_type  : string := "hex";
     constant    cpu         : string := "nanoFOX";
     constant    sub_path    : string := "../../brd_rtl/DebugScreenCore/";
     -- wires & inputs
