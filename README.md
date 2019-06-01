@@ -32,8 +32,7 @@ For working with project install:
 
 ## Compilation program:
 *   **set PROG_NAME="name of folder with main program"** is used for setting current program. For example "set PROG_NAME=02_running_bit";
-*   **make prog_comp_win** is used for compiling program on windows machine;
-*   **make prog_comp_lin** is used for compiling program on linux machine;
+*   **make prog_comp** is used for compiling program;
 *   **make prog_clean** is used for cleaning compilation results folder.
 
 ## Simulation:
@@ -42,7 +41,7 @@ For working with project install:
 *   **make sim_cmd** is used for starting simulation in command line (CMD) mode;
 *   **make sim_gui** is used for starting simulation in graphical user interface (GUI) mode.
 
-If log_en or log_html set as '1 (tb/nf_tb.svh) then you can see simulation results in log folder (log/.log and log/log.html).
+If log_txt or log_html set as '1 (tb/nf_tb_def.vhd) then you can see simulation results in log folder (log/.log and log/log.html).
 
 ## Synthesis:
 *   **make synth_create** is used for creating synthesis folder for default board;

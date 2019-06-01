@@ -1,8 +1,11 @@
 
 vlib work
 
-vcom -2008 ../inc/nf_cpu_def.vhd
-vcom -2008 ../inc/nf_settings.vhd
+vcom -2008 ../inc/nf_settings.vhd           -work nf
+vcom -2008 ../inc/nf_cpu_def.vhd            -work nf
+vcom -2008 ../inc/nf_mem_pkg.vhd            -work nf
+vcom -2008 ../program_file/nf_program.vhd   -work nf
+
 vcom -2008 ../rtl/nf_alu.vhd          
 vcom -2008 ../rtl/nf_clock_div.vhd     
 vcom -2008 ../rtl/nf_cpu.vhd   
@@ -20,8 +23,8 @@ vcom -2008 ../rtl/nf_router.vhd
 vcom -2008 ../rtl/nf_router_mux.vhd  
 vcom -2008 ../rtl/nf_top.vhd
 
-vlog ../tb/nf_pars.sv
-vlog ../tb/nf_tb.sv
+vcom -2008  ../tb/nf_tb_def.vhd             -work nf
+vcom -2008  ../tb/nf_tb.vhd
 
 vsim -novopt work.nf_tb
 

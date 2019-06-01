@@ -11,11 +11,16 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library nf;
+use nf.nf_mem_pkg.all;
+
 entity nf_instr_mem is
     generic
     (
         addr_w  : integer := 6;                         -- actual address memory width
-        depth   : integer := 2 ** 6                     -- depth of memory array
+        depth   : integer := 2 ** 6;                    -- depth of memory array
+        init    : boolean := False;                     -- init memory?
+        i_mem   : mem_t                                 -- init memory
     );
     port 
     (
@@ -25,12 +30,8 @@ entity nf_instr_mem is
 end nf_instr_mem;
 
 architecture rtl of nf_instr_mem is
-    type    mem_t is array (depth-1 downto 0) of std_logic_vector(31 downto 0); 
     -- creating instruction memory
-    signal  mem : mem_t :=
-    (
-        others => X"00000000"
-    );
+    signal  mem : mem_t(depth-1 downto 0)(31 downto 0) := (mem_i( init , i_mem , depth ));
 begin
     -- finding instruction value
     instr <= mem(to_integer(unsigned(addr(addr_w-1 downto 0))));

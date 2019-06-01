@@ -8,10 +8,11 @@
 --
 
 library ieee;
-library work;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.nf_settings.all;
+
+library nf;
+use nf.nf_settings.all;
 
 entity nf_router_dec is
     generic

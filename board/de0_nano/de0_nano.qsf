@@ -411,6 +411,8 @@ set_global_assignment -name VHDL_FILE ../../rtl/nf_router.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/nf_router_mux.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/nf_router_dec.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/nf_ram.vhd
+set_global_assignment -name VHDL_FILE ../../inc/nf_mem_pkg.vhd
+set_global_assignment -name VHDL_FILE ../../program_file/nf_program.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/nf_pwm.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/nf_gpio.vhd
 set_global_assignment -name VHDL_FILE ../../inc/nf_cpu_def.vhd

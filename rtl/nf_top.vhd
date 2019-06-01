@@ -11,8 +11,11 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.std_logic_unsigned.all;
-library work;
-use work.nf_settings.all;
+
+library nf;
+use nf.nf_settings.all;
+use nf.nf_program.all;
+use nf.nf_mem_pkg.all;
 
 entity nf_top is
     port 
@@ -81,7 +84,9 @@ architecture rtl of nf_top is
         generic
         (
             addr_w  : integer := ADDR_I_W;                  -- actual address memory width
-            depth   : integer := MEM_I_DEPTH                -- depth of memory array
+            depth   : integer := MEM_I_DEPTH;               -- depth of memory array
+            init    : boolean := False;                     -- init memory?
+            i_mem   : mem_t                                 -- init memory
         );
         port 
         (
@@ -147,10 +152,10 @@ architecture rtl of nf_top is
     end component;
     -- nf_ram
     component nf_ram
-        generic
+    generic
         (
-            addr_w  : integer := ADDR_D_W;                  -- actual address memory width
-            depth   : integer := MEM_D_DEPTH                -- depth of memory array
+            addr_w  : integer := 6;                         -- actual address memory width
+            depth   : integer := 2 ** 6                     -- depth of memory array
         );
         port 
         (
@@ -217,7 +222,9 @@ begin
     generic map
     (
         addr_w      => ADDR_I_W,        -- actual address memory width
-        depth       => MEM_I_DEPTH      -- depth of memory array
+        depth       => MEM_I_DEPTH,     -- depth of memory array
+        init        => true,
+        i_mem       => program
     )
     port map    
     (

@@ -36,6 +36,30 @@ use ieee.std_logic_1164.all;
 
 package nf_cpu_def is
 
+    type instr_cf is record
+        I_NAME  : string          (5 downto 1);     -- instruction name
+        IT      : std_logic_vector(1 downto 0);     -- instruction type
+        OP      : std_logic_vector(4 downto 0);     -- instruction opcode
+        F3      : std_logic_vector(2 downto 0);     -- instruction function field 3
+        F7      : std_logic_vector(6 downto 0);     -- instruction function field 7
+    end record;    -- instruction record
+
+    constant RVI    : std_logic_vector(1 downto 0) := "11";
+    constant RVC_0  : std_logic_vector(1 downto 0) := "11";
+    constant RVC_1  : std_logic_vector(1 downto 0) := "11";
+    constant RVC_2  : std_logic_vector(1 downto 0) := "11";
+    constant ANY    : std_logic_vector(1 downto 0) := "--";
+
+    constant R_OP0  : std_logic_vector(4 downto 0) := "01100";  
+    constant U_OP0  : std_logic_vector(4 downto 0) := "01101";  -- LUI
+    constant U_OP1  : std_logic_vector(4 downto 0) := "00101";  -- AUIPC
+    constant J_OP0  : std_logic_vector(4 downto 0) := "11011";  -- JAL
+    constant S_OP0  : std_logic_vector(4 downto 0) := "01000";  -- SW,SH,SB,SHU,SBU
+    constant B_OP0  : std_logic_vector(4 downto 0) := "11000";  -- BEQ,BNE,BGE,BLT,BGEU,BLTU
+    constant I_OP0  : std_logic_vector(4 downto 0) := "00100";  
+    constant I_OP1  : std_logic_vector(4 downto 0) := "00000";  -- LW,LH,LB
+    constant I_OP2  : std_logic_vector(4 downto 0) := "11001";  -- JALR
+
     -- ALU commands
     constant ALU_ADD : std_logic_vector(2 downto 0) := "000";
     constant ALU_OR  : std_logic_vector(2 downto 0) := "001";

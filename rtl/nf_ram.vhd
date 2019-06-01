@@ -11,6 +11,9 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library nf;
+use nf.nf_mem_pkg.all;
+
 entity nf_ram is
     generic
     (
@@ -30,9 +33,8 @@ entity nf_ram is
 end nf_ram;
 
 architecture rtl of nf_ram is
-    type    mem_t is array (depth-1 downto 0) of std_logic_vector(31 downto 0); 
     -- creating memory array
-    signal  ram : mem_t;
+    signal  ram : mem_t(depth-1 downto 0)(31 downto 0) := (others => 32X"XXXXXXXX");
 begin
     rd <= ram(to_integer(unsigned(addr(addr_w-1 downto 0))));  -- for simulation
 
