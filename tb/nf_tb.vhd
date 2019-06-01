@@ -53,22 +53,20 @@ architecture testbench of nf_tb is
     signal instr_iwb    : std_logic_vector(31 downto 0); 
 
     signal reg_file     : mem_t(31 downto 0)(31 downto 0);
-    signal reg_file_l   : mem_t(31 downto 0)(31 downto 0) := (others => 32X"00000000" );
-    signal reg_file_c   : mem_t(31 downto 0)(1  downto 0) := (others => 2X"0" );
-
+    constant str_len    : integer := 70;
     -- instructions
-    signal instruction_if_stage   : string(50 downto 1) := (others => ' ');
-    signal instruction_id_stage   : string(50 downto 1) := (others => ' ');
-    signal instruction_iexe_stage : string(50 downto 1) := (others => ' ');
-    signal instruction_imem_stage : string(50 downto 1) := (others => ' ');
-    signal instruction_iwb_stage  : string(50 downto 1) := (others => ' ');
+    signal instruction_if_stage   : string(str_len downto 1) := (others => ' ');
+    signal instruction_id_stage   : string(str_len downto 1) := (others => ' ');
+    signal instruction_iexe_stage : string(str_len downto 1) := (others => ' ');
+    signal instruction_imem_stage : string(str_len downto 1) := (others => ' ');
+    signal instruction_iwb_stage  : string(str_len downto 1) := (others => ' ');
 
     -- string for debug_lev0
-    signal instr_sep_s_if_stage   : string(50 downto 1) := (others => ' ');
-    signal instr_sep_s_id_stage   : string(50 downto 1) := (others => ' ');
-    signal instr_sep_s_iexe_stage : string(50 downto 1) := (others => ' ');
-    signal instr_sep_s_imem_stage : string(50 downto 1) := (others => ' ');
-    signal instr_sep_s_iwb_stage  : string(50 downto 1) := (others => ' ');
+    signal instr_sep_s_if_stage   : string(str_len downto 1) := (others => ' ');
+    signal instr_sep_s_id_stage   : string(str_len downto 1) := (others => ' ');
+    signal instr_sep_s_iexe_stage : string(str_len downto 1) := (others => ' ');
+    signal instr_sep_s_imem_stage : string(str_len downto 1) := (others => ' ');
+    signal instr_sep_s_iwb_stage  : string(str_len downto 1) := (others => ' ');
     -- nf_top
     component nf_top
         port 
@@ -128,6 +126,8 @@ begin
         variable file_s     : file_open_status;
         variable i          : integer;
         variable td_i       : integer;
+        variable reg_file_l : mem_t(31 downto 0)(31 downto 0) := (others => 32X"00000000" );
+        variable reg_file_c : mem_t(31 downto 0)(1  downto 0) := (others => 2X"0" );
     begin
         if( log_txt ) then
             file_open(file_s , log_file , "../log/log.log" , write_mode);
@@ -136,21 +136,21 @@ begin
             file_open(file_s , html_log , "../log/log.html" , write_mode);
         end if;
         wait until rising_edge(clk);
+        wait for 1 ns;
         if( resetn ) then
             if( log_en ) then
-                wait for 1 ns;
                 -- form debug strings
-                instruction_if_stage   <= update_pipe_str( pars_pipe_stage( instr_if   ) );
-                instruction_id_stage   <= update_pipe_str( pars_pipe_stage( instr_id   ) );
-                instruction_iexe_stage <= update_pipe_str( pars_pipe_stage( instr_iexe ) );
-                instruction_imem_stage <= update_pipe_str( pars_pipe_stage( instr_imem ) );
-                instruction_iwb_stage  <= update_pipe_str( pars_pipe_stage( instr_iwb  ) );
+                instruction_if_stage   <= update_pipe_str( pars_pipe_stage( instr_if   ) , str_len );
+                instruction_id_stage   <= update_pipe_str( pars_pipe_stage( instr_id   ) , str_len );
+                instruction_iexe_stage <= update_pipe_str( pars_pipe_stage( instr_iexe ) , str_len );
+                instruction_imem_stage <= update_pipe_str( pars_pipe_stage( instr_imem ) , str_len );
+                instruction_iwb_stage  <= update_pipe_str( pars_pipe_stage( instr_iwb  ) , str_len );
                 if(debug_lev0) then
-                    instr_sep_s_if_stage   <= update_pipe_str( pars_pipe_stage( instr_if   , "lv_0" ) );
-                    instr_sep_s_id_stage   <= update_pipe_str( pars_pipe_stage( instr_id   , "lv_0" ) );
-                    instr_sep_s_iexe_stage <= update_pipe_str( pars_pipe_stage( instr_iexe , "lv_0" ) );
-                    instr_sep_s_imem_stage <= update_pipe_str( pars_pipe_stage( instr_imem , "lv_0" ) );
-                    instr_sep_s_iwb_stage  <= update_pipe_str( pars_pipe_stage( instr_iwb  , "lv_0" ) );
+                    instr_sep_s_if_stage   <= update_pipe_str( pars_pipe_stage( instr_if   , "lv_0" ) , str_len );
+                    instr_sep_s_id_stage   <= update_pipe_str( pars_pipe_stage( instr_id   , "lv_0" ) , str_len );
+                    instr_sep_s_iexe_stage <= update_pipe_str( pars_pipe_stage( instr_iexe , "lv_0" ) , str_len );
+                    instr_sep_s_imem_stage <= update_pipe_str( pars_pipe_stage( instr_imem , "lv_0" ) , str_len );
+                    instr_sep_s_iwb_stage  <= update_pipe_str( pars_pipe_stage( instr_iwb  , "lv_0" ) , str_len );
                 end if;
                 write(term_line, string'("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>") & LF );
                 write(term_line, "cycle = " & to_string(cycle_counter) & ", pc = 0x" & to_hstring(pc_value) & " " & time'image(now) & LF );
@@ -200,11 +200,11 @@ begin
                 end if;
                 i := 0;
                 reg_list_loop : loop
-                    reg_file_c(i) <= "00" when (reg_file_l(i) = reg_file(i)) else "01";
+                    reg_file_c(i) := "00" when (reg_file_l(i) = reg_file(i)) else "01";
                     if(reg_file(i) = 32X"XXXXXXXX") then
-                        reg_file_c(i) <= "10";
+                        reg_file_c(i) := "10";
                     end if;
-                    reg_file_l(i) <= reg_file_l(i) when reg_file_c(i) = "00" else reg_file(i);
+                    reg_file_l(i) := reg_file_l(i) when ( reg_file_c(i) = "00" ) else reg_file(i);
                     i := i + 1;
                     exit reg_list_loop when (i = 32);
                 end loop;

@@ -44,7 +44,7 @@ use nf.nf_mem_pkg.all;
 
 package nf_tb_def is
     -- enable debug instruction messages
-    constant debug_lev0     : boolean   := true;
+    constant debug_lev0     : boolean   := false;
     -- enable term logging
     constant log_term       : boolean   := true;
     -- enable txt logging
@@ -258,7 +258,7 @@ package nf_tb_def is
 
     function ret_i_code(instr_cf_in : instr_cf) return std_logic_vector;
 
-    function update_pipe_str(str_in : string) return string;
+    function update_pipe_str(str_in : string ; str_len : integer) return string;
 
     function write_txt_table(reg_file : mem_t) return string;
 
@@ -357,9 +357,9 @@ package body nf_tb_def is
         return ("ERROR! Unknown instruction = " & to_string(pipe_slv));
     end function;
 
-    function update_pipe_str(str_in : string) return string is
+    function update_pipe_str(str_in : string ; str_len : integer) return string is
     begin
-        return ( str_in & ( 50 - str_in'length downto 1 => ' ' ) );
+        return ( str_in & ( str_len - str_in'length downto 1 => ' ' ) );
     end function;
 
     function write_txt_table(reg_file : mem_t) return string is

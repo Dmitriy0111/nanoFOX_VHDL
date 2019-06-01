@@ -327,7 +327,7 @@ architecture rtl of nf_cpu is
 begin
 
     -- next program counter value for branch command
-    pc_branch  <= ( pc_id + ( ext_data_id(30 downto 0) & '0' ) - 4 ) when ( not branch_src(0) ) else ( rd1_id + ( ext_data_id(30 downto 0) & '0' ) );
+    pc_branch  <= ( pc_id + ( ext_data_id(30 downto 0) & '0' ) - 4 ) when ( not branch_src(0) ) else ( cmp_d1 + ext_data_id );
     result_iexe_e <= result_iexe when ( res_sel_iexe(0) = RES_ALU ) else pc_iexe;
     wa3    <= wa3_iwb;
     wd3    <= wd_iwb;

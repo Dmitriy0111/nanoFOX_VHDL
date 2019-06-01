@@ -29,13 +29,13 @@ end nf_reg_file;
 
 architecture rtl of nf_reg_file is
     -- creating register file
-    signal  reg_file    :   mem_t(31 downto 0)(31 downto 0) := ( others => 32X"00000000" );
+    signal  reg_file    :   mem_t(31 downto 0)(31 downto 0) := ( 0  => 32X"00000000", others => 32X"XXXXXXXX" );
 begin
 
     -- getting read data 1 from register file
-    rd1 <= ( others => '0' ) when ( ra1 = 5X"00" ) else wd3 when ( wa3 = ra1 ) else reg_file( to_integer( unsigned( ra1 ) ) );
+    rd1 <= ( others => '0' ) when ( ra1 = 5X"00" ) else wd3 when ( ( wa3 = ra1 ) and we3 = '1' ) else reg_file( to_integer( unsigned( ra1 ) ) );
     -- getting read data 2 from register file
-    rd2 <= ( others => '0' ) when ( ra2 = 5X"00" ) else wd3 when ( wa3 = ra2 ) else reg_file( to_integer( unsigned( ra2 ) ) );
+    rd2 <= ( others => '0' ) when ( ra2 = 5X"00" ) else wd3 when ( ( wa3 = ra2 ) and we3 = '1' ) else reg_file( to_integer( unsigned( ra2 ) ) );
     -- writing value in register file
     write2reg_file : process( clk )
     begin
