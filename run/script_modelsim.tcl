@@ -42,14 +42,10 @@ if {$test == "nf_uart_transmitter test"} {
     #set sub_test "rx_test"
     set sub_test "tx_test"
 
-    vcom -2008 ../inc/nf_help_pkg.vhd -work nf
-    vcom -2008 ../inc/nf_uart_pkg.vhd -work nf
-    vcom -2008 ../inc/nf_settings.vhd -work nf
-    vcom -2008 ../rtl/periphery/uart/nf_uart_transmitter.vhd
-    vcom -2008 ../rtl/periphery/uart/nf_uart_receiver.vhd
-    vcom -2008 ../rtl/common/nf_registers.vhd
-    vcom -2008 ../rtl/periphery/nf_cdc.vhd
-    vcom -2008 ../rtl/periphery/uart/nf_uart_top.vhd
+    vcom -2008 ../inc/*.vhd -work nf
+    vcom -2008 ../rtl/periphery/uart/*.vhd
+    vcom -2008 ../rtl/common/*.vhd
+    vcom -2008 ../rtl/periphery/*.vhd
     vlog ../tb/nf_uart_top_tb.sv
 
     vsim -novopt work.nf_uart_top_tb -g nf_uart_top_tb/tx_rx_test=$sub_test
@@ -59,45 +55,17 @@ if {$test == "nf_uart_transmitter test"} {
 
 } elseif {$test == "nf_top test"} {
 
-    vcom -2008 ../inc/nf_help_pkg.vhd           -work nf
-    vcom -2008 ../inc/nf_ahb_pkg.vhd            -work nf
-    vcom -2008 ../inc/nf_mem_pkg.vhd            -work nf
-    vcom -2008 ../inc/nf_uart_pkg.vhd           -work nf
-    vcom -2008 ../inc/nf_settings.vhd           -work nf
-    vcom -2008 ../inc/nf_cpu_def.vhd            -work nf
-    vcom -2008 ../program_file/nf_program.vhd   -work nf
+    vcom -2008 ../inc/*.vhd                     -work nf
+    vcom -2008 ../program_file/*.vhd            -work nf
 
-    vcom -2008  ../rtl/core/nf_alu.vhd
-    vcom -2008  ../rtl/core/nf_branch_unit.vhd
-    vcom -2008  ../rtl/core/nf_control_unit.vhd
-    vcom -2008  ../rtl/core/nf_sign_ex.vhd
-    vcom -2008  ../rtl/core/nf_reg_file.vhd
-    vcom -2008  ../rtl/core/nf_i_exu.vhd
-    vcom -2008  ../rtl/core/nf_hz_bypass_unit.vhd
-    vcom -2008  ../rtl/core/nf_i_fu.vhd
-    vcom -2008  ../rtl/core/nf_i_du.vhd
-    vcom -2008  ../rtl/core/nf_hz_stall_unit.vhd
-    vcom -2008  ../rtl/core/nf_i_lsu.vhd
-    vcom -2008  ../rtl/core/nf_cpu_cc.vhd
-    vcom -2008  ../rtl/common/nf_registers.vhd
-    vcom -2008  ../rtl/periphery/nf_ram.vhd
-    vcom -2008  ../rtl/periphery/nf_cdc.vhd
-    vcom -2008  ../rtl/periphery/pwm/nf_pwm.vhd
-    vcom -2008  ../rtl/periphery/gpio/nf_gpio.vhd
-    vcom -2008  ../rtl/periphery/uart/nf_uart_transmitter.vhd
-    vcom -2008  ../rtl/periphery/uart/nf_uart_receiver.vhd
-    vcom -2008  ../rtl/periphery/uart/nf_uart_top.vhd
-    vcom -2008  ../rtl/ahb/nf_ahb_mux.vhd
-    vcom -2008  ../rtl/ahb/nf_ahb_dec.vhd 
-    vcom -2008  ../rtl/ahb/nf_ahb_router.vhd
-    vcom -2008  ../rtl/ahb/nf_ahb2core.vhd
-    vcom -2008  ../rtl/ahb/nf_ahb_top.vhd
-    vcom -2008  ../rtl/ahb/nf_ahb_pwm.vhd
-    vcom -2008  ../rtl/ahb/nf_ahb_gpio.vhd
-    vcom -2008  ../rtl/ahb/nf_ahb_uart.vhd
-    vcom -2008  ../rtl/ahb/nf_ahb_ram.vhd
-    vcom -2008  ../rtl/core/nf_cpu.vhd
-    vcom -2008  ../rtl/nf_top.vhd
+    vcom -2008  ../rtl/core/*.vhd
+    vcom -2008  ../rtl/common/*.vhd
+    vcom -2008  ../rtl/periphery/*.vhd
+    vcom -2008  ../rtl/periphery/pwm/*.vhd
+    vcom -2008  ../rtl/periphery/gpio/*.vhd
+    vcom -2008  ../rtl/periphery/uart/*.vhd
+    vcom -2008  ../rtl/ahb/*.vhd
+    vcom -2008  ../rtl/*.vhd
 
     vcom -2008  ../tb/nf_tb_def.vhd             -work nf
     vcom -2008  ../tb/nf_tb.vhd
