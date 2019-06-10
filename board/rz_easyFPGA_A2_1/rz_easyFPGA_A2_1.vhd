@@ -26,9 +26,8 @@ end rz_easyFPGA_A2_1;
 
 architecture rtl of rz_easyFPGA_A2_1 is
     -- generic params
-    constant    debug_type  : string := "hex";
+    constant    debug_type  : string := "vga";
     constant    cpu         : string := "nanoFOX";
-    constant    sub_path    : string := "../../brd_rtl/DebugScreenCore/";
     -- wires & inputs
     -- clock and reset
     signal clk      : std_logic;                        -- clock
@@ -70,12 +69,11 @@ architecture rtl of rz_easyFPGA_A2_1 is
             dig         : out   std_logic_vector(3  downto 0)   -- digital tube selector
         );
     end component;
-    -- vha_ds_top
+    -- vga_ds_top
     component vga_ds_top
         generic
         (
-            cpu         : string := "nanoFOX";                  -- cpu type
-            sub_path    : string := "../"                       -- sub path for DebugScreenCore memorys
+            cpu         : string := "nanoFOX"                   -- cpu type
         );
         port
         (
@@ -144,23 +142,22 @@ begin
         vga_ds_top_0 : vga_ds_top
         generic map
         (
-            cpu         => cpu,         -- cpu type
-            sub_path    => sub_path     -- sub path for DebugScreenCore memorys
+            cpu         => cpu          -- cpu type
         )
         port map
         (
-            clk         =>   clk,       -- clock
-            resetn      =>   resetn,    -- reset
-            en          =>   en,        -- enable input
-            hsync       =>   hsync,     -- hsync output
-            vsync       =>   vsync,     -- vsync output
-            bgColor     =>   12X"00F",  -- Background color
-            fgColor     =>   12X"F00",  -- Foreground color
-            regData     =>   reg_data,  -- Register data input from cpu
-            regAddr     =>   reg_addr,  -- Register data output to cpu
-            R           =>   R_i,       -- R-color
-            G           =>   G_i,       -- G-color
-            B           =>   B_i        -- B-color
+            clk         => clk,         -- clock
+            resetn      => resetn,      -- reset
+            en          => en,          -- enable input
+            hsync       => hsync,       -- hsync output
+            vsync       => vsync,       -- vsync output
+            bgColor     => 12X"00F",    -- Background color
+            fgColor     => 12X"F00",    -- Foreground color
+            regData     => reg_data,    -- Register data input from cpu
+            regAddr     => reg_addr,    -- Register data output to cpu
+            R           => R_i,         -- R-color
+            G           => G_i,         -- G-color
+            B           => B_i          -- B-color
         );
 
         en_proc : process(all)
