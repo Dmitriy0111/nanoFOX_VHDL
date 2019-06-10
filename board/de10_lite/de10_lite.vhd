@@ -40,7 +40,6 @@ architecture rtl of de10_lite is
     -- generic params
     constant    debug_type  : string := "vga";
     constant    cpu         : string := "nanoFOX";
-    constant    sub_path    : string := "../../brd_rtl/DebugScreenCore/";
     -- wires & inputs
     -- clock and reset
     signal clk      : std_logic;                        -- clock
@@ -92,12 +91,11 @@ architecture rtl of de10_lite is
             seven_seg   : out   std_logic_vector(hn*8-1 downto 0)   -- seven segments output
         );
     end component;
-    -- vha_ds_top
+    -- vga_ds_top
     component vga_ds_top
         generic
         (
-            cpu         : string := "nanoFOX";                  -- cpu type
-            sub_path    : string := "../"                       -- sub path for DebugScreenCore memorys
+            cpu         : string := "nanoFOX"                   -- cpu type
         );
         port
         (
@@ -177,23 +175,22 @@ begin
         vga_ds_top_0 : vga_ds_top
         generic map
         (
-            cpu         => cpu,         -- cpu type
-            sub_path    => sub_path     -- sub path for DebugScreenCore memorys
+            cpu         => cpu          -- cpu type
         )
         port map
         (
-            clk         =>   clk,       -- clock
-            resetn      =>   resetn,    -- reset
-            en          =>   en,        -- enable input
-            hsync       =>   hsync,     -- hsync output
-            vsync       =>   vsync,     -- vsync output
-            bgColor     =>   12X"00F",  -- Background color
-            fgColor     =>   12X"F00",  -- Foreground color
-            regData     =>   reg_data,  -- Register data input from cpu
-            regAddr     =>   reg_addr,  -- Register data output to cpu
-            R           =>   R,         -- R-color
-            G           =>   G,         -- G-color
-            B           =>   B          -- B-color
+            clk         => clk,         -- clock
+            resetn      => resetn,      -- reset
+            en          => en,          -- enable input
+            hsync       => hsync,       -- hsync output
+            vsync       => vsync,       -- vsync output
+            bgColor     => 12X"00F",    -- Background color
+            fgColor     => 12X"F00",    -- Foreground color
+            regData     => reg_data,    -- Register data input from cpu
+            regAddr     => reg_addr,    -- Register data output to cpu
+            R           => R,           -- R-color
+            G           => G,           -- G-color
+            B           => B            -- B-color
         );
 
         en_proc : process(all)
