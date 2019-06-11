@@ -1,5 +1,5 @@
 --
--- File            :   nf_top.vhd
+-- File            :   nf_top_ahb.vhd
 -- Autor           :   Vlasov D.V.
 -- Data            :   2019.04.19
 -- Language        :   VHDL
@@ -16,7 +16,7 @@ use nf.nf_settings.all;
 use nf.nf_program.all;
 use nf.nf_mem_pkg.all;
 
-entity nf_top is
+entity nf_top_ahb is
     port 
     (
         -- clock and reset
@@ -32,9 +32,9 @@ entity nf_top is
         uart_tx     : out   std_logic;                                  -- UART tx wire
         uart_rx     : in    std_logic                                   -- UART rx wire
     );
-end nf_top;
+end nf_top_ahb;
 
-architecture rtl of nf_top is
+architecture rtl of nf_top_ahb is
     constant gpio_w     :   integer := NF_GPIO_WIDTH;
     constant slave_c    :   integer := SLAVE_COUNT;
 
@@ -528,4 +528,4 @@ begin
         rd      => ram_rd       -- read data
     );
 
-end rtl; -- nf_top
+end rtl; -- nf_top_ahb

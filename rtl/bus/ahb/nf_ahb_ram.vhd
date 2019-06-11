@@ -9,6 +9,8 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+use ieee.std_logic_unsigned.all;
 library nf;
 use nf.nf_settings.all;
 use nf.nf_ahb_pkg.all;
@@ -80,13 +82,33 @@ architecture rtl of nf_ahb_ram is
 begin
 
     ram_addr <= ram_addr_i;
-    ram_we   <= 4X"F" when ( bool2sl( hsize_s_ff = AHB_HSIZE_W ) and ram_we_i(0) ) else 4X"0";   -- only lw/sw instructions
     ram_wd   <= hwdata_s;
     hrdata_s <= ram_rd;
     hresp_s  <= AHB_HRESP_OKAY;
     hready_s <= hready_s_i(0);
     ram_request  <= sl2slv( hsel_s and bool2sl( htrans_s /= AHB_HTRANS_IDLE) );
     ram_wrequest <= ram_request and sl2slv(hwrite_s);
+
+    -- finding write enable for ram
+    ram_we(0) <= '1' when ( ( ( hsize_s_ff = AHB_HSIZE_W ) or 
+                ( ( hsize_s_ff = AHB_HSIZE_HW ) and ( ram_addr_i(1 downto 0) = "00" ) ) or 
+                ( ( hsize_s_ff = AHB_HSIZE_B  ) and ( ram_addr_i(1 downto 0) = "00" ) ) ) and
+                ( ram_we_i = "1" ) ) else '0';
+    -- finding write enable for ram
+    ram_we(1) <= '1' when ( ( ( hsize_s_ff = AHB_HSIZE_W ) or 
+                ( ( hsize_s_ff = AHB_HSIZE_HW ) and ( ram_addr_i(1 downto 0) = "00" ) ) or 
+                ( ( hsize_s_ff = AHB_HSIZE_B  ) and ( ram_addr_i(1 downto 0) = "01" ) ) ) and
+                ( ram_we_i = "1" ) ) else '0';
+    -- finding write enable for ram
+    ram_we(2) <= '1' when ( ( ( hsize_s_ff = AHB_HSIZE_W ) or 
+                ( ( hsize_s_ff = AHB_HSIZE_HW ) and ( ram_addr_i(1 downto 0) = "10" ) ) or 
+                ( ( hsize_s_ff = AHB_HSIZE_B  ) and ( ram_addr_i(1 downto 0) = "10" ) ) ) and
+                ( ram_we_i = "1" ) ) else '0';
+    -- finding write enable for ram
+    ram_we(3) <= '1' when ( ( ( hsize_s_ff = AHB_HSIZE_W ) or 
+                ( ( hsize_s_ff = AHB_HSIZE_HW ) and ( ram_addr_i(1 downto 0) = "10" ) ) or 
+                ( ( hsize_s_ff = AHB_HSIZE_B  ) and ( ram_addr_i(1 downto 0) = "11" ) ) ) and
+                ( ram_we_i = "1" ) ) else '0';
 
     -- creating control and address registers
     ram_addr_ff : nf_register_we generic map( 32 ) port map ( hclk, hresetn, ram_request(0) , haddr_s, ram_addr_i );

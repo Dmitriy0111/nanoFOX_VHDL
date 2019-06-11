@@ -64,7 +64,7 @@ architecture rtl of de0_nano is
     signal uart_tx  : std_logic;                    -- UART tx wire
     signal uart_rx  : std_logic;                    -- UART rx wire
     -- nf_top
-    component nf_top
+    component nf_top_ahb
         port
         (
             -- clock and reset
@@ -91,8 +91,8 @@ begin
     GPIO_0(4) <= uart_tx;
     uart_rx   <= GPIO_0(5);
 
-    -- creating one nf_top_0 unit
-    nf_top_0 : nf_top 
+    -- creating one nf_top_ahb_0 unit
+    nf_top_ahb_0 : nf_top_ahb 
     port map
     (
         clk         => clk,

@@ -19,8 +19,9 @@ entity nf_i_du is
     (
         instr       : in    std_logic_vector(31 downto 0);  -- Instruction input
         ext_data    : out   std_logic_vector(31 downto 0);  -- decoded extended data
-        srcB_sel    : out   std_logic;                      -- decoded source B selection for ALU
-        shift_sel   : out   std_logic;                      -- for selecting shift input
+        srcB_sel    : out   std_logic_vector(1  downto 0);  -- decoded source B selection for ALU
+        srcA_sel    : out   std_logic_vector(1  downto 0);  -- decoded source A selection for ALU
+        shift_sel   : out   std_logic_vector(1  downto 0);  -- for selecting shift input
         res_sel     : out   std_logic;                      -- for selecting result
         ALU_Code    : out   std_logic_vector(3  downto 0);  -- decoded ALU code
         shamt       : out   std_logic_vector(4  downto 0);  -- decoded for shift command's
@@ -29,11 +30,18 @@ entity nf_i_du is
         ra2         : out   std_logic_vector(4  downto 0);  -- decoded read address 2 for register file
         rd2         : in    std_logic_vector(31 downto 0);  -- read data 2 from register file
         wa3         : out   std_logic_vector(4  downto 0);  -- decoded write address 2 for register file
+        csr_addr    : out   std_logic_vector(11 downto 0);  -- csr address
+        csr_cmd     : out   std_logic_vector(1  downto 0);  -- csr command
+        csr_rreq    : out   std_logic;                      -- read request to csr
+        csr_wreq    : out   std_logic;                      -- write request to csr
+        csr_sel     : out   std_logic;                      -- csr select ( zimm or rd1 )
+        m_ret       : out   std_logic;                      -- m return
         pc_src      : out   std_logic;                      -- decoded next program counter value enable
         we_rf       : out   std_logic;                      -- decoded write register file
         we_dm_en    : out   std_logic;                      -- decoded write data memory
         rf_src      : out   std_logic;                      -- decoded source register file signal
         size_dm     : out   std_logic_vector(1  downto 0);  -- size for load/store instructions
+        sign_dm     : out   std_logic;                      -- sign extended data memory for load instructions
         branch_src  : out   std_logic;                      -- for selecting branch source (JALR)
         branch_type : out   std_logic_vector(3  downto 0)   -- branch type
     );
@@ -51,29 +59,41 @@ architecture rtl of nf_i_du is
     signal opcode           : std_logic_vector(4  downto 0);    -- instruction operation code
     signal funct3           : std_logic_vector(2  downto 0);    -- instruction function 3 field
     signal funct7           : std_logic_vector(6  downto 0);    -- instruction function 7 field
+    signal funct12          : std_logic_vector(11 downto 0);    -- instruction function 12 field
     signal branch_hf        : std_logic;                        -- branch help field
     signal branch_type_i    : std_logic_vector(3  downto 0);    -- branch type internal
     signal imm_src          : std_logic_vector(4  downto 0);    -- immediate source selecting
+
+    signal wa3_i            : std_logic_vector(4  downto 0);    -- decoded write address 2 for register file (internal)
     -- nf_control_unit
     component nf_control_unit
         port 
         (
-            instr_type  : in    std_logic_vector(1 downto 0);   -- instruction type
-            opcode      : in    std_logic_vector(4 downto 0);   -- operation code field in instruction code
-            funct3      : in    std_logic_vector(2 downto 0);   -- funct 3 field in instruction code
-            funct7      : in    std_logic_vector(6 downto 0);   -- funct 7 field in instruction code
-            imm_src     : out   std_logic_vector(4 downto 0);   -- for selecting immediate data
-            srcBsel     : out   std_logic;                      -- for selecting srcB ALU
-            shift_sel   : out   std_logic;                      -- for selecting shift input
-            res_sel     : out   std_logic;                      -- for selecting result
-            branch_type : out   std_logic_vector(3 downto 0);   -- for executing branch instructions
-            branch_hf   : out   std_logic;                      -- branch help field
-            branch_src  : out   std_logic;                      -- for selecting branch source (JALR)
-            we_rf       : out   std_logic;                      -- write enable signal for register file    
-            we_dm       : out   std_logic;                      -- write enable signal for data memory and other's
-            rf_src      : out   std_logic;                      -- write data select for register file
-            size_dm     : out   std_logic_vector(1 downto 0);   -- size for load/store instructions
-            ALU_Code    : out   std_logic_vector(3 downto 0)    -- output code for ALU unit
+            instr_type  : in   std_logic_vector(1  downto 0);   -- instruction type
+            opcode      : in   std_logic_vector(4  downto 0);   -- operation code field in instruction code
+            funct3      : in   std_logic_vector(2  downto 0);   -- funct 3 field in instruction code
+            funct7      : in   std_logic_vector(6  downto 0);   -- funct 7 field in instruction code
+            funct12     : in   std_logic_vector(11 downto 0);   -- funct 12 field in instruction code
+            wa3         : in   std_logic_vector(4  downto 0);   -- write address field
+            imm_src     : out  std_logic_vector(4  downto 0);   -- for enable immediate data
+            srcB_sel    : out  std_logic_vector(1  downto 0);   -- for selecting srcB ALU
+            srcA_sel    : out  std_logic_vector(1  downto 0);   -- for selecting srcA ALU
+            shift_sel   : out  std_logic_vector(1  downto 0);   -- for selecting shift input
+            res_sel     : out  std_logic;                       -- for selecting result
+            branch_type : out  std_logic_vector(3  downto 0);   -- for executing branch instructions
+            branch_hf   : out  std_logic;                       -- branch help field
+            branch_src  : out  std_logic;                       -- for selecting branch source (JALR)
+            we_rf       : out  std_logic;                       -- write enable signal for register file
+            we_dm       : out  std_logic;                       -- write enable signal for data memory and others
+            rf_src      : out  std_logic;                       -- write data select for register file
+            size_dm     : out  std_logic_vector(1  downto 0);   -- size for load/store instructions
+            sign_dm     : out  std_logic;                       -- sign extended data memory for load instructions
+            csr_cmd     : out  std_logic_vector(1  downto 0);   -- csr command
+            csr_rreq    : out  std_logic;                       -- read request to csr
+            csr_wreq    : out  std_logic;                       -- write request to csr
+            csr_sel     : out  std_logic;                       -- csr select ( zimm or rd1 )
+            m_ret       : out  std_logic;                       -- m return
+            ALU_Code    : out  std_logic_vector(3  downto 0)    -- output code for ALU unit
         );
     end component;
     -- nf_sign_ex
@@ -106,14 +126,18 @@ begin
     -- shamt value in instruction
     shamt <= instr(24 downto 20);
     -- register file wires
-    ra1 <= instr(19  downto 15);
-    ra2 <= instr(24  downto 20);
-    wa3 <= instr(11  downto  7);
+    ra1   <= instr(19  downto 15);
+    ra2   <= instr(24  downto 20);
+    wa3   <= wa3_i;
+    wa3_i <= instr(11  downto  7);
     -- operation code, funct3 and funct7 field's in instruction
     instr_type <= instr(1  downto  0);
     opcode     <= instr(6  downto  2);
     funct3     <= instr(14 downto 12);
     funct7     <= instr(31 downto 25);
+    funct12    <= instr(31 downto 20);
+    -- findind csr address
+    csr_addr   <= instr(31 downto 20);
     -- immediate data in instruction
     imm_data_i <= instr(31 downto 20);
     imm_data_u <= instr(31 downto 12);
@@ -129,17 +153,26 @@ begin
         opcode          => opcode,          -- operation code field in instruction code
         funct3          => funct3,          -- funct 3 field in instruction code
         funct7          => funct7,          -- funct 7 field in instruction code
-        srcBsel         => srcB_sel,        -- for selecting srcB ALU
+        funct12         => funct12,         -- funct 12 field in instruction code
+        wa3             => wa3_i,           -- write address field
+        imm_src         => imm_src,         -- for enable immediate data
+        srcB_sel        => srcB_sel,        -- for selecting srcB ALU
+        srcA_sel        => srcA_sel,        -- for selecting srcA ALU
         shift_sel       => shift_sel,       -- for selecting shift input
         res_sel         => res_sel,         -- for selecting result
-        branch_type     => branch_type_i,   -- branch type 
+        branch_type     => branch_type_i,   -- for executing branch instructions
         branch_hf       => branch_hf,       -- branch help field
         branch_src      => branch_src,      -- for selecting branch source (JALR)
         we_rf           => we_rf,           -- write enable signal for register file
         we_dm           => we_dm_en,        -- write enable signal for data memory and others
         rf_src          => rf_src,          -- write data select for register file
-        imm_src         => imm_src,         -- selection immediate data input
         size_dm         => size_dm,         -- size for load/store instructions
+        sign_dm         => sign_dm,         -- sign extended data memory for load instructions
+        csr_cmd         => csr_cmd,         -- csr command
+        csr_rreq        => csr_rreq,        -- read request to csr
+        csr_wreq        => csr_wreq,        -- write request to csr
+        csr_sel         => csr_sel,         -- csr select ( zimm or rd1 )
+        m_ret           => m_ret,           -- m return
         ALU_Code        => ALU_Code         -- output code for ALU unit
     );
     -- creating sign extending unit

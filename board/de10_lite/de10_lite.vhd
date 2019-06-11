@@ -45,8 +45,8 @@ architecture rtl of de10_lite is
     -- hex
     signal hex      :   std_logic_vector(47 downto 0);  -- hex values from convertors
     -- component definition
-    -- nf_top
-    component nf_top
+    -- nf_top_ahb
+    component nf_top_ahb
         port 
         (
             -- clock and reset
@@ -90,8 +90,8 @@ begin
     ledr(8)  <= pwm;
     ledr(7 downto 0) <= gpio_o_0;
     
-    -- creating one nf_top_0 unit
-    nf_top_0 : nf_top 
+    -- creating one nf_top_ahb_0 unit
+    nf_top_ahb_0 : nf_top_ahb 
     port map
     (
         -- clock and reset

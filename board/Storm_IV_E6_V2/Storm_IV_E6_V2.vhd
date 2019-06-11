@@ -42,8 +42,8 @@ architecture rtl of Storm_IV_E6_V2 is
     signal hex      :   std_logic_vector(7  downto 0);  -- for hex display
     signal dig      :   std_logic_vector(3  downto 0);
     -- component definition
-    -- nf_top
-    component nf_top
+    -- nf_top_ahb
+    component nf_top_ahb
         port 
         (
             -- clock and reset
@@ -85,8 +85,8 @@ begin
     hsync    <= dig(2);
     vsync    <= dig(3);
     led(0)   <= pwm; 
-    -- creating one nf_top_0 unit
-    nf_top_0 : nf_top 
+    -- creating one nf_top_ahb_0 unit
+    nf_top_ahb_0 : nf_top_ahb 
     port map
     (
         -- clock and reset

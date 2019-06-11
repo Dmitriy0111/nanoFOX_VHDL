@@ -20,8 +20,10 @@ entity nf_i_exu is
         rd1         : in    std_logic_vector(31 downto 0);  -- read data from reg file (port1)
         rd2         : in    std_logic_vector(31 downto 0);  -- read data from reg file (port2)
         ext_data    : in    std_logic_vector(31 downto 0);  -- sign extended immediate data
-        srcB_sel    : in    std_logic;                      -- source enable signal for ALU
-        shift_sel   : in    std_logic;                      -- for selecting shift input
+        pc_v        : in    std_logic_vector(31 downto 0);  -- program-counter value
+        srcA_sel    : in    std_logic_vector(1  downto 0);  -- source A enable signal for ALU
+        srcB_sel    : in    std_logic_vector(1  downto 0);  -- source B enable signal for ALU
+        shift_sel   : in    std_logic_vector(1  downto 0);  -- for selecting shift input
         shamt       : in    std_logic_vector(4  downto 0);  -- for shift operation
         ALU_Code    : in    std_logic_vector(3  downto 0);  -- ALU code from control unit
         result      : out   std_logic_vector(31 downto 0)   -- result of ALU operation
@@ -32,24 +34,53 @@ architecture rtl of nf_i_exu is
     -- wires for ALU inputs
     signal srcA     : std_logic_vector(31 downto 0);    -- source A ALU
     signal srcB     : std_logic_vector(31 downto 0);    -- source B ALU
-    signal shift    : std_logic_vector(31 downto 0);    -- for shamt ALU input
+    signal shift    : std_logic_vector(4  downto 0);    -- for shamt ALU input
     -- nf_alu
     component nf_alu
         port 
         (
             srcA        : in    std_logic_vector(31 downto 0);  -- source A for ALU unit
             srcB        : in    std_logic_vector(31 downto 0);  -- source B for ALU unit
-            shift       : in    std_logic_vector(31 downto 0);  -- for shift operation
+            shift       : in    std_logic_vector(4  downto 0);  -- for shift operation
             ALU_Code    : in    std_logic_vector(3  downto 0);  -- ALU code from control unit
             result      : out   std_logic_vector(31 downto 0)   -- result of ALU operation
         );
     end component;
 begin
 
-    -- assign's ALU signals
-    srcA  <= rd1;
-    srcB  <= rd2 when ( srcB_sel  = SRCB_RD2(0) ) else ext_data;
-    shift <= rd2 when ( shift_sel = SRCS_RD2(0) ) else ( 27X"0" & shamt );
+    -- finding srcA value
+    srcA_proc : process( all )
+    begin
+        srcA <= rd1;
+        case( srcA_sel ) is
+            when SRCA_IMM   => srcA <= ext_data;
+            when SRCA_RD1   => srcA <= rd1;
+            when SRCA_PC    => srcA <= pc_v;
+            when others     =>
+        end case;
+    end process;
+    -- finding srcB value
+    srcB_proc : process( all )
+    begin
+        srcB <= rd2;
+        case( srcB_sel ) is
+            when SRCB_RD2   => srcB <= rd2;
+            when SRCB_IMM   => srcB <= ext_data;
+            when SRCB_12    => srcB <= std_logic_vector( shift_left ( unsigned( ext_data ) , 12) );
+            when others     =>
+        end case;
+    end process;
+    -- finding shift value
+    shift_proc : process( all )
+    begin
+        shift <= rd2(4 downto 0);
+        case( shift_sel ) is
+            when SRCS_SHAMT => shift <= shamt;
+            when SRCS_RD2   => shift <= rd2(4 downto 0);
+            when SRCS_12    => shift <= 5D"12";
+            when others     =>
+        end case;
+    end process;
     -- creating ALU unit
     nf_alu_0 : nf_alu
     port map

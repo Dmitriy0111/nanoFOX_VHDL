@@ -37,8 +37,8 @@ architecture rtl of rz_easyFPGA_A2_1 is
     signal gpio2hex :   std_logic_vector(31 downto 0);  -- gpio to hex
     signal hex      :   std_logic_vector(7  downto 0);  -- for hex display
     -- component definition
-    -- nf_top
-    component nf_top
+    -- nf_top_ahb
+    component nf_top_ahb
         port 
         (
             -- clock and reset
@@ -75,8 +75,8 @@ begin
     resetn   <= rst_key;
     gpio2hex <= 24X"0" & gpio_o_0;
 
-    -- creating one nf_top_0 unit
-    nf_top_0 : nf_top 
+    -- creating one nf_top_ahb_0 unit
+    nf_top_ahb_0 : nf_top_ahb 
     port map
     (
         -- clock and reset

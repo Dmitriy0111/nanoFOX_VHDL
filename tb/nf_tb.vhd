@@ -68,7 +68,7 @@ architecture testbench of nf_tb is
     signal instr_sep_s_imem_stage : string(str_len downto 1) := (others => ' ');
     signal instr_sep_s_iwb_stage  : string(str_len downto 1) := (others => ' ');
     -- nf_top
-    component nf_top
+    component nf_top_ahb
         port 
         (
             -- clock and reset
@@ -89,17 +89,17 @@ begin
 
     gpio_i_0 <= 8X"01";
     -- associate signals
-    pc_value   <= << signal .nf_tb.nf_top_0.nf_cpu_0.addr_i : std_logic_vector(31 downto 0) >>;
+    pc_value   <= << signal .nf_tb.nf_top_ahb_0.nf_cpu_0.addr_i : std_logic_vector(31 downto 0) >>;
 
-    instr_if   <= << signal .nf_tb.nf_top_0.nf_cpu_0.instr_if   : std_logic_vector(31 downto 0) >>;
-    instr_id   <= << signal .nf_tb.nf_top_0.nf_cpu_0.instr_id   : std_logic_vector(31 downto 0) >>;
-    instr_iexe <= << signal .nf_tb.nf_top_0.nf_cpu_0.instr_iexe : std_logic_vector(31 downto 0) >>;
-    instr_imem <= << signal .nf_tb.nf_top_0.nf_cpu_0.instr_imem : std_logic_vector(31 downto 0) >>;
-    instr_iwb  <= << signal .nf_tb.nf_top_0.nf_cpu_0.instr_iwb  : std_logic_vector(31 downto 0) >>;
+    instr_if   <= << signal .nf_tb.nf_top_ahb_0.nf_cpu_0.instr_if   : std_logic_vector(31 downto 0) >>;
+    instr_id   <= << signal .nf_tb.nf_top_ahb_0.nf_cpu_0.instr_id   : std_logic_vector(31 downto 0) >>;
+    instr_iexe <= << signal .nf_tb.nf_top_ahb_0.nf_cpu_0.instr_iexe : std_logic_vector(31 downto 0) >>;
+    instr_imem <= << signal .nf_tb.nf_top_ahb_0.nf_cpu_0.instr_imem : std_logic_vector(31 downto 0) >>;
+    instr_iwb  <= << signal .nf_tb.nf_top_ahb_0.nf_cpu_0.instr_iwb  : std_logic_vector(31 downto 0) >>;
 
-    reg_file   <= << signal .nf_tb.nf_top_0.nf_cpu_0.nf_reg_file_0.reg_file  : mem_t(31 downto 0)(31 downto 0) >>;
+    reg_file   <= << signal .nf_tb.nf_top_ahb_0.nf_cpu_0.nf_reg_file_0.reg_file  : mem_t(31 downto 0)(31 downto 0) >>;
 
-    nf_top_0 : nf_top 
+    nf_top_ahb_0 : nf_top_ahb 
     port map
     (   
         -- clock and reset
