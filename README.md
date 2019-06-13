@@ -1,21 +1,50 @@
 # **nanoFOX_VHDL**
-    A small RISC-V CPU core. This is a pipeline version of CPU with AHB.
+    A small RISC-V CPU core. This is a pipeline version of CPU with AHB (full command list RV32I (without fence, fence.i, ecall, ebreak)).
     
 ## Supported instructions:
-*   add
-*   and
-*   sll
-*   or
-*   addi
-*   ori
-*   slli
-*   lw
-*   jalr
 *   lui
+*   auipc
+*   jal
+*   jalr
 *   beq
 *   bne
+*   blt
+*   bge
+*   bltu
+*   bgeu
+*   lb
+*   lh
+*   lw
+*   lbu
+*   lhu
+*   sb
+*   sh
 *   sw
-*   jal
+*   addi
+*   slti
+*   sltiu
+*   xori
+*   ori
+*   andi
+*   slli
+*   srli
+*   srai
+*   add
+*   sub
+*   sll
+*   slt
+*   sltu
+*   xor
+*   srl
+*   sra
+*   or
+*   and
+*   csrrw
+*   csrrs
+*   csrrc
+*   csrrwi
+*   csrrsi
+*   csrrci
 
 ## Quickstart:
 For loading project with git program:

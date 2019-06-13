@@ -180,8 +180,8 @@ begin
                     when B_OP0          => 
                         case( instr_cf_0.F3(2 downto 1) ) is
                             when "00"   => branch_type <= B_EQ_NEQ;
-                            when "01"   => branch_type <= B_GE_LT;
-                            when "10"   => branch_type <= B_GEU_LTU;
+                            when "10"   => branch_type <= B_GE_LT;
+                            when "11"   => branch_type <= B_GEU_LTU;
                             when others => 
                         end case;
                     when J_OP0 | I_OP2  => branch_type <= B_UB;

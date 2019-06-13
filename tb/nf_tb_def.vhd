@@ -46,11 +46,11 @@ package nf_tb_def is
     -- enable debug instruction messages
     constant debug_lev0     : boolean   := false;
     -- enable term logging
-    constant log_term       : boolean   := true;
+    constant log_term       : boolean   := false;
     -- enable txt logging
     constant log_txt        : boolean   := true;
     -- enable html logging
-    constant log_html       : boolean   := true;
+    constant log_html       : boolean   := false;
     -- enable logging
     constant log_en         : boolean   := true;
 

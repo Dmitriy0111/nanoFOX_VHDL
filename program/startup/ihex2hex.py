@@ -7,24 +7,24 @@
 #  Copyright(c)    :   2018 - 2019 Vlasov D.V.
 #
 
+import sys
 
 pars_file  = open("program_file/program.ihex" , "r")
 
 out_file_f = open("program_file/nf_program.vhd"  , "w")    # full mem [31:0]
 
 hi_addr = 0
-out_file_f.write('''
-library ieee;
-use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
-library work;
-use work.nf_mem_pkg.all;
-
-package nf_program is
-
-    constant program : mem_t(1024*4-1 downto 0)(7 downto 0) :=
-    (
-''')
+out_file_f.write(str("\
+library ieee;\n\
+use ieee.std_logic_1164.all;\n\
+use ieee.numeric_std.all;\n\
+library work;\n\
+use work.nf_mem_pkg.all;\n\
+\n\
+package nf_program is\n\
+\n\
+    constant program : mem_t({:s}*4-1 downto 0)(7 downto 0) := \
+    ( ".format(sys.argv[1]) ) )
 
 for lines in pars_file:
     # find checksum

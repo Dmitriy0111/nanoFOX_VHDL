@@ -43,10 +43,10 @@ begin
     sub_res <= ( '0' & d1 ) - ( '0' & d2 );
     -- finding flags
     equal <= '1' when ( d1 = d2 ) else '0';                 -- equal flag
-    zero  <= '1' when sub_res = (32 downto 0 => '0') else '0';   -- finding zero flag
+    zero  <= '1' when sub_res = (31 downto 0 => '0') else '0';   -- finding zero flag
     carry <= sub_res(32);                                   -- finding carry flag
     sign  <= sub_res(31);                                   -- finding sign flag
-    sof   <= ( not d1(31) and d2(31) and sub_res(31) ) or ( d1(31) and not d2(31) and not sub_res(31) ); -- finding substruction overflow flag
+    sof   <= ( ( not d1(31) ) and d2(31) and sub_res(31) ) or ( d1(31) and ( not d2(31) ) and ( not sub_res(31) ) ); -- finding substruction overflow flag
     -- finding substruction overflow
     beq_bne   <= branch_type(0) and ( not ( equal         xor branch_hf ) );    -- finding result for beq or bne operation
     --beq_bne   <= branch_type(0) and ( not ( zero          xor branch_hf ) );    -- finding result for beq or bne operation
@@ -56,4 +56,3 @@ begin
     pc_src <= beq_bne or blt_bge or bltu_bgeu or branch_type(3);
 
 end rtl; -- nf_branch_unit
-

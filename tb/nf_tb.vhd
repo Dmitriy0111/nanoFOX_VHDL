@@ -25,12 +25,14 @@ end nf_tb;
 
 architecture testbench of nf_tb is
     constant timescale          : time      := 1 ns;
-    constant T                  : integer   := 20;
-    constant repeat_cycles      : integer   := 200;
-    constant resetn_delay       : integer   := 7;
-    constant work_freq          : integer   := 50000000;
-    constant uart_speed         : integer   := 115200;
-    constant uart_rec_example   : boolean   := true;
+    constant T                  : integer   := 20;          -- 50 MHz (clock period)
+    constant repeat_cycles      : integer   := 200;         -- number of repeat cycles before stop
+    constant resetn_delay       : integer   := 7;           -- delay for reset signal (posedge clk)
+    constant work_freq          : integer   := 50000000;    -- core work frequency
+    constant uart_speed         : integer   := 115200;      -- setting uart speed
+    constant uart_rec_example   : boolean   := true;        -- for working with uart receive example
+    constant stop_loop          : boolean   := true;        -- stop with loop 0000_006f
+    constant stop_cycle         : boolean   := false;       -- stop with cycle variable
     -- clock and reset
     signal clk              : std_logic;                    -- clock
     signal resetn           : std_logic;                    -- reset
@@ -44,6 +46,7 @@ architecture testbench of nf_tb is
     -- help signals
     signal cycle_counter    : integer := 0;                 -- variable for cpu cycle
     signal rst_c            : integer := 0;
+    signal loop_c           : integer := 0;
 
     signal pc_value     : std_logic_vector(31 downto 0);
     signal instr_if     : std_logic_vector(31 downto 0);  
@@ -178,9 +181,13 @@ begin
                 -- copy terminal message in html message
                 write(log_h_line, string'("<font size = ""4"">") );
                 write(log_h_line, string'("<pre>") );
-                writeline(html_log, log_h_line);
+                if( log_html ) then
+                    writeline(html_log, log_h_line);
+                end if;
                 log_h_line := new string'(term_line.all);
-                writeline(html_log, log_h_line);
+                if( log_html ) then
+                    writeline(html_log, log_h_line);
+                end if;
                 -- form register file table for terminal and log file
                 write(term_line, write_txt_table(reg_file) & LF );
                 -- copy terminal message in log message
@@ -258,13 +265,14 @@ begin
         wait for (T / 2 * timescale);
         clk <= '1';
         wait for (T / 2 * timescale);
-        if( cycle_counter = repeat_cycles) then
+        if( ( cycle_counter = repeat_cycles ) and stop_cycle ) then
             stop;
-            cycle_counter <= cycle_counter + 1; 
-            clk <= '0';
-            wait for (T / 2 * timescale);
-            clk <= '1';
-            wait for (T / 2 * timescale);
+        end if;
+        if( ( instr_id = 32X"0000006f" ) and stop_loop ) then
+            loop_c <= loop_c + 1;
+        end if;
+        if( loop_c = 3 ) then
+            stop;
         end if;
     end process clk_gen;
     -- reset generation
