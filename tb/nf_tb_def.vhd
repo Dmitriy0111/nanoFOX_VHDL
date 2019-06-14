@@ -48,15 +48,15 @@ package nf_tb_def is
     -- enable term logging
     constant log_term       : boolean   := false;
     -- enable txt logging
-    constant log_txt        : boolean   := true;
+    constant log_txt        : boolean   := false;
     -- enable html logging
     constant log_html       : boolean   := false;
     -- enable logging
-    constant log_en         : boolean   := true;
+    constant log_en         : boolean   := false;
 
     type    i_list is array(natural range <>) of instr_cf;
 
-    constant I_C_LIST : i_list(0 to 38) := 
+    constant I_C_LIST : i_list(0 to 44) := 
                                             (
                                                 I_LUI,
                                                 I_AUIPC,
@@ -95,6 +95,12 @@ package nf_tb_def is
                                                 I_SRA,
                                                 I_OR,
                                                 I_AND,
+                                                I_CSRRW,
+                                                I_CSRRS,
+                                                I_CSRRC,
+                                                I_CSRRWI,
+                                                I_CSRRSI,
+                                                I_CSRRCI,
                                                 I_F,
                                                 I_UNK
                                             );

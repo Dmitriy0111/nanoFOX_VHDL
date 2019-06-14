@@ -141,20 +141,20 @@ begin
         wait until rising_edge(clk);
         wait for 1 ns;
         if( resetn ) then
-            if( log_en ) then
-                -- form debug strings
-                instruction_if_stage   <= update_pipe_str( pars_pipe_stage( instr_if   ) , str_len );
-                instruction_id_stage   <= update_pipe_str( pars_pipe_stage( instr_id   ) , str_len );
-                instruction_iexe_stage <= update_pipe_str( pars_pipe_stage( instr_iexe ) , str_len );
-                instruction_imem_stage <= update_pipe_str( pars_pipe_stage( instr_imem ) , str_len );
-                instruction_iwb_stage  <= update_pipe_str( pars_pipe_stage( instr_iwb  ) , str_len );
-                if(debug_lev0) then
-                    instr_sep_s_if_stage   <= update_pipe_str( pars_pipe_stage( instr_if   , "lv_0" ) , str_len );
-                    instr_sep_s_id_stage   <= update_pipe_str( pars_pipe_stage( instr_id   , "lv_0" ) , str_len );
-                    instr_sep_s_iexe_stage <= update_pipe_str( pars_pipe_stage( instr_iexe , "lv_0" ) , str_len );
-                    instr_sep_s_imem_stage <= update_pipe_str( pars_pipe_stage( instr_imem , "lv_0" ) , str_len );
-                    instr_sep_s_iwb_stage  <= update_pipe_str( pars_pipe_stage( instr_iwb  , "lv_0" ) , str_len );
+            -- form debug strings
+            instruction_if_stage   <= update_pipe_str( pars_pipe_stage( instr_if   ) , str_len );
+            instruction_id_stage   <= update_pipe_str( pars_pipe_stage( instr_id   ) , str_len );
+            instruction_iexe_stage <= update_pipe_str( pars_pipe_stage( instr_iexe ) , str_len );
+            instruction_imem_stage <= update_pipe_str( pars_pipe_stage( instr_imem ) , str_len );
+            instruction_iwb_stage  <= update_pipe_str( pars_pipe_stage( instr_iwb  ) , str_len );
+            if(debug_lev0) then
+                instr_sep_s_if_stage   <= update_pipe_str( pars_pipe_stage( instr_if   , "lv_0" ) , str_len );
+                instr_sep_s_id_stage   <= update_pipe_str( pars_pipe_stage( instr_id   , "lv_0" ) , str_len );
+                instr_sep_s_iexe_stage <= update_pipe_str( pars_pipe_stage( instr_iexe , "lv_0" ) , str_len );
+                instr_sep_s_imem_stage <= update_pipe_str( pars_pipe_stage( instr_imem , "lv_0" ) , str_len );
+                instr_sep_s_iwb_stage  <= update_pipe_str( pars_pipe_stage( instr_iwb  , "lv_0" ) , str_len );
                 end if;
+            if( log_en ) then
                 write(term_line, string'("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>") & LF );
                 write(term_line, "cycle = " & to_string(cycle_counter) & ", pc = 0x" & to_hstring(pc_value) & " " & time'image(now) & LF );
                 write(term_line, "Instruction fetch stage         : " & pars_pipe_stage( instr_if   ) & LF );
@@ -289,12 +289,44 @@ begin
     end process rst_gen;
     -- uart rx generation
     uart_rx_gen : process
-        variable term_log : line;
+
+        procedure wait_for_clock( rep : integer ) is
+        begin
+            for i in 0 to rep loop
+                wait until rising_edge(clk);
+            end loop;
+        end;
+
+        -- task for sending symbol over uart to receive module
+        procedure send_uart_symbol( symbol : std_logic_vector ) is
+            begin
+                -- generate 'start'
+                uart_rx <= '0';
+                wait_for_clock(work_freq / uart_speed);
+                -- generate transaction
+                for i in symbol'range loop
+                    uart_rx <= symbol(7-i);
+                    wait_for_clock(work_freq / uart_speed);
+                end loop;
+                -- generate 'stop'
+                uart_rx <= '1';
+                wait_for_clock(work_freq / uart_speed);
+        end; -- send_uart_symbol
+
+        -- task for sending message over uart to receive module
+        procedure send_uart_message( message : string ; delay_v : integer ) is
+        begin
+            for i in message'range loop
+                send_uart_symbol( std_logic_vector( to_unsigned( character'pos(message(i)) , 8 ) ) );
+                wait for delay_v * timescale;
+            end loop;
+        end; -- send_uart_message
+
     begin
         uart_rx <= '1';
         if( uart_rec_example ) then
-            write(term_log, string'("This is code for uart rx example") );
-            writeline(output, term_log);
+            wait_for_clock(200);
+            send_uart_message("Hello World!" , 100);
             wait;
         else 
             wait;

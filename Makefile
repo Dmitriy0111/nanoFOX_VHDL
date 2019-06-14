@@ -93,6 +93,7 @@ PROG_NAME ?= 00_counter
 CCF	= -march=rv32i -mabi=ilp32
 LDF	= -b elf32-littleriscv
 CPF = ihex -O ihex
+PROG_SIZE ?= 4096
 
 prog_comp_c:
 	mkdir -p program_file
@@ -102,7 +103,7 @@ prog_comp_c:
 	riscv-none-embed-ld -o program_file/main.elf -Map program_file/main.map -T program/startup/program.ld program_file/boot.o program_file/main.o program_file/vectors.o $(LDF)
 	riscv-none-embed-objdump -M no-aliases -S -w --disassemble-zeroes program_file/main.elf > program_file/main.lst
 	riscv-none-embed-objcopy program_file/main.elf program_file/program.$(CPF)
-	python program/startup/ihex2hex.py
+	python program/startup/ihex2hex.py $(PROG_SIZE)
 
 prog_comp_asm:
 	mkdir -p program_file
@@ -110,7 +111,7 @@ prog_comp_asm:
 	riscv-none-embed-ld -o program_file/main.elf -Map program_file/main.map -T program/startup/program.ld program_file/main.o $(LDF)
 	riscv-none-embed-objdump -M no-aliases -S -w --disassemble-zeroes program_file/main.elf > program_file/main.lst
 	riscv-none-embed-objcopy program_file/main.elf program_file/program.$(CPF)
-	python program/startup/ihex2hex.py
+	python program/startup/ihex2hex.py $(PROG_SIZE)
 
 prog_clean:
 	rm -rfd $(PWD)/program_file
@@ -129,6 +130,8 @@ RVC_ERR       ?=
 RVC_NT        ?= I-EBREAK-01 I-ECALL-01 I-FENCE.I-01
 # RISC V current test
 RVC_TEST      ?= I-ADD-01
+
+RVC_PROG_SIZE ?= 4096
 
 FORMAL_VER_INSTR = $@
 
@@ -155,7 +158,7 @@ prog_comp_rvc_sifive_formal:
 	riscv-none-embed-ld -o program_file/main.elf -Map program_file/main.map -T program/startup/rvc.ld program_file/main.o $(LDF)
 	riscv-none-embed-objdump -M no-aliases -S -w --disassemble-zeroes program_file/main.elf > program_file/main.lst
 	riscv-none-embed-objcopy program_file/main.elf program_file/program.$(CPF)
-	python program/startup/ihex2hex.py 4096
+	python program/startup/ihex2hex.py $(RVC_PROG_SIZE)
 
 formal_ver: \
 	prog_comp_rvc_sifive_formal \
@@ -175,7 +178,7 @@ $(RVC_LIST_TEST):
 	riscv-none-embed-ld -o program_file/main.elf -Map program_file/main.map -T program/startup/rvc.ld program_file/main.o $(LDF)
 	riscv-none-embed-objdump -M no-aliases -S -w --disassemble-zeroes program_file/main.elf > program_file/main.lst
 	riscv-none-embed-objcopy program_file/main.elf program_file/program.$(CPF)
-	python program/startup/ihex2hex.py 4096
+	python program/startup/ihex2hex.py $(RVC_PROG_SIZE)
 	python program\startup\run_rvc_gen.py $(FORMAL_VER_INSTR)
 	$(VSIM_BIN) -do $(RUN_DIR)/rvc_run.tcl -onfinish final -c -onfinish exit
 	mkdir -p rvc_log

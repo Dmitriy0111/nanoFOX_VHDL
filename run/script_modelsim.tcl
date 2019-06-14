@@ -85,7 +85,12 @@ if {$test == "nf_uart_transmitter test"} {
 
 }
 
+
+set StdArithNoWarnings 1
+set NumericStdNoWarnings 1
+
 run -all
+
 
 wave zoom full
 

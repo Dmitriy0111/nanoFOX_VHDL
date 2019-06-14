@@ -51,9 +51,9 @@ For loading project with git program:
 
     $ git clone https://github.com/Dmitriy0111/nanoFOX.git 
     $ cd nanoFOX 
-    $ git checkout 02_pipe_risc_v_cpu
+    $ git checkout 03_pipe_risc_v_cpu_fc
 
-Or download project from GitHub site <a href="https://github.com/Dmitriy0111/nanoFOX">02_pipe_risc_v_cpu</a>
+Or download project from GitHub site <a href="https://github.com/Dmitriy0111/nanoFOX">03_pipe_risc_v_cpu_fc</a>
 
 For working with project install:
 *   make
@@ -74,7 +74,9 @@ For working with project install:
 *   **make sim_dir** is used for creating simulation folder;
 *   **make sim_clean** is used for cleaning simulation result;
 *   **make sim_cmd** is used for starting simulation in command line (CMD) mode;
-*   **make sim_gui** is used for starting simulation in graphical user interface (GUI) mode.
+*   **make sim_gui** is used for starting simulation in graphical user interface (GUI) mode;
+*   **make formal_ver** is used for starting simulation process with one riscv-compliance test (which is determined by RVC_TEST variable in makefile);
+*   **make formal_ver_all** is used for starting simulation process with all riscv-compliance tests (which is determined by RVC_LIST_TEST variable in makefile).
 
 If log_txt or log_html set as '1 (tb/nf_tb_def.vhd) then you can see simulation results in log folder (log/.log and log/log.html).
 
