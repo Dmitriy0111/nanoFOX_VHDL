@@ -46,13 +46,13 @@ package nf_tb_def is
     -- enable debug instruction messages
     constant debug_lev0     : boolean   := false;
     -- enable term logging
-    constant log_term       : boolean   := false;
+    constant log_term       : boolean   := true;
     -- enable txt logging
-    constant log_txt        : boolean   := false;
+    constant log_txt        : boolean   := true;
     -- enable html logging
-    constant log_html       : boolean   := false;
+    constant log_html       : boolean   := true;
     -- enable logging
-    constant log_en         : boolean   := false;
+    constant log_en         : boolean   := true;
 
     type    i_list is array(natural range <>) of instr_cf;
 

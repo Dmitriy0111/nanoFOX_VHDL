@@ -49,6 +49,8 @@ architecture rtl of nf_i_lsu is
     signal lsu_busy_i       : std_logic;                        -- lsu busy (internal)
     signal addr_dm_i        : std_logic_vector(31 downto 0);    -- address data memory (internal)
     signal size_dm_i        : std_logic_vector(1  downto 0);    -- size for load/store instructions (internal)
+    signal wd_dm_i          : std_logic_vector(31 downto 0);    -- write data memory
+    signal we_dm_i          : std_logic;                        -- write enable data memory signal
     -- load data wires
     signal l_data_3         : std_logic_vector(7  downto 0);    -- load data 3
     signal l_data_2         : std_logic_vector(7  downto 0);    -- load data 2
@@ -69,6 +71,27 @@ architecture rtl of nf_i_lsu is
 
     signal sign_dm          : std_logic;                        -- unsigned load data memory?
     signal misaligned       : std_logic;                        -- load or store address misaligned
+
+    component nf_cache
+        generic
+        (
+            addr_w  : integer := 6;                         -- actual address memory width
+            depth   : integer := 2 ** 6                     -- depth of memory array
+        );
+        port 
+        (
+            clk     : in    std_logic;                      -- clock
+            raddr   : in    std_logic_vector(31 downto 0);  -- address
+            waddr   : in    std_logic_vector(31 downto 0);  -- address
+            we_d    : in    std_logic;                      -- write enable
+            size_d  : in    std_logic_vector(1  downto 0);  
+            we_tv   : in    std_logic;
+            wd      : in    std_logic_vector(31 downto 0);  -- write data
+            wv      : in    std_logic;                      -- write valid
+            rd      : out   std_logic_vector(31 downto 0);  -- read data
+            hit     : out   std_logic
+        );
+    end component;
 begin
 
     
@@ -86,6 +109,8 @@ begin
     s_data_f     <= s_data_3 & s_data_2 & s_data_1 & s_data_0;
     addr_dm      <= addr_dm_i;
     size_dm      <= size_dm_i;
+    wd_dm        <= wd_dm_i;
+    we_dm        <= we_dm_i;
 
     lsu_err_proc : process( clk, resetn )
     begin
@@ -167,15 +192,15 @@ begin
     begin
         if( not resetn ) then
             addr_dm_i <= (others => '0');
-            wd_dm     <= (others => '0');
-            we_dm     <= '0';
+            wd_dm_i   <= (others => '0');
+            we_dm_i   <= '0';
             size_dm_i <= (others => '0');
             sign_dm   <= '0';
         elsif( rising_edge(clk) ) then
             if( ( we_dm_imem or rf_src_imem ) and not lsu_busy_i ) then
                 addr_dm_i <= result_imem;
-                wd_dm     <= s_data_f;
-                we_dm     <= we_dm_imem;
+                wd_dm_i   <= s_data_f;
+                we_dm_i   <= we_dm_imem;
                 size_dm_i <= size_dm_imem;
                 sign_dm   <= sign_dm_imem;
             end if;
@@ -197,5 +222,25 @@ begin
             end if;
         end if;
     end process;
+
+    nf_d_cache : nf_cache
+    generic map
+    (
+        addr_w  => 6,           -- actual address memory width
+        depth   => 2 ** 6       -- depth of memory array
+    )
+    port map
+    (
+        clk     => clk,         -- clock
+        raddr   => 32X"0000",   -- address
+        waddr   => addr_dm_i,   -- address
+        we_d    => we_dm_i,     -- write enable
+        size_d  => size_dm_i,  
+        we_tv   => we_dm_i, 
+        wd      => wd_dm_i,     -- write data
+        wv      => we_dm_i,     -- write valid
+        rd      => open,        -- read data
+        hit     => open
+    );
 
 end rtl; -- nf_i_lsu
