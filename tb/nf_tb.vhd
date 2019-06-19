@@ -281,12 +281,44 @@ begin
     end process rst_gen;
     -- uart rx generation
     uart_rx_gen : process
-        variable term_log : line;
+
+        procedure wait_for_clock( rep : integer ) is
+        begin
+            for i in 0 to rep loop
+                wait until rising_edge(clk);
+            end loop;
+        end;
+
+        -- task for sending symbol over uart to receive module
+        procedure send_uart_symbol( symbol : std_logic_vector ) is
+            begin
+                -- generate 'start'
+                uart_rx <= '0';
+                wait_for_clock(work_freq / uart_speed);
+                -- generate transaction
+                for i in symbol'range loop
+                    uart_rx <= symbol(7-i);
+                    wait_for_clock(work_freq / uart_speed);
+                end loop;
+                -- generate 'stop'
+                uart_rx <= '1';
+                wait_for_clock(work_freq / uart_speed);
+        end; -- send_uart_symbol
+
+        -- task for sending message over uart to receive module
+        procedure send_uart_message( message : string ; delay_v : integer ) is
+        begin
+            for i in message'range loop
+                send_uart_symbol( std_logic_vector( to_unsigned( character'pos(message(i)) , 8 ) ) );
+                wait for delay_v * timescale;
+            end loop;
+        end; -- send_uart_message
+
     begin
         uart_rx <= '1';
         if( uart_rec_example ) then
-            write(term_log, string'("This is code for uart rx example") );
-            writeline(output, term_log);
+            wait_for_clock(200);
+            send_uart_message("Hello World!" , 100);
             wait;
         else 
             wait;
