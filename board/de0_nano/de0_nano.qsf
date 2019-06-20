@@ -428,6 +428,7 @@ set_global_assignment -name VHDL_FILE ../../rtl/core/nf_cpu.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/core/nf_i_fu.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/core/nf_csr.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/core/nf_cache.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/core/nf_cache_controller.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/common/nf_registers.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/periphery/nf_ram.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/periphery/nf_param_mem.vhd

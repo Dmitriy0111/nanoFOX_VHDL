@@ -49,6 +49,7 @@ architecture rtl of nf_i_lsu is
     signal lsu_busy_i       : std_logic;                        -- lsu busy (internal)
     signal addr_dm_i        : std_logic_vector(31 downto 0);    -- address data memory (internal)
     signal size_dm_i        : std_logic_vector(1  downto 0);    -- size for load/store instructions (internal)
+    signal rd_dm_iwb_i      : std_logic_vector(31 downto 0);
     signal wd_dm_i          : std_logic_vector(31 downto 0);    -- write data memory
     signal we_dm_i          : std_logic;                        -- write enable data memory signal
     -- load data wires
@@ -57,6 +58,7 @@ architecture rtl of nf_i_lsu is
     signal l_data_1         : std_logic_vector(7  downto 0);    -- load data 1
     signal l_data_0         : std_logic_vector(7  downto 0);    -- load data 0
     signal l_data_f         : std_logic_vector(31 downto 0);    -- full load data
+    signal l_data_pre       : std_logic_vector(31 downto 0);
     -- store data wires     
     signal s_data_3         : std_logic_vector(7  downto 0);    -- store data 3
     signal s_data_2         : std_logic_vector(7  downto 0);    -- store data 2
@@ -72,7 +74,10 @@ architecture rtl of nf_i_lsu is
     signal sign_dm          : std_logic;                        -- unsigned load data memory?
     signal misaligned       : std_logic;                        -- load or store address misaligned
 
-    component nf_cache
+    signal hit              : std_logic;
+    signal cache_rd         : std_logic_vector(31 downto 0);
+    -- nf_cache_controller
+    component nf_cache_controller
         generic
         (
             addr_w  : integer := 6;                         -- actual address memory width
@@ -83,11 +88,12 @@ architecture rtl of nf_i_lsu is
             clk     : in    std_logic;                      -- clock
             raddr   : in    std_logic_vector(31 downto 0);  -- address
             waddr   : in    std_logic_vector(31 downto 0);  -- address
-            we_d    : in    std_logic;                      -- write enable
-            size_d  : in    std_logic_vector(1  downto 0);  
-            we_tv   : in    std_logic;
-            wd      : in    std_logic_vector(31 downto 0);  -- write data
-            wv      : in    std_logic;                      -- write valid
+            swe     : in    std_logic;                      -- store write enable
+            lwe     : in    std_logic;                      -- load write enable
+            req_l   : in    std_logic;                      -- requets load
+            size_d  : in    std_logic_vector(1  downto 0);  -- data size
+            sd      : in    std_logic_vector(31 downto 0);  -- store data
+            ld      : in    std_logic_vector(31 downto 0);  -- load data
             rd      : out   std_logic_vector(31 downto 0);  -- read data
             hit     : out   std_logic
         );
@@ -112,6 +118,8 @@ begin
     wd_dm        <= wd_dm_i;
     we_dm        <= we_dm_i;
 
+    l_data_pre <= cache_rd when ( hit and not lsu_busy_i ) else rd_dm;
+
     lsu_err_proc : process( clk, resetn )
     begin
         if( not resetn ) then
@@ -131,7 +139,7 @@ begin
         if( not resetn ) then
             lsu_busy_i <= '0';
         elsif( rising_edge(clk) ) then
-            if( ( we_dm_imem or rf_src_imem ) and not lsu_err_c ) then
+            if( ( we_dm_imem or ( rf_src_imem and not hit ) ) and not lsu_err_c ) then
                 lsu_busy_i <= '1';
             end if;
             if( req_ack_dm ) then
@@ -143,22 +151,22 @@ begin
     -- form load data value
     form_load_data_proc : process( all )
     begin
-        l_data_3 <= rd_dm(31 downto 24);
-        l_data_2 <= rd_dm(23 downto 16);
-        l_data_1 <= rd_dm(15 downto  8);
-        l_data_0 <= rd_dm(7  downto  0);
+        l_data_3 <= l_data_pre(31 downto 24);
+        l_data_2 <= l_data_pre(23 downto 16);
+        l_data_1 <= l_data_pre(15 downto  8);
+        l_data_0 <= l_data_pre(7  downto  0);
         case( addr_dm_i(1 downto 0) ) is
-            when "00"   => l_data_0 <= rd_dm(7  downto  0);
-            when "01"   => l_data_0 <= rd_dm(15 downto  8);
-            when "10"   => l_data_0 <= rd_dm(23 downto 16);
-            when "11"   => l_data_0 <= rd_dm(31 downto 24);
+            when "00"   => l_data_0 <= l_data_pre(7  downto  0);
+            when "01"   => l_data_0 <= l_data_pre(15 downto  8);
+            when "10"   => l_data_0 <= l_data_pre(23 downto 16);
+            when "11"   => l_data_0 <= l_data_pre(31 downto 24);
             when others =>
         end case;
         case( addr_dm_i(1 downto 0) ) is
-            when "00"   => l_data_1 <= rd_dm(15 downto  8);
-            when "01"   => l_data_1 <= rd_dm(15 downto  8);
-            when "10"   => l_data_1 <= rd_dm(31 downto 24);
-            when "11"   => l_data_1 <= rd_dm(31 downto 24);
+            when "00"   => l_data_1 <= l_data_pre(15 downto  8);
+            when "01"   => l_data_1 <= l_data_pre(15 downto  8);
+            when "10"   => l_data_1 <= l_data_pre(31 downto 24);
+            when "11"   => l_data_1 <= l_data_pre(31 downto 24);
             when others =>
         end case;
     end process;
@@ -212,18 +220,24 @@ begin
         if( not resetn ) then
             rd_dm_iwb <= (others => '0');
         elsif( rising_edge(clk) ) then
-            if( req_ack_dm ) then
-                case( size_dm_i ) is
-                    when "00"   => rd_dm_iwb <= repbit( l_data_f( 7) and sign_dm , 24 ) & l_data_f(7  downto 0);
-                    when "01"   => rd_dm_iwb <= repbit( l_data_f(15) and sign_dm , 16 ) & l_data_f(15 downto 0);
-                    when "10"   => rd_dm_iwb <= l_data_f;
-                    when others => rd_dm_iwb <= l_data_f;
-                end case;
+            if( req_ack_dm or hit ) then
+                rd_dm_iwb <= rd_dm_iwb_i;
             end if;
         end if;
     end process;
 
-    nf_d_cache : nf_cache
+    rd_dm_iwb_i_proc : process( all )
+    begin
+        rd_dm_iwb_i <= (others => '0');
+        case( size_dm_i ) is
+            when "00"   => rd_dm_iwb_i <= repbit( l_data_f( 7) and sign_dm , 24 ) & l_data_f(7  downto 0);
+            when "01"   => rd_dm_iwb_i <= repbit( l_data_f(15) and sign_dm , 16 ) & l_data_f(15 downto 0);
+            when "10"   => rd_dm_iwb_i <= l_data_f;
+            when others => rd_dm_iwb_i <= l_data_f;
+        end case;
+    end process;
+
+    nf_cache_D_controller : nf_cache_controller
     generic map
     (
         addr_w  => 6,           -- actual address memory width
@@ -232,15 +246,16 @@ begin
     port map
     (
         clk     => clk,         -- clock
-        raddr   => 32X"0000",   -- address
+        raddr   => result_imem, -- address
         waddr   => addr_dm_i,   -- address
-        we_d    => we_dm_i,     -- write enable
-        size_d  => size_dm_i,  
-        we_tv   => we_dm_i, 
-        wd      => wd_dm_i,     -- write data
-        wv      => we_dm_i,     -- write valid
-        rd      => open,        -- read data
-        hit     => open
+        swe     => we_dm_i,     -- store write enable
+        lwe     => req_ack_dm,  -- load write enable
+        req_l   => lsu_busy_i,  -- 
+        size_d  => size_dm_i,   -- 
+        sd      => wd_dm_i,     -- store data
+        ld      => rd_dm_iwb_i, -- load data
+        rd      => cache_rd,    -- read data
+        hit     => hit          -- cache hit
     );
 
 end rtl; -- nf_i_lsu

@@ -30,7 +30,7 @@ architecture testbench of nf_tb is
     constant resetn_delay       : integer   := 7;           -- delay for reset signal (posedge clk)
     constant work_freq          : integer   := 50000000;    -- core work frequency
     constant uart_speed         : integer   := 115200;      -- setting uart speed
-    constant uart_rec_example   : boolean   := true;        -- for working with uart receive example
+    constant uart_rec_example   : boolean   := false;       -- for working with uart receive example
     constant stop_loop          : boolean   := true;        -- stop with loop 0000_006f
     constant stop_cycle         : boolean   := false;       -- stop with cycle variable
     -- clock and reset

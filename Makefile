@@ -129,7 +129,7 @@ RVC_ERR       ?=
 # RISC V not test
 RVC_NT        ?= I-EBREAK-01 I-ECALL-01 I-FENCE.I-01
 # RISC V current test
-RVC_TEST      ?= I-ADD-01
+RVC_TEST      ?= I-MISALIGN_JMP-01
 
 RVC_PROG_SIZE ?= 4096
 

@@ -26,13 +26,13 @@ entity nf_cache is
         clk     : in    std_logic;                      -- clock
         raddr   : in    std_logic_vector(31 downto 0);  -- address
         waddr   : in    std_logic_vector(31 downto 0);  -- address
-        we_d    : in    std_logic;                      -- write enable
-        size_d  : in    std_logic_vector(1  downto 0);  
-        we_tv   : in    std_logic;
+        we_cb   : in    std_logic_vector(3  downto 0);  -- write cache enable
+        we_ctv  : in    std_logic;                      -- write tag valid enable
         wd      : in    std_logic_vector(31 downto 0);  -- write data
-        wv      : in    std_logic;                      -- write valid
+        vld     : in    std_logic;                      -- valid
+        wtag    : in    std_logic_vector(31 - addr_w - 2 downto 0);
         rd      : out   std_logic_vector(31 downto 0);  -- read data
-        hit     : out   std_logic
+        hit     : out   std_logic                       -- cache hit
     );
 end nf_cache;
 
@@ -41,7 +41,6 @@ architecture rtl of nf_cache is
     constant tag_v_size : integer := 32 + 1 - addr_w - 2;
     constant index_size : integer := addr_w;
 
-    signal we_de        : std_logic_vector(3 downto 0);
     signal addr_tag     : std_logic_vector(tag_v_size-2 downto 0);
     signal raddr_cache  : std_logic_vector(addr_w-1 downto 0);
     signal waddr_cache  : std_logic_vector(addr_w-1 downto 0);
@@ -74,28 +73,7 @@ begin
     cache_tag   <= cache_tag_v(tag_v_size-2 downto 0);
     cache_v     <= cache_tag_v(tag_v_size-1);
     addr_tag    <= raddr(31 downto addr_w+2);
-    cache_tv    <= ( wv & waddr(31 downto addr_w+2) );
-
-    -- finding write enable for ram
-    we_de(0) <= '1' when ( ( ( size_d = "10" ) or 
-                ( ( size_d = "01" ) and ( waddr(1 downto 0) = "00" ) ) or 
-                ( ( size_d = "00"  ) and ( waddr(1 downto 0) = "00" ) ) ) and
-                ( we_d = '1' ) ) else '0';
-    -- finding write enable for ram
-    we_de(1) <= '1' when ( ( ( size_d = "10" ) or 
-                ( ( size_d = "01" ) and ( waddr(1 downto 0) = "00" ) ) or 
-                ( ( size_d = "00"  ) and ( waddr(1 downto 0) = "01" ) ) ) and
-                ( we_d = '1' ) ) else '0';
-    -- finding write enable for ram
-    we_de(2) <= '1' when ( ( ( size_d = "10" ) or 
-                ( ( size_d = "01" ) and ( waddr(1 downto 0) = "10" ) ) or 
-                ( ( size_d = "00"  ) and ( waddr(1 downto 0) = "10" ) ) ) and
-                ( we_d = '1' ) ) else '0';
-    -- finding write enable for ram
-    we_de(3) <= '1' when ( ( ( size_d = "10" ) or 
-                ( ( size_d = "01" ) and ( waddr(1 downto 0) = "10" ) ) or 
-                ( ( size_d = "00"  ) and ( waddr(1 downto 0) = "11" ) ) ) and
-                ( we_d = '1' ) ) else '0';
+    cache_tv    <= ( vld & wtag );
 
     hit <= '1' when ( ( cache_v = '1' ) and ( cache_tag = addr_tag ) ) else '0';
     -- creating cache bank 0
@@ -111,7 +89,7 @@ begin
         clk     => clk,                         -- clock
         waddr   => waddr_cache,                 -- write address
         raddr   => raddr_cache,                 -- read address
-        we      => we_de(0),                    -- write enable
+        we      => we_cb(0),                    -- write enable
         wd      => wd(7  downto  0),            -- write data
         rd      => rd(7  downto  0)             -- read data
     );
@@ -128,7 +106,7 @@ begin
         clk     => clk,                         -- clock
         waddr   => waddr_cache,                 -- write address
         raddr   => raddr_cache,                 -- read address
-        we      => we_de(1),                    -- write enable
+        we      => we_cb(1),                    -- write enable
         wd      => wd(15 downto  8),            -- write data
         rd      => rd(15 downto  8)             -- read data
     );
@@ -145,7 +123,7 @@ begin
         clk     => clk,                         -- clock
         waddr   => waddr_cache,                 -- write address
         raddr   => raddr_cache,                 -- read address
-        we      => we_de(2),                    -- write enable
+        we      => we_cb(2),                    -- write enable
         wd      => wd(23 downto 16),            -- write data
         rd      => rd(23 downto 16)             -- read data
     );
@@ -162,7 +140,7 @@ begin
         clk     => clk,                         -- clock
         waddr   => waddr_cache,                 -- write address
         raddr   => raddr_cache,                 -- read address
-        we      => we_de(3),                    -- write enable
+        we      => we_cb(3),                    -- write enable
         wd      => wd(31 downto 24),            -- write data
         rd      => rd(31 downto 24)             -- read data
     );
@@ -179,7 +157,7 @@ begin
         clk     => clk,                         -- clock
         waddr   => waddr_cache,                 -- write address
         raddr   => raddr_cache,                 -- read address
-        we      => we_tv,                       -- write enable
+        we      => we_ctv,                      -- write enable
         wd      => cache_tv,                    -- write data
         rd      => cache_tag_v                  -- read data
     );

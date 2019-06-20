@@ -80,6 +80,10 @@ if {$test == "nf_uart_transmitter test"} {
     add wave -position insertpoint sim:/nf_tb/instruction_iwb_stage
     add wave -divider  "core singals"
     add wave -radix hexadecimal -position insertpoint sim:/nf_tb/nf_top_ahb_0/nf_cpu_0/*
+    add wave -divider  "cache controller singals"
+    add wave -position insertpoint sim:/nf_tb/nf_top_ahb_0/nf_cpu_0/nf_i_lsu_0/nf_cache_D_controller/*
+    add wave -divider  "load store unit singals"
+    add wave -position insertpoint sim:/nf_tb/nf_top_ahb_0/nf_cpu_0/nf_i_lsu_0/*
     add wave -divider  "testbench signals"
     add wave -position insertpoint sim:/nf_tb/clk sim:/nf_tb/resetn sim:/nf_tb/gpio_i_0 sim:/nf_tb/gpio_o_0 sim:/nf_tb/gpio_d_0 sim:/nf_tb/pwm sim:/nf_tb/uart_tx sim:/nf_tb/uart_rx sim:/nf_tb/cycle_counter sim:/nf_tb/rst_c sim:/nf_tb/pc_value
 

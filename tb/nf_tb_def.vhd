@@ -56,7 +56,7 @@ package nf_tb_def is
 
     type    i_list is array(natural range <>) of instr_cf;
 
-    constant I_C_LIST : i_list(0 to 44) := 
+    constant I_C_LIST : i_list(0 to 45) := 
                                             (
                                                 I_LUI,
                                                 I_AUIPC,
@@ -101,6 +101,7 @@ package nf_tb_def is
                                                 I_CSRRWI,
                                                 I_CSRRSI,
                                                 I_CSRRCI,
+                                                I_MRET,
                                                 I_F,
                                                 I_UNK
                                             );
@@ -198,7 +199,7 @@ package body nf_tb_def is
             return "Flushed instruction";
         end if;
         if( instr_type = RVI ) then
-            if( opcode = U_OP0 ) then
+            if( ( opcode = U_OP0 ) or ( opcode = U_OP1 ) ) then
                 if(param_str = "lv_1") then
                     return "RVI " & (I_C_LIST(i).I_NAME & " rd  = " & reg_list(to_integer(unsigned(wa3))) & ", Imm = 0x" & to_hstring(imm_data_u));
                 elsif(param_str = "lv_0") then
@@ -238,6 +239,11 @@ package body nf_tb_def is
                     return "RVI " & (I_C_LIST(i).I_NAME & " rd  = " & reg_list(to_integer(unsigned(wa3))) & ", Imm = 0x" & to_hstring(imm_data_j));
                 elsif(param_str = "lv_0") then
                     return ("J-type  : " & to_string(pipe_slv(31)) & "_" & to_string(pipe_slv(30 downto 21)) & "_" & to_string(pipe_slv(20)) & "_" & to_string(pipe_slv(19 downto 12)) & "_" & to_string(wa3) & "_" & to_string(opcode) & "_" & to_string(instr_type) );
+                end if;
+            end if;
+            if( opcode = CSR_OP ) then
+                if(param_str = "lv_1") then
+                    return "RVI " & (I_C_LIST(i).I_NAME & " rd  = " & reg_list(to_integer(unsigned(wa3))) & ", Imm = 0x" & to_hstring(imm_data_j));
                 end if;
             end if;
         end if;
