@@ -13,6 +13,7 @@ library nf;
 use nf.nf_settings.all;
 use nf.nf_ahb_pkg.all;
 use nf.nf_help_pkg.all;
+use nf.nf_components.all;
 
 entity nf_ahb_uart is
     port
@@ -50,52 +51,6 @@ architecture rtl of nf_ahb_uart is
     signal we               : std_logic;                        -- write enable for uart module
 
     signal hready_s_i   : std_logic_vector(0  downto 0);    -- hready_s internal
-    -- nf_register
-    component nf_register
-    generic
-    (
-        width   : integer   := 1
-    );
-    port
-    (
-        clk     : in    std_logic;                          -- clk
-        resetn  : in    std_logic;                          -- resetn
-        datai   : in    std_logic_vector(width-1 downto 0); -- in data
-        datao   : out   std_logic_vector(width-1 downto 0)  -- out data
-    );
-    end component;
-    -- nf_register_we
-    component nf_register_we
-    generic
-    (
-        width   : integer   := 1
-    );
-    port
-    (
-        clk     : in    std_logic;                          -- clk
-        resetn  : in    std_logic;                          -- resetn
-        we      : in    std_logic;                          -- write enable
-        datai   : in    std_logic_vector(width-1 downto 0); -- in data
-        datao   : out   std_logic_vector(width-1 downto 0)  -- out data
-    );
-    end component; 
-    -- nf_uart_top
-    component nf_uart_top
-        port
-        (
-            -- reset and clock
-            clk     : in    std_logic;                      -- clk
-            resetn  : in    std_logic;                      -- resetn
-            -- bus side
-            addr    : in    std_logic_vector(31 downto 0);  -- address
-            we      : in    std_logic;                      -- write enable
-            wd      : in    std_logic_vector(31 downto 0);  -- write data
-            rd      : out   std_logic_vector(31 downto 0);  -- read data
-            -- uart side
-            uart_tx : out   std_logic;                      -- UART tx wire
-            uart_rx : in    std_logic                       -- UART rx wire
-        );
-    end component;
 begin
 
     addr     <= uart_addr;

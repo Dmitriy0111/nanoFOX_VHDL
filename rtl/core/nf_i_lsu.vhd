@@ -14,6 +14,7 @@ use ieee.std_logic_unsigned.all;
 library nf;
 use nf.nf_cpu_def.all;
 use nf.nf_help_pkg.all;
+use nf.nf_components.all;
 
 entity nf_i_lsu is
     port 
@@ -76,30 +77,7 @@ architecture rtl of nf_i_lsu is
 
     signal hit              : std_logic;
     signal cache_rd         : std_logic_vector(31 downto 0);
-    -- nf_cache_controller
-    component nf_cache_controller
-        generic
-        (
-            addr_w  : integer := 6;                         -- actual address memory width
-            depth   : integer := 2 ** 6                     -- depth of memory array
-        );
-        port 
-        (
-            clk     : in    std_logic;                      -- clock
-            raddr   : in    std_logic_vector(31 downto 0);  -- address
-            waddr   : in    std_logic_vector(31 downto 0);  -- address
-            swe     : in    std_logic;                      -- store write enable
-            lwe     : in    std_logic;                      -- load write enable
-            req_l   : in    std_logic;                      -- requets load
-            size_d  : in    std_logic_vector(1  downto 0);  -- data size
-            sd      : in    std_logic_vector(31 downto 0);  -- store data
-            ld      : in    std_logic_vector(31 downto 0);  -- load data
-            rd      : out   std_logic_vector(31 downto 0);  -- read data
-            hit     : out   std_logic
-        );
-    end component;
 begin
-
     
     misaligned   <= ( ( bool2sl( size_dm_imem = "10" ) and bool2sl( result_imem(1 downto 0) /= 0 ) ) or 
                       ( bool2sl( size_dm_imem = "01" ) and bool2sl( result_imem(0)          /= '0' ) ) );
@@ -241,7 +219,8 @@ begin
     generic map
     (
         addr_w  => 6,           -- actual address memory width
-        depth   => 2 ** 6       -- depth of memory array
+        depth   => 2 ** 6,      -- depth of memory array
+        tag_w   => 6
     )
     port map
     (
@@ -252,8 +231,9 @@ begin
         lwe     => req_ack_dm,  -- load write enable
         req_l   => lsu_busy_i,  -- 
         size_d  => size_dm_i,   -- 
+        size_r  => size_dm_imem,
         sd      => wd_dm_i,     -- store data
-        ld      => rd_dm_iwb_i, -- load data
+        ld      => rd_dm,       -- load data
         rd      => cache_rd,    -- read data
         hit     => hit          -- cache hit
     );

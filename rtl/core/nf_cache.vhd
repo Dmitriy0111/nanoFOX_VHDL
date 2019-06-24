@@ -14,68 +14,56 @@ use ieee.std_logic_unsigned.all;
 use std.standard.boolean;
 library nf;
 use nf.nf_mem_pkg.all;
+use nf.nf_components.all;
 
 entity nf_cache is
     generic
     (
-        addr_w  : integer := 6;                         -- actual address memory width
-        depth   : integer := 2 ** 6                     -- depth of memory array
+        addr_w  : integer := 6;                                 -- actual address memory width
+        depth   : integer := 2 ** 6;                            -- depth of memory array
+        tag_w   : integer := 6                                  -- tag width
     );
     port 
     (
-        clk     : in    std_logic;                      -- clock
-        raddr   : in    std_logic_vector(31 downto 0);  -- address
-        waddr   : in    std_logic_vector(31 downto 0);  -- address
-        we_cb   : in    std_logic_vector(3  downto 0);  -- write cache enable
-        we_ctv  : in    std_logic;                      -- write tag valid enable
-        wd      : in    std_logic_vector(31 downto 0);  -- write data
-        vld     : in    std_logic;                      -- valid
-        wtag    : in    std_logic_vector(31 - addr_w - 2 downto 0);
-        rd      : out   std_logic_vector(31 downto 0);  -- read data
-        hit     : out   std_logic                       -- cache hit
+        clk     : in    std_logic;                              -- clock
+        raddr   : in    std_logic_vector(31      downto 0);     -- address
+        waddr   : in    std_logic_vector(31      downto 0);     -- address
+        we_cb   : in    std_logic_vector(3       downto 0);     -- write cache enable
+        we_ctv  : in    std_logic;                              -- write tag valid enable
+        wd      : in    std_logic_vector(31      downto 0);     -- write data
+        vld     : in    std_logic_vector(3       downto 0);     -- valid
+        wtag    : in    std_logic_vector(tag_w-1 downto 0);
+        rd      : out   std_logic_vector(31      downto 0);     -- read data
+        hit     : out   std_logic_vector(3       downto 0)      -- cache hit
     );
 end nf_cache;
 
 architecture rtl of nf_cache is
 
     constant tag_v_size : integer := 32 + 1 - addr_w - 2;
-    constant index_size : integer := addr_w;
 
-    signal addr_tag     : std_logic_vector(tag_v_size-2 downto 0);
-    signal raddr_cache  : std_logic_vector(addr_w-1 downto 0);
-    signal waddr_cache  : std_logic_vector(addr_w-1 downto 0);
-    signal cache_tag    : std_logic_vector(tag_v_size-2 downto 0);
-    signal cache_v      : std_logic;
-    signal cache_tag_v  : std_logic_vector(tag_v_size-1 downto 0);
-    signal cache_tv     : std_logic_vector(tag_v_size-1 downto 0);
+    signal addr_tag     : std_logic_vector(tag_w-1   downto 0);
+    signal raddr_cache  : std_logic_vector(addr_w-1  downto 0);
+    signal waddr_cache  : std_logic_vector(addr_w-1  downto 0);
+    signal cache_tag    : std_logic_vector(tag_w-1   downto 0);
+    signal cache_v      : std_logic_vector(3         downto 0);
+    signal cache_tv_r   : std_logic_vector(tag_w-1+4 downto 0);
+    signal cache_tv_w   : std_logic_vector(tag_w-1+4 downto 0);
 
-    component nf_param_mem
-        generic
-        (
-            addr_w  : integer := 6;                                 -- actual address memory width
-            data_w  : integer := 32;                                -- actual data width
-            depth   : integer := 2 ** 6                             -- depth of memory array
-        );
-        port 
-        (
-            clk     : in    std_logic;                              -- clock
-            waddr   : in    std_logic_vector(addr_w-1 downto 0);    -- write address
-            raddr   : in    std_logic_vector(addr_w-1 downto 0);    -- read address
-            we      : in    std_logic;                              -- write enable
-            wd      : in    std_logic_vector(data_w-1 downto 0);    -- write data
-            rd      : out   std_logic_vector(data_w-1 downto 0)     -- read data
-        );
-    end component;
 begin
 
     waddr_cache <= waddr(addr_w+2-1 downto 2);
     raddr_cache <= raddr(addr_w+2-1 downto 2);
-    cache_tag   <= cache_tag_v(tag_v_size-2 downto 0);
-    cache_v     <= cache_tag_v(tag_v_size-1);
-    addr_tag    <= raddr(31 downto addr_w+2);
-    cache_tv    <= ( vld & wtag );
+    addr_tag    <= raddr(tag_w+addr_w+2-1 downto addr_w+2);
+    cache_tag   <= cache_tv_r(tag_w-1   downto 0);
+    cache_v     <= cache_tv_r(tag_w+4-1 downto tag_w);
+    cache_tv_w    <= ( vld & wtag );
 
-    hit <= '1' when ( ( cache_v = '1' ) and ( cache_tag = addr_tag ) ) else '0';
+    hit(0) <= '1' when ( ( cache_v(0) = '1' ) and ( cache_tag = addr_tag ) ) else '0';
+    hit(1) <= '1' when ( ( cache_v(1) = '1' ) and ( cache_tag = addr_tag ) ) else '0';
+    hit(2) <= '1' when ( ( cache_v(2) = '1' ) and ( cache_tag = addr_tag ) ) else '0';
+    hit(3) <= '1' when ( ( cache_v(3) = '1' ) and ( cache_tag = addr_tag ) ) else '0';
+
     -- creating cache bank 0
     cache_b0 : nf_param_mem
     generic map
@@ -149,7 +137,7 @@ begin
     generic map
     (
         addr_w  => addr_w,                      -- actual address memory width
-        data_w  => tag_v_size,                  -- actual data width
+        data_w  => tag_w+4,                     -- actual data width
         depth   => depth                        -- depth of memory array
     )
     port map
@@ -158,8 +146,8 @@ begin
         waddr   => waddr_cache,                 -- write address
         raddr   => raddr_cache,                 -- read address
         we      => we_ctv,                      -- write enable
-        wd      => cache_tv,                    -- write data
-        rd      => cache_tag_v                  -- read data
+        wd      => cache_tv_w,                    -- write data
+        rd      => cache_tv_r                  -- read data
     );
 
 end rtl; -- nf_cache

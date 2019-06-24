@@ -13,6 +13,7 @@ use ieee.numeric_std.all;
 use ieee.std_logic_unsigned.all;
 library nf;
 use nf.nf_settings.all;
+use nf.nf_components.all;
 
 entity nf_i_fu is
     port
@@ -58,51 +59,6 @@ architecture rtl of nf_i_fu is
     signal flush_id_ff          : std_logic_vector(0  downto 0);    -- flush id stage
     signal flush_id_branch      : std_logic_vector(0  downto 0);    -- flush id stage ( branch operation )
     signal flush_id_sw_instr    : std_logic_vector(0  downto 0);    -- flush id stage ( store data instruction )
-    -- nf_register
-    component nf_register
-        generic
-        (
-            width   : integer   := 1
-        );
-        port
-        (
-            clk     : in    std_logic;                          -- clk
-            resetn  : in    std_logic;                          -- resetn
-            datai   : in    std_logic_vector(width-1 downto 0); -- input data
-            datao   : out   std_logic_vector(width-1 downto 0)  -- output data
-        );
-    end component;
-    -- nf_register_we
-    component nf_register_we
-        generic
-        (
-            width   : integer   := 1
-        );
-        port
-        (
-            clk     : in    std_logic;                          -- clk
-            resetn  : in    std_logic;                          -- resetn
-            we      : in    std_logic;                          -- write enable
-            datai   : in    std_logic_vector(width-1 downto 0); -- input data
-            datao   : out   std_logic_vector(width-1 downto 0)  -- output data
-        );
-    end component; 
-    -- nf_register_we_r
-    component nf_register_we_r
-        generic
-        (
-            width   : integer   := 1;
-            rst_val : integer   := 0
-        );
-        port
-        (
-            clk     : in    std_logic;                          -- clk
-            resetn  : in    std_logic;                          -- resetn
-            we      : in    std_logic;                          -- write enable
-            datai   : in    std_logic_vector(width-1 downto 0); -- input data
-            datao   : out   std_logic_vector(width-1 downto 0)  -- output data
-        );
-    end component;
 begin
 
     -- working with instruction fetch instruction (stalled and not stalled)

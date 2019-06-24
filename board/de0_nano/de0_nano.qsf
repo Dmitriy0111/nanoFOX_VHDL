@@ -410,6 +410,7 @@ set_global_assignment -name VHDL_FILE ../../inc/nf_mem_pkg.vhd
 set_global_assignment -name VHDL_FILE ../../inc/nf_help_pkg.vhd
 set_global_assignment -name VHDL_FILE ../../inc/nf_cpu_def.vhd
 set_global_assignment -name VHDL_FILE ../../inc/nf_settings.vhd
+set_global_assignment -name VHDL_FILE ../../inc/nf_components.vhd
 set_global_assignment -name VHDL_FILE ../../inc/nf_uart_pkg.vhd
 set_global_assignment -name VHDL_FILE ../../inc/nf_ahb_pkg.vhd
 set_global_assignment -name VHDL_FILE ../../inc/nf_csr_pkg.vhd

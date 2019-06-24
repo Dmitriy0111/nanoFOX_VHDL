@@ -15,7 +15,15 @@ map_file = open("program_file/main.map" , "r")
 
 out_file_f = open("run/rvc_run.tcl"  , "w")
 
-out_file_f.write('''vcom -2008 ../inc/*.vhd                     -work nf
+out_file_f.write('''
+vcom -2008 ../inc/nf_settings.vhd           -work nf
+vcom -2008 ../inc/nf_ahb_pkg.vhd            -work nf
+vcom -2008 ../inc/nf_cpu_def.vhd            -work nf
+vcom -2008 ../inc/nf_csr_pkg.vhd            -work nf
+vcom -2008 ../inc/nf_help_pkg.vhd           -work nf
+vcom -2008 ../inc/nf_mem_pkg.vhd            -work nf
+vcom -2008 ../inc/nf_uart_pkg.vhd           -work nf
+vcom -2008 ../inc/nf_components.vhd         -work nf
 vcom -2008 ../program_file/*.vhd            -work nf
 
 vcom -2008  ../rtl/core/*.vhd
@@ -42,6 +50,8 @@ add wave -position insertpoint sim:/nf_tb/instruction_imem_stage
 add wave -position insertpoint sim:/nf_tb/instruction_iwb_stage
 add wave -divider  "core singals"
 add wave -position insertpoint sim:/nf_tb/nf_top_ahb_0/nf_cpu_0/*
+add wave -divider  "cache controller singals"
+add wave -position insertpoint sim:/nf_tb/nf_top_ahb_0/nf_cpu_0/nf_i_lsu_0/nf_cache_D_controller/*
 add wave -divider  "load store unit"
 add wave -position insertpoint sim:/nf_tb/nf_top_ahb_0/nf_cpu_0/nf_i_lsu_0/*
 add wave -divider  "hasard stall & flush singals"

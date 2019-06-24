@@ -39,7 +39,7 @@ architecture rtl of nf_ram is
     signal  bank_1  : mem_t(depth-1 downto 0)(7 downto 0) := mem_i( init , bank_init( 1 , i_mem , depth ) , depth );
     signal  bank_2  : mem_t(depth-1 downto 0)(7 downto 0) := mem_i( init , bank_init( 2 , i_mem , depth ) , depth );
     signal  bank_3  : mem_t(depth-1 downto 0)(7 downto 0) := mem_i( init , bank_init( 3 , i_mem , depth ) , depth );
-    signal  ram     : mem_t(4*depth-1 downto 0)(7 downto 0);
+    signal  ram     : mem_t(4*depth-1 downto 0)(7 downto 0) := mem_i( init , i_mem , depth*4 );
 begin
 
     rd(31 downto 24) <= bank_3(to_integer(unsigned(addr(addr_w-1 downto 0))));

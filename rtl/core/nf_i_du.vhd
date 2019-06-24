@@ -13,6 +13,7 @@ use ieee.numeric_std.all;
 use ieee.std_logic_unsigned.all;
 library nf;
 use nf.nf_cpu_def.all;
+use nf.nf_components.all;
 
 entity nf_i_du is
     port 
@@ -65,61 +66,6 @@ architecture rtl of nf_i_du is
     signal imm_src          : std_logic_vector(4  downto 0);    -- immediate source selecting
 
     signal wa3_i            : std_logic_vector(4  downto 0);    -- decoded write address 2 for register file (internal)
-    -- nf_control_unit
-    component nf_control_unit
-        port 
-        (
-            instr_type  : in   std_logic_vector(1  downto 0);   -- instruction type
-            opcode      : in   std_logic_vector(4  downto 0);   -- operation code field in instruction code
-            funct3      : in   std_logic_vector(2  downto 0);   -- funct 3 field in instruction code
-            funct7      : in   std_logic_vector(6  downto 0);   -- funct 7 field in instruction code
-            funct12     : in   std_logic_vector(11 downto 0);   -- funct 12 field in instruction code
-            wa3         : in   std_logic_vector(4  downto 0);   -- write address field
-            imm_src     : out  std_logic_vector(4  downto 0);   -- for enable immediate data
-            srcB_sel    : out  std_logic_vector(1  downto 0);   -- for selecting srcB ALU
-            srcA_sel    : out  std_logic_vector(1  downto 0);   -- for selecting srcA ALU
-            shift_sel   : out  std_logic_vector(1  downto 0);   -- for selecting shift input
-            res_sel     : out  std_logic;                       -- for selecting result
-            branch_type : out  std_logic_vector(3  downto 0);   -- for executing branch instructions
-            branch_hf   : out  std_logic;                       -- branch help field
-            branch_src  : out  std_logic;                       -- for selecting branch source (JALR)
-            we_rf       : out  std_logic;                       -- write enable signal for register file
-            we_dm       : out  std_logic;                       -- write enable signal for data memory and others
-            rf_src      : out  std_logic;                       -- write data select for register file
-            size_dm     : out  std_logic_vector(1  downto 0);   -- size for load/store instructions
-            sign_dm     : out  std_logic;                       -- sign extended data memory for load instructions
-            csr_cmd     : out  std_logic_vector(1  downto 0);   -- csr command
-            csr_rreq    : out  std_logic;                       -- read request to csr
-            csr_wreq    : out  std_logic;                       -- write request to csr
-            csr_sel     : out  std_logic;                       -- csr select ( zimm or rd1 )
-            m_ret       : out  std_logic;                       -- m return
-            ALU_Code    : out  std_logic_vector(3  downto 0)    -- output code for ALU unit
-        );
-    end component;
-    -- nf_sign_ex
-    component nf_sign_ex
-        port 
-        (
-            imm_data_i  : in    std_logic_vector(11 downto 0);  -- immediate data in i-type instruction
-            imm_data_u  : in    std_logic_vector(19 downto 0);  -- immediate data in u-type instruction
-            imm_data_b  : in    std_logic_vector(11 downto 0);  -- immediate data in b-type instruction
-            imm_data_s  : in    std_logic_vector(11 downto 0);  -- immediate data in s-type instruction
-            imm_data_j  : in    std_logic_vector(19 downto 0);  -- immediate data in j-type instruction
-            imm_src     : in    std_logic_vector(4  downto 0);  -- selection immediate data input
-            imm_ex      : out   std_logic_vector(31 downto 0)   -- extended immediate data
-        );
-    end component;
-    -- nf_branch_unit
-    component nf_branch_unit
-        port 
-        (
-            branch_type : in    std_logic_vector(3  downto 0);  -- from control unit, '1 if branch instruction
-            branch_hf   : in    std_logic;                      -- branch help field
-            d1          : in    std_logic_vector(31 downto 0);  -- from register file (rd1)
-            d2          : in    std_logic_vector(31 downto 0);  -- from register file (rd2)
-            pc_src      : out   std_logic                       -- next program counter
-        );
-    end component;
 begin
 
     branch_type <= branch_type_i;

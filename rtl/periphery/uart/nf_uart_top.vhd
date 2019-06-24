@@ -13,6 +13,7 @@ library nf;
 use nf.nf_settings.all;
 use nf.nf_uart_pkg.all;
 use nf.nf_help_pkg.all;
+use nf.nf_components.all;
 
 entity nf_uart_top is
     port
@@ -48,73 +49,6 @@ architecture rtl of nf_uart_top is
     signal udr_rx       : std_logic_vector(7  downto 0);    -- received data   
     signal cri          : ucr;                              -- control register input
     signal cro          : ucr;                              -- control register output
-    -- nf_uart_receiver
-    component nf_uart_receiver
-        port
-        (
-            -- reset and clock
-            clk         : in    std_logic;                      -- clk
-            resetn      : in    std_logic;                      -- resetn
-            -- controller side interface
-            rec_en      : in    std_logic;                      -- receiver enable
-            comp        : in    std_logic_vector(15 downto 0);  -- compare input for setting baudrate
-            rx_data     : out   std_logic_vector(7  downto 0);  -- received data
-            rx_valid    : out   std_logic;                      -- receiver data valid
-            rx_val_set  : in    std_logic;                      -- receiver data valid set
-            -- uart rx side
-            uart_rx     : in    std_logic                       -- UART rx wire
-        );
-    end component;
-    -- nf_uart_transmitter
-    component nf_uart_transmitter
-        port
-        (
-            -- reset and clock
-            clk     : in    std_logic;                      -- clk
-            resetn  : in    std_logic;                      -- resetn
-            -- controller side interface
-            tr_en   : in    std_logic;                      -- transmitter enable
-            comp    : in    std_logic_vector(15 downto 0);  -- compare input for setting baudrate
-            tx_data : in    std_logic_vector(7  downto 0);  -- data for transfer
-            req     : in    std_logic;                      -- request signal
-            req_ack : out   std_logic;                      -- acknowledgent signal
-            -- uart tx side
-            uart_tx : out   std_logic                       -- UART tx wire
-        );
-    end component;
-    -- nf_cdc
-    component nf_cdc
-        port
-        (
-            resetn_1    : in   std_logic;   -- first reset
-            resetn_2    : in   std_logic;   -- second reset
-            clk_1       : in   std_logic;   -- first clock
-            clk_2       : in   std_logic;   -- second clock
-            we_1        : in   std_logic;   -- first write enable
-            we_2        : in   std_logic;   -- second write enable
-            data_1_in   : in   std_logic;   -- first data input
-            data_2_in   : in   std_logic;   -- second data input
-            data_1_out  : out  std_logic;   -- first data output
-            data_2_out  : out  std_logic;   -- second data output
-            wait_1      : out  std_logic;   -- first wait
-            wait_2      : out  std_logic    -- second wait
-        );
-    end component;
-    -- nf_register_we
-    component nf_register_we
-        generic
-        (
-            width   : integer   := 1
-        );
-        port
-        (
-            clk     : in    std_logic;                          -- clk
-            resetn  : in    std_logic;                          -- resetn
-            we      : in    std_logic;                          -- write enable
-            datai   : in    std_logic_vector(width-1 downto 0); -- input data
-            datao   : out   std_logic_vector(width-1 downto 0)  -- output data
-        );
-    end component; 
 begin
     -- assign write enable signals
     uart_cr_we <= we and bool2sl( addr(3 downto 0) = NF_UART_CR );

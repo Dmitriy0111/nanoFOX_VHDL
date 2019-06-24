@@ -13,6 +13,7 @@ library nf;
 use nf.nf_settings.all;
 use nf.nf_ahb_pkg.all;
 use nf.nf_help_pkg.all;
+use nf.nf_components.all;
 
 entity nf_ahb_gpio is
     generic
@@ -55,57 +56,6 @@ architecture rtl of nf_ahb_gpio is
     signal we               : std_logic;                        -- write enable for gpio module
 
     signal hready_s_i   : std_logic_vector(0  downto 0);    -- hready_s internal
-    -- nf_register
-    component nf_register
-        generic
-        (
-            width   : integer   := 1
-        );
-        port
-        (
-            clk     : in    std_logic;                          -- clk
-            resetn  : in    std_logic;                          -- resetn
-            datai   : in    std_logic_vector(width-1 downto 0); -- in data
-            datao   : out   std_logic_vector(width-1 downto 0)  -- out data
-        );
-    end component;
-    -- nf_register_we
-    component nf_register_we
-        generic
-        (
-            width   : integer   := 1
-        );
-        port
-        (
-            clk     : in    std_logic;                          -- clk
-            resetn  : in    std_logic;                          -- resetn
-            we      : in    std_logic;                          -- write enable
-            datai   : in    std_logic_vector(width-1 downto 0); -- in data
-            datao   : out   std_logic_vector(width-1 downto 0)  -- out data
-        );
-    end component; 
-    -- nf_gpio
-    component nf_gpio
-        generic
-        (
-            gpio_w  : integer := NF_GPIO_WIDTH                      -- width gpio port
-        );
-        port 
-        (
-            -- clock and reset
-            clk     : in    std_logic;                              -- clock
-            resetn  : in    std_logic;                              -- reset
-            -- nf_router side
-            addr    : in    std_logic_vector(31       downto 0);    -- address
-            we      : in    std_logic;                              -- write enable
-            wd      : in    std_logic_vector(31       downto 0);    -- write data
-            rd      : out   std_logic_vector(31       downto 0);    -- read data
-            -- gpio_side
-            gpi     : in    std_logic_vector(gpio_w-1 downto 0);    -- GPIO input
-            gpo     : out   std_logic_vector(gpio_w-1 downto 0);    -- GPIO output
-            gpd     : out   std_logic_vector(gpio_w-1 downto 0)     -- GPIO direction
-        );
-    end component;
 begin
 
     addr     <= gpio_addr;

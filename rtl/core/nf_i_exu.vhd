@@ -13,6 +13,7 @@ use ieee.numeric_std.all;
 use ieee.std_logic_unsigned.all;
 library nf;
 use nf.nf_cpu_def.all;
+use nf.nf_components.all;
 
 entity nf_i_exu is
     port 
@@ -35,17 +36,6 @@ architecture rtl of nf_i_exu is
     signal srcA     : std_logic_vector(31 downto 0);    -- source A ALU
     signal srcB     : std_logic_vector(31 downto 0);    -- source B ALU
     signal shift    : std_logic_vector(4  downto 0);    -- for shamt ALU input
-    -- nf_alu
-    component nf_alu
-        port 
-        (
-            srcA        : in    std_logic_vector(31 downto 0);  -- source A for ALU unit
-            srcB        : in    std_logic_vector(31 downto 0);  -- source B for ALU unit
-            shift       : in    std_logic_vector(4  downto 0);  -- for shift operation
-            ALU_Code    : in    std_logic_vector(3  downto 0);  -- ALU code from control unit
-            result      : out   std_logic_vector(31 downto 0)   -- result of ALU operation
-        );
-    end component;
 begin
 
     -- finding srcA value

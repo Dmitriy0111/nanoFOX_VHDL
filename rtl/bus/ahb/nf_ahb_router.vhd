@@ -12,6 +12,7 @@ use ieee.std_logic_1164.all;
 library nf;
 use nf.nf_settings.all;
 use nf.nf_ahb_pkg.all;
+use nf.nf_components.all;
 
 entity nf_ahb_router is
     generic
@@ -50,51 +51,6 @@ architecture rtl of nf_ahb_router is
     -- hsel signals
     signal hsel_ff  : std_logic_vector(slave_c-1 downto 0);
     signal hsel     : std_logic_vector(slave_c-1 downto 0);
-    -- nf_ahb_mux
-    component nf_ahb_mux
-        generic
-        (
-            slave_c : integer := SLAVE_COUNT
-        );
-        port
-        (
-            hsel_ff     : in    std_logic_vector(slave_c-1 downto 0);           -- hsel after flip-flop
-            -- slave side
-            hrdata_s    : in    logic_v_array(slave_c-1 downto 0)(31 downto 0); -- AHB read data slaves 
-            hresp_s     : in    logic_v_array(slave_c-1 downto 0)(1  downto 0); -- AHB response slaves
-            hready_s    : in    logic_array  (slave_c-1 downto 0);              -- AHB ready slaves
-            -- master side
-            hrdata      : out   std_logic_vector(31 downto 0);                  -- AHB read data master 
-            hresp       : out   std_logic_vector(1  downto 0);                  -- AHB response master
-            hready      : out   std_logic                                       -- AHB ready master
-        );
-    end component;
-    -- nf_ahb_dec
-    component nf_ahb_dec
-        generic
-        (
-            slave_c : integer := SLAVE_COUNT
-        );
-        port
-        (
-            haddr   : in    std_logic_vector(31        downto 0);   -- AHB address 
-            hsel    : out   std_logic_vector(slave_c-1 downto 0)    -- hsel signal
-        );
-    end component;
-    -- nf_register
-    component nf_register
-        generic
-        (
-            width   : integer   := 1
-        );
-        port
-        (
-            clk     : in    std_logic;                          -- clk
-            resetn  : in    std_logic;                          -- resetn
-            datai   : in    std_logic_vector(width-1 downto 0); -- input data
-            datao   : out   std_logic_vector(width-1 downto 0)  -- output data
-        );
-    end component;
 begin
 
     hsel_gen:

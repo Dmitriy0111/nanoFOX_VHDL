@@ -13,6 +13,7 @@ library nf;
 use nf.nf_settings.all;
 use nf.nf_ahb_pkg.all;
 use nf.nf_help_pkg.all;
+use nf.nf_components.all;
 
 entity nf_ahb2core is
     port
@@ -41,21 +42,6 @@ entity nf_ahb2core is
 end nf_ahb2core;
 
 architecture rtl of nf_ahb2core is
-    -- nf_register_we
-    component nf_register_we
-        generic
-        (
-            width   : integer   := 1
-        );
-        port
-        (
-            clk     : in    std_logic;                          -- clk
-            resetn  : in    std_logic;                          -- resetn
-            we      : in    std_logic;                          -- write enable
-            datai   : in    std_logic_vector(width-1 downto 0); -- input data
-            datao   : out   std_logic_vector(width-1 downto 0)  -- output data
-        );
-    end component; 
 begin
 
     haddr   <= addr;

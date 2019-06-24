@@ -55,7 +55,15 @@ if {$test == "nf_uart_transmitter test"} {
 
 } elseif {$test == "nf_top test"} {
 
-    vcom -2008 ../inc/*.vhd                     -work nf
+    vcom -2008 ../inc/nf_settings.vhd           -work nf
+    vcom -2008 ../inc/nf_ahb_pkg.vhd            -work nf
+    vcom -2008 ../inc/nf_cpu_def.vhd            -work nf
+    vcom -2008 ../inc/nf_csr_pkg.vhd            -work nf
+    vcom -2008 ../inc/nf_help_pkg.vhd           -work nf
+    vcom -2008 ../inc/nf_mem_pkg.vhd            -work nf
+    vcom -2008 ../inc/nf_uart_pkg.vhd           -work nf
+    vcom -2008 ../inc/nf_components.vhd         -work nf
+
     vcom -2008 ../program_file/*.vhd            -work nf
 
     vcom -2008  ../rtl/core/*.vhd
