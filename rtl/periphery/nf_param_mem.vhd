@@ -22,7 +22,7 @@ entity nf_param_mem is
         data_w  : integer := 32;                        -- actual data width
         depth   : integer := 2 ** 6                     -- depth of memory array
     );
-    port 
+    port
     (
         clk     : in    std_logic;                              -- clock
         waddr   : in    std_logic_vector(addr_w-1 downto 0);    -- write address

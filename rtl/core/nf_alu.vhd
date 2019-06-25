@@ -17,7 +17,7 @@ use nf.nf_cpu_def.all;
 use nf.nf_help_pkg.all;
 
 entity nf_alu is
-    port 
+    port
     (
         srcA        : in    std_logic_vector(31 downto 0);  -- source A for ALU unit
         srcB        : in    std_logic_vector(31 downto 0);  -- source B for ALU unit

@@ -17,7 +17,7 @@ use nf.nf_help_pkg.all;
 use nf.nf_components.all;
 
 entity nf_i_lsu is
-    port 
+    port
     (
         -- clock and reset
         clk             : in    std_logic;                      -- clock
@@ -75,8 +75,10 @@ architecture rtl of nf_i_lsu is
     signal sign_dm          : std_logic;                        -- unsigned load data memory?
     signal misaligned       : std_logic;                        -- load or store address misaligned
 
-    signal hit              : std_logic;
-    signal cache_rd         : std_logic_vector(31 downto 0);
+    signal hit              : std_logic;                        -- cache hit
+    signal cache_rd         : std_logic_vector(31 downto 0);    -- cache read data
+    signal addr_pre         : std_logic_vector(1  downto 0);
+    signal size_pre         : std_logic_vector(1  downto 0);
 begin
     
     misaligned   <= ( ( bool2sl( size_dm_imem = "10" ) and bool2sl( result_imem(1 downto 0) /= 0 ) ) or 
@@ -95,9 +97,11 @@ begin
     size_dm      <= size_dm_i;
     wd_dm        <= wd_dm_i;
     we_dm        <= we_dm_i;
-
+    
     l_data_pre <= cache_rd when ( hit and not lsu_busy_i ) else rd_dm;
-
+    addr_pre   <= result_imem(1 downto 0) when ( hit and not lsu_busy_i ) else addr_dm_i(1 downto 0);
+    size_pre   <= size_dm_imem when ( hit and not lsu_busy_i ) else size_dm_i;
+    
     lsu_err_proc : process( clk, resetn )
     begin
         if( not resetn ) then
@@ -133,14 +137,14 @@ begin
         l_data_2 <= l_data_pre(23 downto 16);
         l_data_1 <= l_data_pre(15 downto  8);
         l_data_0 <= l_data_pre(7  downto  0);
-        case( addr_dm_i(1 downto 0) ) is
+        case( addr_pre ) is
             when "00"   => l_data_0 <= l_data_pre(7  downto  0);
             when "01"   => l_data_0 <= l_data_pre(15 downto  8);
             when "10"   => l_data_0 <= l_data_pre(23 downto 16);
             when "11"   => l_data_0 <= l_data_pre(31 downto 24);
             when others =>
         end case;
-        case( addr_dm_i(1 downto 0) ) is
+        case( addr_pre ) is
             when "00"   => l_data_1 <= l_data_pre(15 downto  8);
             when "01"   => l_data_1 <= l_data_pre(15 downto  8);
             when "10"   => l_data_1 <= l_data_pre(31 downto 24);
@@ -207,35 +211,35 @@ begin
     rd_dm_iwb_i_proc : process( all )
     begin
         rd_dm_iwb_i <= (others => '0');
-        case( size_dm_i ) is
+        case( size_pre ) is
             when "00"   => rd_dm_iwb_i <= repbit( l_data_f( 7) and sign_dm , 24 ) & l_data_f(7  downto 0);
             when "01"   => rd_dm_iwb_i <= repbit( l_data_f(15) and sign_dm , 16 ) & l_data_f(15 downto 0);
             when "10"   => rd_dm_iwb_i <= l_data_f;
             when others => rd_dm_iwb_i <= l_data_f;
         end case;
     end process;
-
+    -- creating one cache data memory controller
     nf_cache_D_controller : nf_cache_controller
     generic map
     (
-        addr_w  => 6,           -- actual address memory width
-        depth   => 2 ** 6,      -- depth of memory array
+        addr_w  => 6,               -- actual address memory width
+        depth   => 2 ** 6,          -- depth of memory array
         tag_w   => 6
     )
     port map
     (
-        clk     => clk,         -- clock
-        raddr   => result_imem, -- address
-        waddr   => addr_dm_i,   -- address
-        swe     => we_dm_i,     -- store write enable
-        lwe     => req_ack_dm,  -- load write enable
-        req_l   => lsu_busy_i,  -- 
-        size_d  => size_dm_i,   -- 
-        size_r  => size_dm_imem,
-        sd      => wd_dm_i,     -- store data
-        ld      => rd_dm,       -- load data
-        rd      => cache_rd,    -- read data
-        hit     => hit          -- cache hit
+        clk     => clk,             -- clock
+        raddr   => result_imem,     -- read address
+        waddr   => addr_dm_i,       -- write address
+        swe     => we_dm_i,         -- store write enable
+        lwe     => req_ack_dm,      -- load write enable
+        req_l   => lsu_busy_i,      -- requets load
+        size_d  => size_dm_i,       -- data size
+        size_r  => size_dm_imem,    -- read data size
+        sd      => wd_dm_i,         -- store data
+        ld      => rd_dm,           -- load data
+        rd      => cache_rd,        -- read data
+        hit     => hit              -- cache hit
     );
 
 end rtl; -- nf_i_lsu

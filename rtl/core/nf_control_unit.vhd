@@ -16,7 +16,7 @@ use nf.nf_cpu_def.all;
 use nf.nf_help_pkg.all;
 
 entity nf_control_unit is
-    port 
+    port
     (
         instr_type  : in   std_logic_vector(1  downto 0);   -- instruction type
         opcode      : in   std_logic_vector(4  downto 0);   -- operation code field in instruction code

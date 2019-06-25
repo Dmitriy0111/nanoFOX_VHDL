@@ -16,7 +16,7 @@ use nf.nf_cpu_def.all;
 use nf.nf_help_pkg.all;
 
 entity nf_hz_bypass_unit is
-    port 
+    port
     (
         -- scan wires
         wa3_imem    : in    std_logic_vector(4  downto 0);  -- write address from mem stage

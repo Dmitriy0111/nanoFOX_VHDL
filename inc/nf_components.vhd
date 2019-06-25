@@ -17,7 +17,7 @@ use nf.nf_mem_pkg.all;
 package nf_components is
     -- nf_alu
     component nf_alu
-        port 
+        port
         (
             srcA        : in    std_logic_vector(31 downto 0);  -- source A for ALU unit
             srcB        : in    std_logic_vector(31 downto 0);  -- source B for ALU unit
@@ -28,7 +28,7 @@ package nf_components is
     end component nf_alu;
     -- nf_branch_unit
     component nf_branch_unit
-        port 
+        port
         (
             branch_type : in    std_logic_vector(3  downto 0);  -- from control unit, '1 if branch instruction
             branch_hf   : in    std_logic;                      -- branch help field
@@ -39,7 +39,7 @@ package nf_components is
     end component nf_branch_unit;
     -- nf_control_unit
     component nf_control_unit
-        port 
+        port
         (
             instr_type  : in   std_logic_vector(1  downto 0);   -- instruction type
             opcode      : in   std_logic_vector(4  downto 0);   -- operation code field in instruction code
@@ -70,7 +70,7 @@ package nf_components is
     end component nf_control_unit;
     -- nf_cpu_cc
     component nf_cpu_cc
-        port 
+        port
         (
             -- clock and reset
             clk             : in    std_logic;                      -- clock
@@ -132,7 +132,7 @@ package nf_components is
     end component nf_cpu;
     -- nf_csr
     component nf_csr
-        port 
+        port
         (
             -- clock and reset
             clk             : in   std_logic;                       -- clk  
@@ -157,7 +157,7 @@ package nf_components is
     end component nf_csr;
     -- nf_hz_bypass_unit
     component nf_hz_bypass_unit
-        port 
+        port
         (
             -- scan wires
             wa3_imem    : in    std_logic_vector(4  downto 0);  -- write address from mem stage
@@ -184,7 +184,7 @@ package nf_components is
     end component nf_hz_bypass_unit;
     -- nf_hz_stall_unit
     component nf_hz_stall_unit
-        port 
+        port
         (
             -- scan wires
             we_rf_imem  : in   std_logic;                       -- write enable register from memory stage
@@ -215,7 +215,7 @@ package nf_components is
     end component nf_hz_stall_unit;
     -- nf_i_du
     component nf_i_du
-        port 
+        port
         (
             instr       : in    std_logic_vector(31 downto 0);  -- Instruction input
             ext_data    : out   std_logic_vector(31 downto 0);  -- decoded extended data
@@ -248,7 +248,7 @@ package nf_components is
     end component nf_i_du;
     -- nf_i_exu
     component nf_i_exu
-        port 
+        port
         (
             rd1         : in    std_logic_vector(31 downto 0);  -- read data from reg file (port1)
             rd2         : in    std_logic_vector(31 downto 0);  -- read data from reg file (port2)
@@ -292,7 +292,7 @@ package nf_components is
     end component nf_i_fu;
     -- nf_i_lsu
     component nf_i_lsu
-        port 
+        port
         (
             -- clock and reset
             clk             : in    std_logic;                      -- clock
@@ -322,7 +322,7 @@ package nf_components is
     end component nf_i_lsu;
     -- nf_reg_file
     component nf_reg_file
-        port 
+        port
         (
             clk     : in    std_logic;                      -- clock
             ra1     : in    std_logic_vector(4  downto 0);  -- read address 1
@@ -336,7 +336,7 @@ package nf_components is
     end component nf_reg_file;
     -- nf_sign_ex
     component nf_sign_ex
-        port 
+        port
         (
             imm_data_i  : in    std_logic_vector(11 downto 0);  -- immediate data in i-type instruction
             imm_data_u  : in    std_logic_vector(19 downto 0);  -- immediate data in u-type instruction
@@ -657,7 +657,7 @@ package nf_components is
             init    : boolean;                              -- init memory?
             i_mem   : mem_t                                 -- init memory
         );
-        port 
+        port
         (
             clk     : in    std_logic;                      -- clock
             addr    : in    std_logic_vector(31 downto 0);  -- address
@@ -674,7 +674,7 @@ package nf_components is
             data_w  : integer;                                      -- actual data width
             depth   : integer                                       -- depth of memory array
         );
-        port 
+        port
         (
             clk     : in    std_logic;                              -- clock
             waddr   : in    std_logic_vector(addr_w-1 downto 0);    -- write address
@@ -759,7 +759,7 @@ package nf_components is
         (
             pwm_width   : integer                                       -- width pwm register
         );
-        port 
+        port
         (
             -- clock and reset
             clk         : in    std_logic;                              -- clock
@@ -781,7 +781,7 @@ package nf_components is
         (
             gpio_w  : integer                                       -- width gpio port
         );
-        port 
+        port
         (
             -- clock and reset
             clk     : in    std_logic;                              -- clock
@@ -805,16 +805,16 @@ package nf_components is
             depth   : integer := 2 ** 6;                            -- depth of memory array
             tag_w   : integer := 6                                  -- tag width
         );
-        port 
+        port
         (
             clk     : in    std_logic;                              -- clock
-            raddr   : in    std_logic_vector(31      downto 0);     -- address
-            waddr   : in    std_logic_vector(31      downto 0);     -- address
+            raddr   : in    std_logic_vector(31      downto 0);     -- read address
+            waddr   : in    std_logic_vector(31      downto 0);     -- write address
             we_cb   : in    std_logic_vector(3       downto 0);     -- write cache enable
             we_ctv  : in    std_logic;                              -- write tag valid enable
             wd      : in    std_logic_vector(31      downto 0);     -- write data
-            vld     : in    std_logic_vector(3       downto 0);     -- valid
-            wtag    : in    std_logic_vector(tag_w-1 downto 0);
+            vld     : in    std_logic_vector(3       downto 0);     -- write valid
+            wtag    : in    std_logic_vector(tag_w-1 downto 0);     -- write tag
             rd      : out   std_logic_vector(31      downto 0);     -- read data
             hit     : out   std_logic_vector(3       downto 0)      -- cache hit
         );
@@ -823,24 +823,24 @@ package nf_components is
     component nf_cache_controller
         generic
         (
-            addr_w  : integer := 6;                                 -- actual address memory width
-            depth   : integer := 2 ** 6;                            -- depth of memory array
-            tag_w   : integer := 6                                  -- tag width
+            addr_w  : integer := 6;                         -- actual address memory width
+            depth   : integer := 2 ** 6;                    -- depth of memory array
+            tag_w   : integer := 6                          -- tag width
         );
-        port 
+        port
         (
             clk     : in    std_logic;                      -- clock
-            raddr   : in    std_logic_vector(31 downto 0);  -- address
-            waddr   : in    std_logic_vector(31 downto 0);  -- address
+            raddr   : in    std_logic_vector(31 downto 0);  -- read address
+            waddr   : in    std_logic_vector(31 downto 0);  -- write address
             swe     : in    std_logic;                      -- store write enable
             lwe     : in    std_logic;                      -- load write enable
             req_l   : in    std_logic;                      -- requets load
             size_d  : in    std_logic_vector(1  downto 0);  -- data size
-            size_r  : in    std_logic_vector(1  downto 0);
+            size_r  : in    std_logic_vector(1  downto 0);  -- read data size
             sd      : in    std_logic_vector(31 downto 0);  -- store data
             ld      : in    std_logic_vector(31 downto 0);  -- load data
             rd      : out   std_logic_vector(31 downto 0);  -- read data
-            hit     : out   std_logic
+            hit     : out   std_logic                       -- cache hit
         );
     end component nf_cache_controller;
 

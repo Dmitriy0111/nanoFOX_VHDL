@@ -14,7 +14,7 @@ library nf;
 use nf.nf_mem_pkg.all;
 
 entity nf_reg_file is
-    port 
+    port
     (
         clk     : in    std_logic;                      -- clock
         ra1     : in    std_logic_vector(4  downto 0);  -- read address 1

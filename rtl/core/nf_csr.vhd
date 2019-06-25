@@ -18,7 +18,7 @@ use nf.nf_help_pkg.all;
 use nf.nf_csr_pkg.all;
 
 entity nf_csr is
-    port 
+    port
     (
         -- clock and reset
         clk             : in   std_logic;                       -- clk  

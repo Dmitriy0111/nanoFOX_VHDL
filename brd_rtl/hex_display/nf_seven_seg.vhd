@@ -13,7 +13,7 @@ use ieee.numeric_std.all;
 use ieee.std_logic_unsigned.all;
 
 entity nf_seven_seg is
-    port 
+    port
     (
         hex         : in    std_logic_vector(3 downto 0);   -- hexadecimal value input
         cc_ca       : in    std_logic;                      -- common cathode or common anode

@@ -11,7 +11,7 @@ architecture testbench of nf_ram_test is
             addr_w  : integer := 6;                         -- actual address memory width
             depth   : integer := 2 ** 6                     -- depth of memory array
         );
-        port 
+        port
         (
             clk     : in    std_logic;                      -- clock
             addr    : in    std_logic_vector(31 downto 0);  -- address

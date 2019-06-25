@@ -72,7 +72,7 @@ architecture testbench of nf_tb is
     signal instr_sep_s_iwb_stage  : string(str_len downto 1) := (others => ' ');
     -- nf_top
     component nf_top_ahb
-        port 
+        port
         (
             -- clock and reset
             clk         : in    std_logic;                      -- clock

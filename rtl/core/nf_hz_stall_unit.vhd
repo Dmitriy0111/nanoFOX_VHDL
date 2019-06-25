@@ -16,7 +16,7 @@ use nf.nf_cpu_def.all;
 use nf.nf_help_pkg.all;
 
 entity nf_hz_stall_unit is
-    port 
+    port
     (
         -- scan wires
         we_rf_imem  : in   std_logic;                       -- write enable register from memory stage

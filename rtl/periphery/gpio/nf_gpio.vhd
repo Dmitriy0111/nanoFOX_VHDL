@@ -19,7 +19,7 @@ entity nf_gpio is
     (
         gpio_w  : integer := NF_GPIO_WIDTH                      -- width gpio port
     );
-    port 
+    port
     (
         -- clock and reset
         clk     : in    std_logic;                              -- clock

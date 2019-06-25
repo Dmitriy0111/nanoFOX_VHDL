@@ -24,7 +24,7 @@ entity nf_ram is
         init    : boolean := False;                     -- init memory?
         i_mem   : mem_t                                 -- init memory
     );
-    port 
+    port
     (
         clk     : in    std_logic;                      -- clock
         addr    : in    std_logic_vector(31 downto 0);  -- address

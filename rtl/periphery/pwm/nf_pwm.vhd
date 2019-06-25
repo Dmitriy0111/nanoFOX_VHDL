@@ -19,7 +19,7 @@ entity nf_pwm is
     (
         pwm_width   : integer := 8                                  -- width pwm register
     );
-    port 
+    port
     (
         -- clock and reset
         clk         : in    std_logic;                              -- clock

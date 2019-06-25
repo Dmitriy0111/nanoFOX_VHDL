@@ -18,7 +18,7 @@ use nf.nf_mem_pkg.all;
 use nf.nf_components.all;
 
 entity nf_top_ahb is
-    port 
+    port
     (
         -- clock and reset
         clk         : in    std_logic;                                  -- clock

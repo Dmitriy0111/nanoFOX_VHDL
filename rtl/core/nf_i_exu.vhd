@@ -16,7 +16,7 @@ use nf.nf_cpu_def.all;
 use nf.nf_components.all;
 
 entity nf_i_exu is
-    port 
+    port
     (
         rd1         : in    std_logic_vector(31 downto 0);  -- read data from reg file (port1)
         rd2         : in    std_logic_vector(31 downto 0);  -- read data from reg file (port2)

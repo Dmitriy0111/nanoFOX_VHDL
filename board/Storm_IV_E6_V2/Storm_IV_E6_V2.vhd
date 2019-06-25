@@ -4,7 +4,7 @@ use ieee.numeric_std.all;
 use ieee.std_logic_unsigned.all;
 
 entity Storm_IV_E6_V2 is
-    port 
+    port
     (
         clk50mhz    : in    std_logic;
         rst_key     : in    std_logic;
@@ -44,7 +44,7 @@ architecture rtl of Storm_IV_E6_V2 is
     -- component definition
     -- nf_top_ahb
     component nf_top_ahb
-        port 
+        port
         (
             -- clock and reset
             clk         : in    std_logic;                      -- clock
@@ -62,7 +62,7 @@ architecture rtl of Storm_IV_E6_V2 is
     end component;
     -- nf_seven_seg_dynamic
     component nf_seven_seg_dynamic
-        port 
+        port
         (
             clk         : in    std_logic;                      -- clock
             resetn      : in    std_logic;                      -- reset

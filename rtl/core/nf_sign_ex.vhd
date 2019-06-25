@@ -15,7 +15,7 @@ library nf;
 use nf.nf_cpu_def.all;
 
 entity nf_sign_ex is
-    port 
+    port
     (
         imm_data_i  : in    std_logic_vector(11 downto 0);  -- immediate data in i-type instruction
         imm_data_u  : in    std_logic_vector(19 downto 0);  -- immediate data in u-type instruction

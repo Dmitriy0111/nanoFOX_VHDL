@@ -15,7 +15,7 @@ library nf;
 use nf.nf_help_pkg.all;
 
 entity nf_branch_unit is
-    port 
+    port
     (
         branch_type : in    std_logic_vector(3  downto 0);  -- from control unit, '1 if branch instruction
         branch_hf   : in    std_logic;                      -- branch help field

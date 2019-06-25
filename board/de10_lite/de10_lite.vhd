@@ -4,7 +4,7 @@ use ieee.numeric_std.all;
 use ieee.std_logic_unsigned.all;
 
 entity de10_lite is
-    port 
+    port
     (
         -- max10 clock input's
         adc_clk_10      : in    std_logic;
@@ -47,7 +47,7 @@ architecture rtl of de10_lite is
     -- component definition
     -- nf_top_ahb
     component nf_top_ahb
-        port 
+        port
         (
             -- clock and reset
             clk         : in    std_logic;                      -- clock
@@ -69,7 +69,7 @@ architecture rtl of de10_lite is
         (
             hn          : integer := 8                              -- number of seven segments unit
         );
-        port 
+        port
         (
             hex         : in    std_logic_vector(31     downto 0);  -- hexadecimal value input
             cc_ca       : in    std_logic;                          -- common cathode or common anode

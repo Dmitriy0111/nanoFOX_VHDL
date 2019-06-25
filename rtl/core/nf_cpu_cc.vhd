@@ -13,7 +13,7 @@ use ieee.numeric_std.all;
 use ieee.std_logic_unsigned.all;
 
 entity nf_cpu_cc is
-    port 
+    port
     (
         -- clock and reset
         clk             : in    std_logic;                      -- clock

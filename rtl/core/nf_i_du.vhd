@@ -16,7 +16,7 @@ use nf.nf_cpu_def.all;
 use nf.nf_components.all;
 
 entity nf_i_du is
-    port 
+    port
     (
         instr       : in    std_logic_vector(31 downto 0);  -- Instruction input
         ext_data    : out   std_logic_vector(31 downto 0);  -- decoded extended data

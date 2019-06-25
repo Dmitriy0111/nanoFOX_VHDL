@@ -17,7 +17,7 @@ entity nf_seven_seg_static is
     (
         hn          : integer := 8                              -- number of seven segments unit
     );
-    port 
+    port
     (
         hex         : in    std_logic_vector(31     downto 0);  -- hexadecimal value input
         cc_ca       : in    std_logic;                          -- common cathode or common anode
@@ -28,7 +28,7 @@ end nf_seven_seg_static;
 architecture rtl of nf_seven_seg_static is
     -- nf_seven_seg
     component nf_seven_seg
-        port 
+        port
         (
             hex         : in    std_logic_vector(3 downto 0);   -- hexadecimal value input
             cc_ca       : in    std_logic;                      -- common cathode or common anode

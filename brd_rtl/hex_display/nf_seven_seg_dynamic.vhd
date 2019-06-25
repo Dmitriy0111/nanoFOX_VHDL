@@ -13,7 +13,7 @@ use ieee.numeric_std.all;
 use ieee.std_logic_unsigned.all;
 
 entity nf_seven_seg_dynamic is
-    port 
+    port
     (
         clk         : in    std_logic;                      -- clock
         resetn      : in    std_logic;                      -- reset
@@ -30,7 +30,7 @@ architecture rtl of nf_seven_seg_dynamic is
     signal hex_h        :   std_logic_vector(3  downto 0);
     -- nf_seven_seg
     component nf_seven_seg
-        port 
+        port
         (
             hex         : in    std_logic_vector(3 downto 0);   -- hexadecimal value input
             cc_ca       : in    std_logic;                      -- common cathode or common anode
