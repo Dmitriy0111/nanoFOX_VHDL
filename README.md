@@ -1,5 +1,5 @@
 # **nanoFOX_VHDL**
-    A small RISC-V CPU core. This is a pipeline version of CPU with AHB (full command list RV32I (without fence, fence.i, ecall, ebreak)).
+    A small RISC-V CPU core. This is a pipeline version of CPU with AHB and cache (full command list RV32I (without fence, fence.i, ecall, ebreak)).
     
 ## Supported instructions:
 *   lui
@@ -49,18 +49,17 @@
 ## Quickstart:
 For loading project with git program:
 
-    $ git clone https://github.com/Dmitriy0111/nanoFOX.git 
-    $ cd nanoFOX 
-    $ git checkout 03_pipe_risc_v_cpu_fc
+    $ git clone https://github.com/Dmitriy0111/nanoFOX_VHDL.git 
+    $ cd nanoFOX_VHDL 
+    $ git checkout 04_pipe_risc_v_cpu_fc_cache
 
-Or download project from GitHub site <a href="https://github.com/Dmitriy0111/nanoFOX">03_pipe_risc_v_cpu_fc</a>
+Or download project from GitHub site <a href="https://github.com/Dmitriy0111/nanoFOX_VHDL">04_pipe_risc_v_cpu_fc_cache</a>
 
 For working with project install:
 *   make
-*   Quartus Prime
-*   Modelsim
-*   Python
-*   RISC-V tools for <a href="https://">windows</a> or <a href="https://">linux</a>
+*   <a href="https://www.intel.ru/content/www/ru/ru/software/programmable/quartus-prime/download.html">Quartus Prime and Modelsim</a>
+*   <a href="https://www.python.org/downloads/">Python</a>
+*   <a href="https://github.com/gnu-mcu-eclipse/riscv-none-gcc/releases">RISC-V tools</a>
 
 **Impotant:** Before starting simulation or synthesis process make compilation program or create "program_file" folder and copy one of program.hex files from program folder.
 
@@ -86,9 +85,6 @@ If log_txt or log_html set as '1 (tb/nf_tb_def.vhd) then you can see simulation 
 *   **make synth_build_q** is used for building project;
 *   **make synth_gui_q** is used for open project in Quartus;
 *   **make synth_load_q** is used for loading bitstream in CPLD/FPGA.
-
-## Core structure:
-![cpu_system](doc/cpu_system.jpg)
 
 ## Boards support:
 simple cpu nanoFOX currently works on these FPGA boards:

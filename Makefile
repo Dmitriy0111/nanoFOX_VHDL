@@ -13,8 +13,14 @@ help:
 	$(info make synth_gui_q    - open the board project with quartus)
 	$(info make synth_load_q   - program the default FPGA board with quartus)
 	$(info make board_all      - run synthesis for all the supported boards)
-	$(info make prog_comp_c    - compile C program and copy program.vhd to program_file)
-	$(info make prog_comp_asm  - compile Assembler program and copy program.vhd to program_file)
+	$(info make prog_comp_c    - compile C program and copy program.hex to program_file)
+	$(info make prog_comp_asm  - compile Assembler program and copy program.hex to program_file)
+	$(info make prog_comp_rvc  - compile riscv-compliance program)
+	$(info make copy_rvc 	   - clone riscv-compliance to program folder)
+	$(info make clean_rvc	   - clean riscv-compliance folder)
+	$(info rvc_test	           - run python script for comparing results of riscv-compliance)
+	$(info formal_ver	       - run riscv-compliance test for RVC_TEST)
+	$(info formal_ver_all	   - run riscv-compliance test for all values in RVC_LIST_TEST)
 	$(info Open and read the Makefile for details)
 	@true
 
@@ -118,15 +124,16 @@ prog_clean:
 
 ########################################################
 # riscv-compliance test
+
 # RV32I full test list
 RVC_LIST      ?= I-ADD-01 I-ADDI-01 I-AND-01 I-ANDI-01 I-AUIPC-01 I-BEQ-01 I-BGE-01 I-BGEU-01 I-BLT-01 I-BLTU-01 I-BNE-01 I-CSRRC-01 I-CSRRCI-01 I-CSRRS-01 I-CSRRSI-01 I-CSRRW-01 I-CSRRWI-01 I-DELAY_SLOTS-01 I-EBREAK-01 I-ECALL-01 I-ENDIANESS-01 I-FENCE.I-01 I-IO I-JAL-01 I-JALR-01 I-LB-01 I-LBU-01 I-LH-01 I-LHU-01 I-LUI-01 I-LW-01 I-MISALIGN_JMP-01 I-MISALIGN_LDST-01 I-NOP-01 I-OR-01 I-ORI-01 I-RF_size-01 I-RF_width-01 I-RF_x0-01 I-SB-01 I-SH-01 I-SLL-01 I-SLLI-01 I-SLT-01 I-SLTI-01 I-SLTIU-01 I-SLTU-01 I-SRA-01 I-SRAI-01 I-SRL-01 I-SRLI-01 I-SUB-01 I-SW-01 I-XOR-01 I-XORI-01
 # RV32I reducted test list
 RVC_LIST_TEST ?= I-ADD-01 I-ADDI-01 I-AND-01 I-ANDI-01 I-AUIPC-01 I-BEQ-01 I-BGE-01 I-BGEU-01 I-BLT-01 I-BLTU-01 I-BNE-01 I-CSRRC-01 I-CSRRCI-01 I-CSRRS-01 I-CSRRSI-01 I-CSRRW-01 I-CSRRWI-01 I-DELAY_SLOTS-01                        I-ENDIANESS-01              I-IO I-JAL-01 I-JALR-01 I-LB-01 I-LBU-01 I-LH-01 I-LHU-01 I-LUI-01 I-LW-01 I-MISALIGN_JMP-01 I-MISALIGN_LDST-01 I-NOP-01 I-OR-01 I-ORI-01 I-RF_size-01 I-RF_width-01 I-RF_x0-01 I-SB-01 I-SH-01 I-SLL-01 I-SLLI-01 I-SLT-01 I-SLTI-01 I-SLTIU-01 I-SLTU-01 I-SRA-01 I-SRAI-01 I-SRL-01 I-SRLI-01 I-SUB-01 I-SW-01 I-XOR-01 I-XORI-01
-# RISC V pass test
+# RISC V pass test list
 RVC_PASS      ?= I-ADD-01 I-ADDI-01 I-AND-01 I-ANDI-01 I-AUIPC-01 I-BEQ-01 I-BGE-01 I-BGEU-01 I-BLT-01 I-BLTU-01 I-BNE-01 I-CSRRC-01 I-CSRRCI-01 I-CSRRS-01 I-CSRRSI-01 I-CSRRW-01 I-CSRRWI-01 I-DELAY_SLOTS-01                        I-ENDIANESS-01              I-IO I-JAL-01 I-JALR-01 I-LB-01 I-LBU-01 I-LH-01 I-LHU-01 I-LUI-01 I-LW-01 I-MISALIGN_JMP-01 I-MISALIGN_LDST-01 I-NOP-01 I-OR-01 I-ORI-01 I-RF_size-01 I-RF_width-01 I-RF_x0-01 I-SB-01 I-SH-01 I-SLL-01 I-SLLI-01 I-SLT-01 I-SLTI-01 I-SLTIU-01 I-SLTU-01 I-SRA-01 I-SRAI-01 I-SRL-01 I-SRLI-01 I-SUB-01 I-SW-01 I-XOR-01 I-XORI-01
-# RISC V test with errors
+# RISC V fail test list
 RVC_ERR       ?=                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-# RISC V not test
+# RISC V not tested
 RVC_NT        ?= I-EBREAK-01 I-ECALL-01 I-FENCE.I-01
 # RISC V current test
 RVC_TEST      ?= I-SH-01
