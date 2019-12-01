@@ -843,6 +843,58 @@ package nf_components is
             hit     : out   std_logic                       -- cache hit
         );
     end component nf_cache_controller;
+    -- nf_apb_mux
+    component nf_apb_mux
+        generic
+        (
+            apb_slave_c : integer;
+            apb_addr_w  : integer
+        );
+        port
+        (
+            -- clock and reset
+            pclk        : in    std_logic;                                              -- pclock
+            presetn     : in    std_logic;                                              -- presetn
+            -- APB master side
+            paddr_m     : in    std_logic_vector(apb_addr_w-1 downto 0);                -- APB - master PADDR
+            prdata_m    : out   std_logic_vector(31           downto 0);                -- APB - master PRDATA
+            pready_m    : out   std_logic;                                              -- APB - master PREADY
+            psel_m      : in    std_logic;                                              -- APB - master PSEL
+            -- APB slave side
+            prdata_s    : in    logic_v_array   (apb_slave_c-1 downto 0)(31 downto 0);  -- APB - slave PRDATA
+            psel_s      : out   logic_array     (apb_slave_c-1 downto 0);               -- APB - slave PSEL
+            pready_s    : in    logic_array     (apb_slave_c-1 downto 0)                -- APB - slave PREADY
+        );
+    end component nf_apb_mux;
+    -- nf_apb_router
+    component nf_apb_router
+        generic
+        (
+            apb_slave_c : integer;
+            apb_addr_w  : integer
+        );
+        port
+        (
+            pclk        : in    std_logic;                                                      -- pclk
+            presetn     : in    std_logic;                                                      -- presetn
+            -- Master side
+            paddr_m     : in    std_logic_vector(apb_addr_w-1 downto 0);                        -- APB - master PADDR
+            pwdata_m    : in    std_logic_vector(31 downto 0);                                  -- APB - master PWDATA
+            prdata_m    : out   std_logic_vector(31 downto 0);                                  -- APB - master PRDATA
+            pwrite_m    : in    std_logic;                                                      -- APB - master PWRITE
+            penable_m   : in    std_logic;                                                      -- APB - master PENABLE
+            pready_m    : out   std_logic;                                                      -- APB - master PREADY
+            psel_m      : in    std_logic;                                                      -- APB - master PSEL
+            -- Slaves side
+            paddr_s     : out   logic_v_array(apb_slave_c-1 downto 0)(apb_addr_w-1 downto 0);   -- APB - slave PADDR
+            pwdata_s    : out   logic_v_array(apb_slave_c-1 downto 0)(31 downto 0);             -- APB - slave PWDATA
+            prdata_s    : in    logic_v_array(apb_slave_c-1 downto 0)(31 downto 0);             -- APB - slave PRDATA
+            pwrite_s    : out   logic_array  (apb_slave_c-1 downto 0);                          -- APB - slave PWRITE
+            penable_s   : out   logic_array  (apb_slave_c-1 downto 0);                          -- APB - slave PENABLE
+            pready_s    : in    logic_array  (apb_slave_c-1 downto 0);                          -- APB - slave PREADY
+            psel_s      : out   logic_array  (apb_slave_c-1 downto 0)                           -- APB - slave PSEL
+        );
+    end component nf_apb_router;
 
 end nf_components;
 

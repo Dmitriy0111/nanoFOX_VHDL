@@ -43,12 +43,12 @@ begin
     data_1_out <= int_reg1;
     data_2_out <= int_reg2;
 
-    write2first_reg : process( clk_1, resetn_1 )
+    write2first_reg : process( clk_1 )
     begin
-        if( not resetn_1 ) then
-            int_reg1 <= '0';
-        elsif( rising_edge(clk_1) ) then
-            if( we_1 ) then
+        if( rising_edge(clk_1) ) then
+            if( not resetn_1 ) then
+                int_reg1 <= '0';
+            elsif( we_1 ) then
                 int_reg1 <= data_1_in;
             elsif( req_2 ) then
                 int_reg1 <= int_reg2;
@@ -58,19 +58,21 @@ begin
 
     answer_first : process( clk_1, resetn_1 )
     begin
-        if( not resetn_1 ) then
-            ack_1 <= '0';
-        elsif( rising_edge(clk_1) ) then
-            ack_1 <= req_2;
+        if( rising_edge(clk_1) ) then
+            if( not resetn_1 ) then
+                ack_1 <= '0';
+            else
+                ack_1 <= req_2;
+            end if;
         end if;
     end process;
 
-    request_first : process( clk_1, resetn_1 )
+    request_first : process( clk_1 )
     begin
-        if( not resetn_1 ) then
-            req_1 <= '0';
-        elsif( rising_edge(clk_1) ) then
-            if( we_1 ) then
+        if( rising_edge(clk_1) ) then
+            if( not resetn_1 ) then
+                req_1 <= '0';
+            elsif( we_1 ) then
                 req_1 <= '1';
             elsif( ack_2 ) then
                 req_1 <= '0';
@@ -78,12 +80,12 @@ begin
         end if;
     end process;
 
-    write2second_reg : process( clk_2, resetn_2 )
+    write2second_reg : process( clk_2 )
     begin
-        if( not resetn_2 ) then
-            int_reg2 <= '0';
-        elsif( rising_edge(clk_2) ) then
-            if( we_2 ) then
+        if( rising_edge(clk_2) ) then
+            if( not resetn_2 ) then
+                int_reg2 <= '0';
+            elsif( we_2 ) then
                 int_reg2 <= data_2_in;
             elsif( req_1 ) then
                 int_reg2 <= int_reg1;
@@ -91,21 +93,23 @@ begin
         end if;
     end process;
 
-    answer_second : process( clk_2, resetn_2 )
+    answer_second : process( clk_2 )
     begin
-        if( not resetn_2 ) then
-            ack_2 <= '0';
-        elsif( rising_edge(clk_2) ) then
-            ack_2 <= req_1;
+        if( rising_edge(clk_2) ) then
+            if( not resetn_2 ) then
+                ack_2 <= '0';
+            else
+                ack_2 <= req_1;
+            end if;
         end if;
     end process;
 
-    request_second : process( clk_2, resetn_2 )
+    request_second : process( clk_2 )
     begin
-        if( not resetn_2 ) then
-            req_2 <= '0';
-        elsif( rising_edge(clk_2) ) then
-            if( we_2 ) then
+        if( rising_edge(clk_2) ) then
+            if( not resetn_2 ) then
+                req_2 <= '0';
+            elsif( we_2 ) then
                 req_2 <= '1';
             elsif( ack_1 ) then
                 req_2 <= '0';

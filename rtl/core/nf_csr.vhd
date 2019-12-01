@@ -63,86 +63,98 @@ begin
     m_ret_pc <= mepc;
 
     -- write mtval data
-    mtval_proc : process( clk, resetn )
+    mtval_proc : process( clk )
     begin
-        if( not resetn ) then
-            mtval <= (others => '0');
-        elsif( rising_edge(clk) ) then
-            if( addr_misalign ) then
-                mtval <= addr_mis;
-            end if;
-            if( s_misaligned or l_misaligned ) then
-                mtval <= ls_mis;
+        if( rising_edge(clk) ) then
+            if( not resetn ) then
+                mtval <= (others => '0');
+            else
+                if( addr_misalign ) then
+                    mtval <= addr_mis;
+                end if;
+                if( s_misaligned or l_misaligned ) then
+                    mtval <= ls_mis;
+                end if;
             end if;
         end if;
     end process;
 
     -- write mcause data
-    mcause_proc : process( clk, resetn )
+    mcause_proc : process( clk )
     begin
-        if( not resetn ) then
-            mcause <= (others => '0');
-        elsif( rising_edge(clk) ) then
-            if( addr_misalign ) then
-                mcause <= 32X"0";
-            end if;
-            if( s_misaligned ) then
-                mcause <= 32X"6";
-            end if;
-            if( l_misaligned ) then
-                mcause <= 32X"4";
+        if( rising_edge(clk) ) then
+            if( not resetn ) then
+                mcause <= (others => '0');
+            else
+                if( addr_misalign ) then
+                    mcause <= 32X"0";
+                end if;
+                if( s_misaligned ) then
+                    mcause <= 32X"6";
+                end if;
+                if( l_misaligned ) then
+                    mcause <= 32X"4";
+                end if;
             end if;
         end if;
     end process;
     -- write mscratch data
-    mscratch_proc : process( clk, resetn )
+    mscratch_proc : process( clk )
     begin
-        if( not resetn ) then
-            mscratch <= (others => '0');
-        elsif( rising_edge(clk) ) then
-            if( csr_wreq and bool2sl( csr_addr = MSCRATCH_A ) ) then
-                mscratch <= csr_wd_i;
+        if( rising_edge(clk) ) then
+            if( not resetn ) then
+                mscratch <= (others => '0');
+            else
+                if( csr_wreq and bool2sl( csr_addr = MSCRATCH_A ) ) then
+                    mscratch <= csr_wd_i;
+                end if;
             end if;
         end if;
     end process;
     -- write mtvec data
-    mtvec_proc : process( clk, resetn )
+    mtvec_proc : process( clk )
     begin
-        if( not resetn ) then
-            mtvec <= (others => '0');
-        elsif( rising_edge(clk) ) then
-            if( csr_wreq and bool2sl( csr_addr = MTVEC_A ) ) then
-                mtvec <= csr_wd_i;
+        if( rising_edge(clk) ) then
+            if( not resetn ) then
+                mtvec <= (others => '0');
+            else
+                if( csr_wreq and bool2sl( csr_addr = MTVEC_A ) ) then
+                    mtvec <= csr_wd_i;
+                end if;
             end if;
         end if;
     end process;
     -- write mepc data
-    mepc_proc : process( clk, resetn )
+    mepc_proc : process( clk )
     begin
-        if( not resetn ) then
-            mepc <= (others => '0');
-        elsif( rising_edge(clk) ) then
-            if( csr_wreq and bool2sl( csr_addr = MEPC_A ) ) then
-                mepc <= csr_wd_i;
-            end if;
-            if( addr_misalign ) then
-                mepc <= addr_mis;
-            end if;
-            if( s_misaligned or l_misaligned ) then
-                mepc <= m_ret_ls;
+        if( rising_edge(clk) ) then
+            if( not resetn ) then
+                mepc <= (others => '0');
+            else
+                if( csr_wreq and bool2sl( csr_addr = MEPC_A ) ) then
+                    mepc <= csr_wd_i;
+                end if;
+                if( addr_misalign ) then
+                    mepc <= addr_mis;
+                end if;
+                if( s_misaligned or l_misaligned ) then
+                    mepc <= m_ret_ls;
+                end if;
             end if;
         end if;
     end process;
     -- edit mcycle register
-    mcycle_proc : process( clk, resetn )
+    mcycle_proc : process( clk )
     begin
-        if( not resetn ) then
-            mcycle <= (others => '0');
-        elsif( rising_edge(clk) ) then
-            if( csr_wreq and bool2sl( csr_addr = MCYCLE_A ) ) then
-                mcycle <= csr_wd_i;
+        if( rising_edge(clk) ) then
+            if( not resetn ) then
+                mcycle <= (others => '0');
             else
-                mcycle <= mcycle + 1;
+                if( csr_wreq and bool2sl( csr_addr = MCYCLE_A ) ) then
+                    mcycle <= csr_wd_i;
+                else
+                    mcycle <= mcycle + 1;
+                end if;
             end if;
         end if;
     end process;

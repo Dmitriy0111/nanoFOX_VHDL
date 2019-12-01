@@ -81,38 +81,40 @@ begin
 
     sel_proc : process( clk, resetn )
     begin
-        if( not resetn ) then
-            master_sel_out <= MASTER_0;
-            master_sel_in  <= MASTER_0;
-            state <= M0_s;
-            last_master <= '0';
-        elsif( rising_edge( clk ) ) then
-            case( state ) is
-                when M0_s   =>
-                    if( req_dm ) then
-                        state <= M_NONE_s;
-                        last_master <= '0';
-                        master_sel_out <= MASTER_NONE;
-                    end if;
-                when M1_s   =>
-                    if( req_i ) then
-                        state <= M_NONE_s;
-                        last_master <= '1';
-                        master_sel_out <= MASTER_NONE;
-                    end if;
-                when M_NONE_s   =>
-                    if( ( not req_ack_cc ) and ( not last_master ) ) then
-                        state <= M1_s;
-                        master_sel_out <= MASTER_1;
-                        master_sel_in  <= MASTER_1;
-                    end if;
-                    if( ( not req_ack_cc ) and (     last_master ) ) then
-                        state <= M0_s;
-                        master_sel_out <= MASTER_0;
-                        master_sel_in  <= MASTER_0;
-                    end if;
-                when others =>
-            end case;
+        if( rising_edge( clk ) ) then
+            if( not resetn ) then
+                master_sel_out <= MASTER_0;
+                master_sel_in  <= MASTER_0;
+                state <= M0_s;
+                last_master <= '0';
+            else
+                case( state ) is
+                    when M0_s   =>
+                        if( req_dm ) then
+                            state <= M_NONE_s;
+                            last_master <= '0';
+                            master_sel_out <= MASTER_NONE;
+                        end if;
+                    when M1_s   =>
+                        if( req_i ) then
+                            state <= M_NONE_s;
+                            last_master <= '1';
+                            master_sel_out <= MASTER_NONE;
+                        end if;
+                    when M_NONE_s   =>
+                        if( ( not req_ack_cc ) and ( not last_master ) ) then
+                            state <= M1_s;
+                            master_sel_out <= MASTER_1;
+                            master_sel_in  <= MASTER_1;
+                        end if;
+                        if( ( not req_ack_cc ) and (     last_master ) ) then
+                            state <= M0_s;
+                            master_sel_out <= MASTER_0;
+                            master_sel_in  <= MASTER_0;
+                        end if;
+                    when others =>
+                end case;
+            end if;
         end if;    
     end process;
 

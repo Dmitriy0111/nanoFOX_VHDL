@@ -17,6 +17,7 @@ int main ()
 {
     int i;
     i=0;
+    NF_GPIO_EN = 0x01;
     NF_UART_DV = NF_UART_SP_115200;
     NF_UART_CR = NF_UART_TX_EN;
     while( i != 14 )

@@ -31,10 +31,12 @@ architecture rtl of nf_register is
 begin
     reg_proc : process( clk, resetn )
     begin
-        if( not resetn ) then
-            datao <= (others => '0');
-        elsif( rising_edge(clk) ) then
-            datao <= datai;
+        if( rising_edge(clk) ) then
+            if( not resetn ) then
+                datao <= (others => '0');
+            else
+                datao <= datai;
+            end if;
         end if;
     end process;
 end rtl; -- nf_register
@@ -62,12 +64,12 @@ end nf_register_we;
 
 architecture rtl of nf_register_we is
 begin
-    reg_proc : process( clk, resetn )
+    reg_proc : process( clk )
     begin
-        if( not resetn ) then
-            datao <= (others => '0');
-        elsif( rising_edge(clk) ) then
-            if( we ) then
+        if( rising_edge(clk) ) then
+            if( not resetn ) then
+                datao <= (others => '0');
+            elsif( we ) then
                 datao <= datai;
             end if;
         end if;
@@ -98,12 +100,12 @@ end nf_register_we_r;
 
 architecture rtl of nf_register_we_r is
 begin
-    reg_proc : process( clk, resetn )
+    reg_proc : process( clk )
     begin
-        if( not resetn ) then
-            datao <= std_logic_vector(to_unsigned(rst_val,width));
-        elsif( rising_edge(clk) ) then
-            if( we ) then
+        if( rising_edge(clk) ) then
+            if( not resetn ) then
+                datao <= std_logic_vector(to_unsigned(rst_val,width));
+            elsif( we ) then
                 datao <= datai;
             end if;
         end if;
@@ -133,12 +135,12 @@ end nf_register_clr;
 
 architecture rtl of nf_register_clr is
 begin
-    reg_proc : process( clk, resetn )
+    reg_proc : process( clk )
     begin
-        if( not resetn ) then
-            datao <= (others => '0');
-        elsif( rising_edge(clk) ) then
-            if( clr ) then
+        if( rising_edge(clk) ) then
+            if( not resetn ) then
+                datao <= (others => '0');
+            elsif( clr ) then
                 datao <= (others => '0');
             else
                 datao <= datai;
@@ -171,12 +173,12 @@ end nf_register_we_clr;
 
 architecture rtl of nf_register_we_clr is
 begin
-    reg_proc : process( clk, resetn )
+    reg_proc : process( clk )
     begin
-        if( not resetn ) then
-            datao <= (others => '0');
-        elsif( rising_edge(clk) ) then
-            if( we ) then
+        if( rising_edge(clk) ) then
+            if( not resetn ) then
+                datao <= (others => '0');
+            elsif( we ) then
                 if( clr ) then
                     datao <= (others => '0');
                 else

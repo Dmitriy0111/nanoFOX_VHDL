@@ -96,16 +96,18 @@ begin
         end case ?;
     end process;
     --
-    flush_id_ff_proc : process( clk , resetn )
+    flush_id_ff_proc : process( clk )
         variable en : std_logic;
     begin
         en := flush_id_branch(0) or addr_misalign_i or lsu_err;
-        if( not resetn ) then
-            flush_id_ff <= "1"; -- flushing if-id after reset
-        elsif( rising_edge( clk ) ) then
-            flush_id_ff <= "0";
-            if( en ) then 
-                flush_id_ff <= "1"; -- set if branch and stall instruction fetch
+        if( rising_edge( clk ) ) then
+            if( not resetn ) then
+                flush_id_ff <= "1"; -- flushing if-id after reset
+            else
+                flush_id_ff <= "0";
+                if( en ) then 
+                    flush_id_ff <= "1"; -- set if branch and stall instruction fetch
+                end if;
             end if;
         end if;
     end process;

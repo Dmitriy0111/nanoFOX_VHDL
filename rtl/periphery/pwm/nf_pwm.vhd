@@ -13,6 +13,7 @@ use ieee.numeric_std.all;
 use ieee.std_logic_unsigned.all;
 library nf;
 use nf.nf_settings.all;
+use nf.nf_components.all;
 
 entity nf_pwm is
     generic
@@ -44,24 +45,7 @@ begin
     pwm <= '1' when (pwm_i >= pwm_c) else '0';
     rd  <= (31 downto pwm_width => '0') & pwm_c;
 
-    pwm_i_inc : process( pwm_clk, pwm_resetn )
-    begin
-        if( not pwm_resetn ) then
-            pwm_i <= (others => '0');
-        elsif( rising_edge(pwm_clk) ) then
-            pwm_i <= pwm_i + 1;
-        end if;
-    end process;
-
-    pwm_c_set : process( clk, resetn )
-    begin
-        if( not resetn ) then
-            pwm_c <= (others => '0');
-        elsif( rising_edge(clk) ) then
-            if( we ) then
-                pwm_c <= wd(pwm_width-1 downto 0);
-            end if;
-        end if;
-    end process;
+    pwm_i_ff : nf_register    generic map( pwm_width ) port map ( clk, resetn,     pwm_i + 1               , pwm_i );
+    pwm_c_ff : nf_register_we generic map( pwm_width ) port map ( clk, resetn, we, wd(pwm_width-1 downto 0), pwm_c );
 
 end rtl; -- nf_pwm

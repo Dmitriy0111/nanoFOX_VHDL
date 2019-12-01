@@ -12,6 +12,7 @@
 
 int main ()
 {
+    NF_GPIO_EN = 0x01;
     NF_UART_DV = NF_UART_SP_115200;
     NF_UART_CR = NF_UART_RX_EN;
     while( 1 )

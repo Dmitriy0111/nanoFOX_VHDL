@@ -13,6 +13,8 @@ use ieee.numeric_std.all;
 use ieee.std_logic_unsigned.all;
 library nf;
 use nf.nf_settings.all;
+use nf.nf_components.all;
+use nf.nf_help_pkg.all;
 
 entity nf_gpio is
     generic
@@ -38,26 +40,25 @@ end nf_gpio;
 
 architecture rtl of nf_gpio is
     -- gpio input
-    signal gpio_i   : std_logic_vector(gpio_w-1 downto 0);
+    signal gpio_i       : std_logic_vector(gpio_w-1 downto 0);
     -- gpio output
-    signal gpio_o   : std_logic_vector(gpio_w-1 downto 0);
+    signal gpio_o       : std_logic_vector(gpio_w-1 downto 0);
     -- gpio direction
-    signal gpio_d   : std_logic_vector(gpio_w-1 downto 0);
+    signal gpio_d       : std_logic_vector(gpio_w-1 downto 0);
     -- write enable signals 
-    signal gpo_we   : std_logic;
-    signal gpd_we   : std_logic;
-    signal gpo_we_h : std_logic;
-    signal gpd_we_h : std_logic;
+    signal gpo_we       : std_logic;
+    signal gpio_en      : std_logic_vector(0        downto 0);
+    signal gpio_en_we   : std_logic;
+    signal gpd_we       : std_logic;
 begin
     -- assign inputs/outputs
     gpo    <= gpio_o;
     gpd    <= gpio_d;
     gpio_i <= gpi;
     -- assign write enable signal's
-    gpo_we_h <= '1' when (addr(3 downto 0) = NF_GPIO_GPO) else '0'; 
-    gpo_we   <= we and gpo_we_h; 
-    gpd_we_h <= '1' when (addr(3 downto 0) = NF_GPIO_DIR) else '0'; 
-    gpd_we   <= we and gpd_we_h; 
+    gpo_we     <= we and bool2sl( addr(3 downto 0) = NF_GPIO_GPO ) and gpio_en(0);
+    gpd_we     <= we and bool2sl( addr(3 downto 0) = NF_GPIO_DIR ) and gpio_en(0);
+    gpio_en_we <= we and bool2sl( addr(3 downto 0) = NF_GPIO_EN  );
 
     -- mux for routing one register value
     mux_out : process(all)
@@ -67,30 +68,13 @@ begin
             when NF_GPIO_GPI    => rd <= (31 downto gpio_w => '0') & gpio_i;
             when NF_GPIO_GPO    => rd <= (31 downto gpio_w => '0') & gpio_o;
             when NF_GPIO_DIR    => rd <= (31 downto gpio_w => '0') & gpio_d;
+            when NF_GPIO_EN     => rd <= (31 downto 1      => '0') & gpio_en;
             when others         =>
         end case;
     end process;
 
-    gpo_set : process( clk, resetn )
-    begin
-        if( not resetn ) then
-            gpio_o <= (others => '0');
-        elsif( rising_edge(clk) ) then
-            if( gpo_we ) then
-                gpio_o <= wd(gpio_w-1 downto 0);
-            end if;
-        end if;
-    end process;
-
-    gpd_set : process( clk, resetn )
-    begin
-        if( not resetn ) then
-            gpio_d <= (others => '0');
-        elsif( rising_edge(clk) ) then
-            if( gpd_we ) then
-                gpio_d <= wd(gpio_w-1 downto 0);
-            end if;
-        end if;
-    end process;
+    gpio_en_ff : nf_register_we generic map( 1      ) port map ( clk, resetn, gpio_en_we, wd(0        downto 0), gpio_en );
+    gpio_o_ff  : nf_register_we generic map( gpio_w ) port map ( clk, resetn, gpo_we,     wd(gpio_w-1 downto 0), gpio_o  );
+    gpio_d_ff  : nf_register_we generic map( gpio_w ) port map ( clk, resetn, gpd_we,     wd(gpio_w-1 downto 0), gpio_d  );
 
 end rtl; -- nf_gpio

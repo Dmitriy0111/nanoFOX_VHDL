@@ -31,6 +31,7 @@ void delay(int delay_c)
 void main (void)
 {
     int i = 1;
+    NF_GPIO_EN = 1;
     NF_GPIO_GPO = i;
     while(1)
     {

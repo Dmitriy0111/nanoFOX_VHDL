@@ -13,10 +13,10 @@
 
 .section    .text
 
-
 _start:     lui     t1, NF_GPIO_ADDR        # load upper bytes of addr GPIO;
-            lui     t2, 0x00
-            addi    t2, t2, 0x20            # load max value for gpio;
+            addi    t2, zero, 0xFF          # enable register
+            sw      t0, 0x0C (t1)           # mem[ 0x04 + t1 ] = t0; 
+            addi    t2, zero, 0x20          # load max value for gpio;
 clean_t0:   lui     t0, 0                   # t0 = 0 ; clear t0;
             sw      t0, 0x04 (t1)           # mem[ 0x04 + t1 ] = t0; 
 gpio_load:  lw      t0, 0x04 (t1)           # mem[ 0x04 + t1 ] = t0;   

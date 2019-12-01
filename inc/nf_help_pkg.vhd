@@ -9,6 +9,8 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+library nf;
+use nf.nf_settings.all;
 
 package nf_help_pkg is
 
@@ -19,6 +21,12 @@ package nf_help_pkg is
     function repbit(sl_v : std_logic ; rep : integer) return std_logic_vector;
 
     function sel_slv(bool_v : boolean ; slv_1 : std_logic_vector ; slv_0 : std_logic_vector ) return std_logic_vector;
+
+    function or_vec(slv_v : std_logic_vector) return std_logic;
+
+    function vec_array_trans(vec_array : logic_v_array) return logic_v_array;
+
+    function or_vec_array(vec_array : logic_v_array) return std_logic_vector;
 
 end package nf_help_pkg;
 
@@ -57,6 +65,35 @@ package body nf_help_pkg is
         else
             ret_slv := slv_0;
         end if;
+        return ret_slv;
+    end function;
+
+    function vec_array_trans(vec_array : logic_v_array) return logic_v_array is 
+        variable ret_vec_array : logic_v_array(vec_array'left downto vec_array'right)(vec_array'length-1 downto 0);
+    begin
+        row_trans_gen : for i in vec_array'range loop
+            column_trans_gen : for j in vec_array'length-1 downto 0 loop
+                ret_vec_array(i)(j) := vec_array(j)(i);
+            end loop ; -- column_trans_gen
+        end loop ; -- row_trans_gen
+        return ret_vec_array;
+    end function;
+
+    function or_vec(slv_v : std_logic_vector) return std_logic is
+        variable ret_sl : std_logic;
+    begin
+        rep_gen : for i in slv_v'range loop
+            ret_sl := ret_sl or slv_v(i);
+        end loop ; -- rep_gen
+        return ret_sl;
+    end function;
+
+    function or_vec_array(vec_array : logic_v_array) return std_logic_vector is
+        variable ret_slv : std_logic_vector(vec_array'length-1 downto 0);
+    begin
+        rep_gen : for i in vec_array'length-1 downto 0 loop
+            ret_slv(i) := or_vec(vec_array(i));
+        end loop ; -- rep_gen
         return ret_slv;
     end function;
 

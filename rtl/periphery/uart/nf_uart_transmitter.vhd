@@ -65,14 +65,16 @@ begin
     req_ack    <= req_ack_i;
     
     --FSM state change
-    fsm_state_change_proc : process( clk, resetn )
+    fsm_state_change_proc : process( clk )
     begin
-        if( not resetn ) then
-            state <= IDLE_s;
-        elsif( rising_edge(clk) ) then
-            state <= next_state;
-            if( not tr_en ) then
+        if( rising_edge(clk) ) then
+            if( not resetn ) then
                 state <= IDLE_s;
+            else
+                state <= next_state;
+                if( not tr_en ) then
+                    state <= IDLE_s;
+                end if;
             end if;
         end if;  
     end process;
@@ -92,14 +94,14 @@ begin
     -- Other FSM sequence logic
     fsm_seq_proc : process( clk, resetn )
     begin
-        if( not resetn ) then
-            bit_counter <= (others => '0');
-            int_reg <= (others => '1');
-            uart_tx <= '1';
-            req_ack_i <= '0';
-            counter <= (others => '0');
-        elsif( rising_edge(clk) ) then
-            if( tr_en ) then
+        if( rising_edge(clk) ) then
+            if( not resetn ) then
+                bit_counter <= (others => '0');
+                int_reg <= (others => '1');
+                uart_tx <= '1';
+                req_ack_i <= '0';
+                counter <= (others => '0');
+            elsif( tr_en ) then
                 case( state ) is
                     when IDLE_s     => 
                         uart_tx <= '1';

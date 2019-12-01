@@ -62,12 +62,14 @@ begin
     --FSM state change
     fsm_state_change_proc : process( clk, resetn )
     begin
-        if( not resetn ) then
-            state <= IDLE_s;
-        elsif( rising_edge(clk) ) then
-            state <= next_state;
-            if( not rec_en ) then
+        if( rising_edge(clk) ) then
+            if( not resetn ) then
                 state <= IDLE_s;
+            else
+                state <= next_state;
+                if( not rec_en ) then
+                    state <= IDLE_s;
+                end if;
             end if;
         end if;  
     end process;
@@ -85,13 +87,13 @@ begin
     -- Other FSM sequence logic
     fsm_seq_proc : process( clk, resetn )
     begin
-        if( not resetn ) then
-            counter  <= (others => '0');
-            int_reg  <= (others => '0');
-            rx_valid <= '0';
-            bit_counter <= (others => '0');
-        elsif( rising_edge(clk) ) then
-            if( rec_en ) then
+        if( rising_edge(clk) ) then
+            if( not resetn ) then
+                counter  <= (others => '0');
+                int_reg  <= (others => '0');
+                rx_valid <= '0';
+                bit_counter <= (others => '0');
+            elsif( rec_en ) then
                 case( state ) is
                     when IDLE_s     => 
                         bit_counter <= (others => '0');

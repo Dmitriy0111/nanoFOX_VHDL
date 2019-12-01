@@ -102,30 +102,34 @@ begin
     addr_pre   <= result_imem(1 downto 0) when ( hit and not lsu_busy_i ) else addr_dm_i(1 downto 0);
     size_pre   <= size_dm_imem when ( hit and not lsu_busy_i ) else size_dm_i;
     
-    lsu_err_proc : process( clk, resetn )
+    lsu_err_proc : process( clk )
     begin
-        if( not resetn ) then
-            lsu_err_ff <= '0';
-        elsif( rising_edge(clk) ) then
-            if( lsu_err_c ) then
-                lsu_err_ff <= '1';
-            end if;
-            if( not stall_if ) then
+        if( rising_edge(clk) ) then
+            if( not resetn ) then
                 lsu_err_ff <= '0';
+            else
+                if( lsu_err_c ) then
+                    lsu_err_ff <= '1';
+                end if;
+                if( not stall_if ) then
+                    lsu_err_ff <= '0';
+                end if;
             end if;
         end if;
     end process;
 
-    busy_proc : process( clk, resetn )
+    busy_proc : process( clk )
     begin
-        if( not resetn ) then
-            lsu_busy_i <= '0';
-        elsif( rising_edge(clk) ) then
-            if( ( we_dm_imem or ( rf_src_imem and not hit ) ) and not lsu_err_c ) then
-                lsu_busy_i <= '1';
-            end if;
-            if( req_ack_dm ) then
+        if( rising_edge(clk) ) then
+            if( not resetn ) then
                 lsu_busy_i <= '0';
+            else
+                if( ( we_dm_imem or ( rf_src_imem and not hit ) ) and not lsu_err_c ) then
+                    lsu_busy_i <= '1';
+                end if;
+                if( req_ack_dm ) then
+                    lsu_busy_i <= '0';
+                end if;
             end if;
         end if;
     end process;
@@ -178,32 +182,36 @@ begin
         end case;
     end process;
 
-    dm_proc : process( clk, resetn )
+    dm_proc : process( clk )
     begin
-        if( not resetn ) then
-            addr_dm_i <= (others => '0');
-            wd_dm_i   <= (others => '0');
-            we_dm_i   <= '0';
-            size_dm_i <= (others => '0');
-            sign_dm   <= '0';
-        elsif( rising_edge(clk) ) then
-            if( ( we_dm_imem or rf_src_imem ) and not lsu_busy_i ) then
-                addr_dm_i <= result_imem;
-                wd_dm_i   <= s_data_f;
-                we_dm_i   <= we_dm_imem;
-                size_dm_i <= size_dm_imem;
-                sign_dm   <= sign_dm_imem;
+        if( rising_edge(clk) ) then
+            if( not resetn ) then
+                addr_dm_i <= (others => '0');
+                wd_dm_i   <= (others => '0');
+                we_dm_i   <= '0';
+                size_dm_i <= (others => '0');
+                sign_dm   <= '0';
+            else
+                if( ( we_dm_imem or rf_src_imem ) and not lsu_busy_i ) then
+                    addr_dm_i <= result_imem;
+                    wd_dm_i   <= s_data_f;
+                    we_dm_i   <= we_dm_imem;
+                    size_dm_i <= size_dm_imem;
+                    sign_dm   <= sign_dm_imem;
+                end if;
             end if;
         end if;
     end process;
     
-    rd_dm_iwb_proc : process( clk, resetn )
+    rd_dm_iwb_proc : process( clk )
     begin
-        if( not resetn ) then
-            rd_dm_iwb <= (others => '0');
-        elsif( rising_edge(clk) ) then
-            if( req_ack_dm or hit ) then
-                rd_dm_iwb <= rd_dm_iwb_i;
+        if( rising_edge(clk) ) then
+            if( not resetn ) then
+                rd_dm_iwb <= (others => '0');
+            else
+                if( req_ack_dm or hit ) then
+                    rd_dm_iwb <= rd_dm_iwb_i;
+                end if;
             end if;
         end if;
     end process;

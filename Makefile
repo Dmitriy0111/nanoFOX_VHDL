@@ -99,6 +99,7 @@ PROG_NAME ?= 00_counter
 CCF	= -march=rv32i -mabi=ilp32
 LDF	= -b elf32-littleriscv
 CPF = ihex -O ihex
+CPF_BIN = bin -O binary
 PROG_SIZE ?= 4096
 
 prog_comp_c:
@@ -109,7 +110,9 @@ prog_comp_c:
 	riscv-none-embed-ld -o program_file/main.elf -Map program_file/main.map -T program/startup/program.ld program_file/boot.o program_file/main.o program_file/vectors.o $(LDF)
 	riscv-none-embed-objdump -M no-aliases -S -w --disassemble-zeroes program_file/main.elf > program_file/main.lst
 	riscv-none-embed-objcopy program_file/main.elf program_file/program.$(CPF)
+	riscv-none-embed-objcopy program_file/main.elf program_file/program.$(CPF_BIN)
 	python program/startup/ihex2hex.py $(PROG_SIZE)
+	python program/startup/bin2hex.py program_file/program.bin program_file/program.ihex
 
 prog_comp_asm:
 	mkdir -p program_file
@@ -117,7 +120,9 @@ prog_comp_asm:
 	riscv-none-embed-ld -o program_file/main.elf -Map program_file/main.map -T program/startup/program.ld program_file/main.o $(LDF)
 	riscv-none-embed-objdump -M no-aliases -S -w --disassemble-zeroes program_file/main.elf > program_file/main.lst
 	riscv-none-embed-objcopy program_file/main.elf program_file/program.$(CPF)
+	riscv-none-embed-objcopy program_file/main.elf program_file/program.$(CPF_BIN)
 	python program/startup/ihex2hex.py $(PROG_SIZE)
+	python program/startup/bin2hex.py program_file/program.bin program_file/program.ihex
 
 prog_clean:
 	rm -rfd $(PWD)/program_file

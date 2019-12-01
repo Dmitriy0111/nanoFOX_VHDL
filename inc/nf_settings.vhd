@@ -55,6 +55,7 @@ package nf_settings is
     constant NF_GPIO_GPI        : std_logic_vector(3  downto 0) := 4X"0";
     constant NF_GPIO_GPO        : std_logic_vector(3  downto 0) := 4X"4";
     constant NF_GPIO_DIR        : std_logic_vector(3  downto 0) := 4X"8";
+    constant NF_GPIO_EN         : std_logic_vector(3  downto 0) := 4X"C";
     -- constant's for uart module
     constant NF_UART_CR         : std_logic_vector(3  downto 0) := 4X"0";
     constant NF_UART_TX         : std_logic_vector(3  downto 0) := 4X"4";
@@ -70,6 +71,9 @@ package nf_settings is
     constant NF_GPIO_ADDR_MATCH : std_logic_vector(31 downto 0) := 32X"0001----";
     constant NF_PWM_ADDR_MATCH  : std_logic_vector(31 downto 0) := 32X"0002----";
     constant NF_UART_ADDR_MATCH : std_logic_vector(31 downto 0) := 32X"0003----";
+
+    constant NF_APB_GPIO_0_ADDR : std_logic_vector(7 downto 0) := 8X"0-";
+    constant NF_APB_GPIO_1_ADDR : std_logic_vector(7 downto 0) := 8X"2-";
 
     constant ahb_vector : logic_v_array(SLAVE_COUNT-1 downto 0)(31 downto 0) := 
                                                                                 (

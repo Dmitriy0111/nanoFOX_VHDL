@@ -449,6 +449,8 @@ set_global_assignment -name VHDL_FILE ../../rtl/bus/ahb/nf_ahb_gpio.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/bus/ahb/nf_ahb_uart.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/bus/ahb/nf_ahb_ram.vhd
 set_global_assignment -name VHDL_FILE ../../rtl/top/nf_top_ahb.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/bus/apb/nf_apb_mux.vhd
+set_global_assignment -name VHDL_FILE ../../rtl/bus/apb/nf_apb_router.vhd
 set_global_assignment -name VHDL_FILE ../../program_file/nf_program.vhd
 set_global_assignment -name VHDL_FILE de0_nano.vhd
 set_global_assignment -name TOP_LEVEL_ENTITY de0_nano
