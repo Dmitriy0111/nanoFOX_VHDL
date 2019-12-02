@@ -92,7 +92,7 @@ begin
         end case;
     end process;
     -- Other FSM sequence logic
-    fsm_seq_proc : process( clk, resetn )
+    fsm_seq_proc : process( clk )
     begin
         if( rising_edge(clk) ) then
             if( not resetn ) then

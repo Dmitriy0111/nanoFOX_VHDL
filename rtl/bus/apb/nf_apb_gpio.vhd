@@ -18,25 +18,26 @@ use nf.nf_components.all;
 entity nf_apb_gpio is
     generic
     (
-        gpio_w      : integer := NF_GPIO_WIDTH
+        gpio_w      : integer := NF_GPIO_WIDTH;
+        apb_addr_w  : integer
     );
     port
     (
         -- clock and reset
-        pclk        : in    std_logic;                              -- pclock
-        presetn     : in    std_logic;                              -- presetn
+        pclk        : in    std_logic;                                  -- pclock
+        presetn     : in    std_logic;                                  -- presetn
         -- APB GPIO slave side
-        paddr_s     : in    std_logic_vector(31       downto 0);    -- APB - GPIO-slave PADDR
-        pwdata_s    : in    std_logic_vector(31       downto 0);    -- APB - GPIO-slave PWDATA
-        prdata_s    : out   std_logic_vector(31       downto 0);    -- APB - GPIO-slave PRDATA
-        pwrite_s    : in    std_logic;                              -- APB - GPIO-slave PWRITE
-        psel_s      : in    std_logic;                              -- APB - GPIO-slave PSEL
-        penable_s   : in    std_logic;                              -- APB - GPIO-slave PENABLE
-        pready_s    : out   std_logic;                              -- APB - GPIO-slave PREADY
+        paddr_s     : in    std_logic_vector(apb_addr_w-1 downto 0);    -- APB - GPIO-slave PADDR
+        pwdata_s    : in    std_logic_vector(31           downto 0);    -- APB - GPIO-slave PWDATA
+        prdata_s    : out   std_logic_vector(31           downto 0);    -- APB - GPIO-slave PRDATA
+        pwrite_s    : in    std_logic;                                  -- APB - GPIO-slave PWRITE
+        psel_s      : in    std_logic;                                  -- APB - GPIO-slave PSEL
+        penable_s   : in    std_logic;                                  -- APB - GPIO-slave PENABLE
+        pready_s    : out   std_logic;                                  -- APB - GPIO-slave PREADY
         -- GPIO side
-        gpi         : in    std_logic_vector(gpio_w-1 downto 0);    -- GPIO input
-        gpo         : out   std_logic_vector(gpio_w-1 downto 0);    -- GPIO output
-        gpd         : out   std_logic_vector(gpio_w-1 downto 0)     -- GPIO direction
+        gpi         : in    std_logic_vector(gpio_w-1 downto 0);        -- GPIO input
+        gpo         : out   std_logic_vector(gpio_w-1 downto 0);        -- GPIO output
+        gpd         : out   std_logic_vector(gpio_w-1 downto 0)         -- GPIO direction
     );
 end nf_apb_gpio;
 
@@ -50,14 +51,15 @@ architecture rtl of nf_apb_gpio is
     signal we               : std_logic;                        -- write enable for gpio module
 begin
 
-    addr     <= paddr_s;
+    addr     <= ( 31 downto (paddr_s'left+1) => '0' ) & paddr_s;
     we       <= pwrite_s and penable_s and psel_s;
     wd       <= pwdata_s;
     prdata_s <= rd;
 
     psel_slv(0) <= psel_s;
+    pready_s <= pready_ff(0);
 
-    pready_reg : nf_register    generic map( 1 ) port map ( hclk, hresetn, psel_slv, pready_ff );
+    pready_reg : nf_register    generic map( 1 ) port map ( pclk, presetn, psel_slv, pready_ff );
 
     -- creating one nf_gpio unit
     nf_gpio_0 : nf_gpio
@@ -68,8 +70,8 @@ begin
     port map
     (
         -- reset and clock
-        clk     => hclk,    -- clk
-        resetn  => hresetn, -- resetn
+        clk     => pclk,    -- clk
+        resetn  => presetn, -- resetn
         -- bus side
         addr    => addr,    -- address
         we      => we,      -- write enable

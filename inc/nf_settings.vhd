@@ -19,7 +19,7 @@ package nf_settings is
     constant ADDR_I_W       : integer := 20;
     constant MEM_I_DEPTH    : integer := 2 ** ADDR_I_W;
     -- number of slave device's
-    constant SLAVE_COUNT    : integer := 4;
+    constant SLAVE_COUNT    : integer := 5;
     --
     -- memory map for devices
     -- 
@@ -71,16 +71,18 @@ package nf_settings is
     constant NF_GPIO_ADDR_MATCH : std_logic_vector(31 downto 0) := 32X"0001----";
     constant NF_PWM_ADDR_MATCH  : std_logic_vector(31 downto 0) := 32X"0002----";
     constant NF_UART_ADDR_MATCH : std_logic_vector(31 downto 0) := 32X"0003----";
+    constant NF_AHB_APB_MATCH   : std_logic_vector(31 downto 0) := 32X"0004----";
 
     constant NF_APB_GPIO_0_ADDR : std_logic_vector(7 downto 0) := 8X"0-";
-    constant NF_APB_GPIO_1_ADDR : std_logic_vector(7 downto 0) := 8X"2-";
+    constant NF_APB_PWM_0_ADDR  : std_logic_vector(7 downto 0) := 8X"2-";
 
     constant ahb_vector : logic_v_array(SLAVE_COUNT-1 downto 0)(31 downto 0) := 
                                                                                 (
                                                                                     NF_RAM_ADDR_MATCH,
                                                                                     NF_GPIO_ADDR_MATCH,
                                                                                     NF_PWM_ADDR_MATCH,
-                                                                                    NF_UART_ADDR_MATCH
+                                                                                    NF_UART_ADDR_MATCH,
+                                                                                    NF_AHB_APB_MATCH
                                                                                 );
 
 end package nf_settings;

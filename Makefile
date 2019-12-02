@@ -105,7 +105,7 @@ PROG_SIZE ?= 4096
 prog_comp_c:
 	mkdir -p program_file
 	riscv-none-embed-as program/startup/boot.S -c -o program_file/boot.o $(CCF)
-	riscv-none-embed-gcc -O1 program/$(PROG_NAME)/main.c -c -o program_file/main.o $(CCF)
+	riscv-none-embed-gcc -g -O1 program/$(PROG_NAME)/main.c -c -o program_file/main.o $(CCF)
 	riscv-none-embed-gcc -O1 program/startup/vectors.c -c -o program_file/vectors.o $(CCF)
 	riscv-none-embed-ld -o program_file/main.elf -Map program_file/main.map -T program/startup/program.ld program_file/boot.o program_file/main.o program_file/vectors.o $(LDF)
 	riscv-none-embed-objdump -M no-aliases -S -w --disassemble-zeroes program_file/main.elf > program_file/main.lst

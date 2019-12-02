@@ -29,6 +29,12 @@ entity nf_top_ahb is
         gpio_i_0    : in    std_logic_vector(NF_GPIO_WIDTH-1 downto 0); -- GPIO input
         gpio_o_0    : out   std_logic_vector(NF_GPIO_WIDTH-1 downto 0); -- GPIO output
         gpio_d_0    : out   std_logic_vector(NF_GPIO_WIDTH-1 downto 0); -- GPIO direction
+        -- PWM side
+        pwm_1       : out   std_logic;                                  -- PWM output
+        -- GPIO side
+        gpio_i_1    : in    std_logic_vector(NF_GPIO_WIDTH-1 downto 0); -- GPIO input
+        gpio_o_1    : out   std_logic_vector(NF_GPIO_WIDTH-1 downto 0); -- GPIO output
+        gpio_d_1    : out   std_logic_vector(NF_GPIO_WIDTH-1 downto 0); -- GPIO direction
         -- UART side
         uart_tx     : out   std_logic;                                  -- UART tx wire
         uart_rx     : in    std_logic                                   -- UART rx wire
@@ -87,6 +93,24 @@ architecture rtl of nf_top_ahb is
     signal hresp_s      :   logic_v_array(slave_c-1 downto 0)(1  downto 0); -- AHB - Slave HRESP 
     signal hready_s     :   logic_array  (slave_c-1 downto 0);              -- AHB - Slave HREADYOUT 
     signal hsel_s       :   logic_array  (slave_c-1 downto 0);              -- AHB - Slave HSEL
+    -- APB interconnect bridge to router
+    signal paddr_b2r    :   std_logic_vector(7  downto 0);                  -- APB - bridge to router PADDR
+    signal pwdata_b2r   :   std_logic_vector(31 downto 0);                  -- APB - bridge to router PWDATA
+    signal prdata_b2r   :   std_logic_vector(31 downto 0);                  -- APB - bridge to router PRDATA
+    signal pwrite_b2r   :   std_logic;                                      -- APB - bridge to router PWRITE
+    signal penable_b2r  :   std_logic;                                      -- APB - bridge to router PENABLE
+    signal pready_b2r   :   std_logic;                                      -- APB - bridge to router PREADY
+    signal psel_b2r     :   std_logic;                                      -- APB - bridge to router PSEL
+    -- APB interconnect router to slaves
+    signal paddr_r2s    :   logic_v_array(1 downto 0)(7  downto 0);         -- APB - slave PADDR
+    signal pwdata_r2s   :   logic_v_array(1 downto 0)(31 downto 0);         -- APB - slave PWDATA
+    signal prdata_r2s   :   logic_v_array(1 downto 0)(31 downto 0);         -- APB - slave PRDATA
+    signal pwrite_r2s   :   logic_array  (1 downto 0);                      -- APB - slave PWRITE
+    signal penable_r2s  :   logic_array  (1 downto 0);                      -- APB - slave PENABLE
+    signal pready_r2s   :   logic_array  (1 downto 0);                      -- APB - slave PREADY
+    signal psel_r2s     :   logic_array  (1 downto 0);                      -- APB - slave PSEL
+    --
+    signal bus_error    :   std_logic;
 begin
 
     pwm_clk    <= clk;
@@ -286,6 +310,119 @@ begin
         -- UART side
         uart_tx     => uart_tx,         -- UART tx wire
         uart_rx     => uart_rx          -- UART rx wire
+    );
+    -- Creating one nf_ahb2apb_bridge_0
+    nf_ahb2apb_bridge_0 : nf_ahb2apb_bridge
+    generic map
+    (
+        apb_addr_w  => 8
+    )
+    port map
+    (
+        -- clock and reset
+        hclk        => clk,             -- hclk
+        hresetn     => resetn,          -- hresetn
+        pclk        => clk,             -- pclk
+        presetn     => resetn,          -- presetn
+        -- AHB - Slave side
+        haddr_s     => haddr_s  (4),    -- AHB - slave HADDR
+        hwdata_s    => hwdata_s (4),    -- AHB - slave HWDATA
+        hrdata_s    => hrdata_s (4),    -- AHB - slave HRDATA
+        hwrite_s    => hwrite_s (4),    -- AHB - slave HWRITE
+        htrans_s    => htrans_s (4),    -- AHB - slave HTRANS
+        hsize_s     => hsize_s  (4),    -- AHB - slave HSIZE
+        hburst_s    => hburst_s (4),    -- AHB - slave HBURST
+        hresp_s     => hresp_s  (4),    -- AHB - slave HRESP
+        hready_s    => hready_s (4),    -- AHB - slave HREADYOUT
+        hsel_s      => hsel_s   (4),    -- AHB - slave HSEL
+        -- APB - Master side
+        paddr_m     => paddr_b2r,       -- APB - master PADDR
+        pwdata_m    => pwdata_b2r,      -- APB - master PWDATA
+        prdata_m    => prdata_b2r,      -- APB - master PRDATA
+        pwrite_m    => pwrite_b2r,      -- APB - master PWRITE
+        penable_m   => penable_b2r,     -- APB - master PENABLE
+        pready_m    => pready_b2r,      -- APB - master PREADY
+        psel_m      => psel_b2r         -- APB - master PSEL
+    );
+    -- Creating one nf_apb_router_0
+    nf_apb_router_0 : nf_apb_router
+    generic map
+    (
+        apb_slave_c => 2,
+        apb_addr_w  => 8
+    )
+    port map
+    (
+        pclk        => clk,             -- pclk
+        presetn     => resetn,          -- presetn
+        -- Master side
+        paddr_m     => paddr_b2r,       -- APB - master PADDR
+        pwdata_m    => pwdata_b2r,      -- APB - master PWDATA
+        prdata_m    => prdata_b2r,      -- APB - master PRDATA
+        pwrite_m    => pwrite_b2r,      -- APB - master PWRITE
+        penable_m   => penable_b2r,     -- APB - master PENABLE
+        pready_m    => pready_b2r,      -- APB - master PREADY
+        psel_m      => psel_b2r,        -- APB - master PSEL
+        -- Slaves side
+        paddr_s     => paddr_r2s,       -- APB - slave PADDR
+        pwdata_s    => pwdata_r2s,      -- APB - slave PWDATA
+        prdata_s    => prdata_r2s,      -- APB - slave PRDATA
+        pwrite_s    => pwrite_r2s,      -- APB - slave PWRITE
+        penable_s   => penable_r2s,     -- APB - slave PENABLE
+        pready_s    => pready_r2s,      -- APB - slave PREADY
+        psel_s      => psel_r2s,        -- APB - slave PSEL
+        --
+        bus_error   => bus_error
+    );
+    -- Creating one nf_apb_gpio_0
+    nf_apb_gpio_0 : nf_apb_gpio
+    generic map
+    (
+        gpio_w      => 8,
+        apb_addr_w  => 8
+    )
+    port map
+    (
+        -- clock and reset
+        pclk        => clk,                 -- pclock
+        presetn     => resetn,              -- presetn
+        -- APB GPIO slave side
+        paddr_s     => paddr_r2s    (0),    -- APB - GPIO-slave PADDR
+        pwdata_s    => pwdata_r2s   (0),    -- APB - GPIO-slave PWDATA
+        prdata_s    => prdata_r2s   (0),    -- APB - GPIO-slave PRDATA
+        pwrite_s    => pwrite_r2s   (0),    -- APB - GPIO-slave PWRITE
+        psel_s      => psel_r2s     (0),    -- APB - GPIO-slave PSEL
+        penable_s   => penable_r2s  (0),    -- APB - GPIO-slave PENABLE
+        pready_s    => pready_r2s   (0),    -- APB - GPIO-slave PREADY
+        -- GPIO side
+        gpi         => gpio_i_1,            -- GPIO input
+        gpo         => gpio_o_1,            -- GPIO output
+        gpd         => gpio_d_1             -- GPIO direction
+    );
+    -- Creating one nf_apb_pwm_0
+    nf_apb_pwm_0 : nf_apb_pwm
+    generic map
+    (
+        pwm_width   => 8,
+        apb_addr_w  => 8
+    )
+    port map
+    (
+        -- clock and reset
+        pclk        => clk,                 -- pclk
+        presetn     => resetn,              -- presetn
+        -- APB PWM slave side
+        paddr_s     => paddr_r2s    (1),    -- APB - PWM-slave PADDR
+        pwdata_s    => pwdata_r2s   (1),    -- APB - PWM-slave PWDATA
+        prdata_s    => prdata_r2s   (1),    -- APB - PWM-slave PRDATA
+        pwrite_s    => pwrite_r2s   (1),    -- APB - PWM-slave PWRITE
+        psel_s      => psel_r2s     (1),    -- APB - PWM-slave PSEL
+        penable_s   => penable_r2s  (1),    -- APB - PWM-slave PENABLE
+        pready_s    => pready_r2s   (1),    -- APB - PWM-slave PREADY
+        -- PWM side
+        pwm_clk     => clk,                 -- PWM clk
+        pwm_resetn  => resetn,              -- PWM resetn
+        pwm         => pwm_1                -- PWM output signal
     );
     -- Creating one instruction/data memory
     nf_ram_i_d_0 : nf_ram

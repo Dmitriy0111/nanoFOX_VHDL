@@ -38,7 +38,9 @@ entity nf_apb_router is
         pwrite_s    : out   logic_array  (apb_slave_c-1 downto 0);                          -- APB - slave PWRITE
         penable_s   : out   logic_array  (apb_slave_c-1 downto 0);                          -- APB - slave PENABLE
         pready_s    : in    logic_array  (apb_slave_c-1 downto 0);                          -- APB - slave PREADY
-        psel_s      : out   logic_array  (apb_slave_c-1 downto 0)                           -- APB - slave PSEL
+        psel_s      : out   logic_array  (apb_slave_c-1 downto 0);                          -- APB - slave PSEL
+        --
+        bus_error   : out   std_logic
     );
 end nf_apb_router;
 
@@ -74,7 +76,9 @@ begin
         -- APB slave side
         prdata_s    => prdata_s,    -- APB - slave PRDATA
         psel_s      => psel_s,      -- APB - slave PSEL
-        pready_s    => pready_s     -- APB - slave PREADY
+        pready_s    => pready_s,    -- APB - slave PREADY
+        --
+        bus_error   => bus_error
     );
 
 end rtl; -- nf_apb_router

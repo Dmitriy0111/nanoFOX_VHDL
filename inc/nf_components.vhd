@@ -73,32 +73,32 @@ package nf_components is
         port
         (
             -- clock and reset
-            clk             : in    std_logic;                      -- clock
-            resetn          : in    std_logic;                      -- reset
+            clk             : in        std_logic;                      -- clock
+            resetn          : in        std_logic;                      -- reset
             -- instruction memory (IF)
-            addr_i          : in    std_logic_vector(31 downto 0);  -- address instruction memory
-            rd_i            : out   std_logic_vector(31 downto 0);  -- read instruction memory
-            wd_i            : in    std_logic_vector(31 downto 0);  -- write instruction memory
-            we_i            : in    std_logic;                      -- write enable instruction memory signal
-            size_i          : in    std_logic_vector(1  downto 0);  -- size for load/store instructions
-            req_i           : in    std_logic;                      -- request instruction memory signal
-            req_ack_i       : out   std_logic;                      -- request acknowledge instruction memory signal
+            addr_i          : in        std_logic_vector(31 downto 0);  -- address instruction memory
+            rd_i            : out       std_logic_vector(31 downto 0);  -- read instruction memory
+            wd_i            : in        std_logic_vector(31 downto 0);  -- write instruction memory
+            we_i            : in        std_logic;                      -- write enable instruction memory signal
+            size_i          : in        std_logic_vector(1  downto 0);  -- size for load/store instructions
+            req_i           : in        std_logic;                      -- request instruction memory signal
+            req_ack_i       : out       std_logic;                      -- request acknowledge instruction memory signal
             -- data memory and other's
-            addr_dm         : in    std_logic_vector(31 downto 0);  -- address data memory
-            rd_dm           : out   std_logic_vector(31 downto 0);  -- read data memory
-            wd_dm           : in    std_logic_vector(31 downto 0);  -- write data memory
-            we_dm           : in    std_logic;                      -- write enable data memory signal
-            size_dm         : in    std_logic_vector(1  downto 0);  -- size for load/store instructions
-            req_dm          : in    std_logic;                      -- request data memory signal
-            req_ack_dm      : out   std_logic;                      -- request acknowledge data memory signal
+            addr_dm         : in        std_logic_vector(31 downto 0);  -- address data memory
+            rd_dm           : out       std_logic_vector(31 downto 0);  -- read data memory
+            wd_dm           : in        std_logic_vector(31 downto 0);  -- write data memory
+            we_dm           : in        std_logic;                      -- write enable data memory signal
+            size_dm         : in        std_logic_vector(1  downto 0);  -- size for load/store instructions
+            req_dm          : in        std_logic;                      -- request data memory signal
+            req_ack_dm      : buffer    std_logic;                      -- request acknowledge data memory signal
             -- cross connect data
-            addr_cc         : out   std_logic_vector(31 downto 0);  -- address cc_data memory
-            rd_cc           : in    std_logic_vector(31 downto 0);  -- read cc_data memory
-            wd_cc           : out   std_logic_vector(31 downto 0);  -- write cc_data memory
-            we_cc           : out   std_logic;                      -- write enable cc_data memory signal
-            size_cc         : out   std_logic_vector(1  downto 0);  -- size for load/store instructions
-            req_cc          : out   std_logic;                      -- request cc_data memory signal
-            req_ack_cc      : in    std_logic                       -- request acknowledge cc_data memory signal
+            addr_cc         : out       std_logic_vector(31 downto 0);  -- address cc_data memory
+            rd_cc           : in        std_logic_vector(31 downto 0);  -- read cc_data memory
+            wd_cc           : out       std_logic_vector(31 downto 0);  -- write cc_data memory
+            we_cc           : out       std_logic;                      -- write enable cc_data memory signal
+            size_cc         : out       std_logic_vector(1  downto 0);  -- size for load/store instructions
+            req_cc          : out       std_logic;                      -- request cc_data memory signal
+            req_ack_cc      : in        std_logic                       -- request acknowledge cc_data memory signal
         );
     end component nf_cpu_cc;
     -- nf_cpu
@@ -863,7 +863,9 @@ package nf_components is
             -- APB slave side
             prdata_s    : in    logic_v_array   (apb_slave_c-1 downto 0)(31 downto 0);  -- APB - slave PRDATA
             psel_s      : out   logic_array     (apb_slave_c-1 downto 0);               -- APB - slave PSEL
-            pready_s    : in    logic_array     (apb_slave_c-1 downto 0)                -- APB - slave PREADY
+            pready_s    : in    logic_array     (apb_slave_c-1 downto 0);               -- APB - slave PREADY
+            --
+            bus_error   : out   std_logic
         );
     end component nf_apb_mux;
     -- nf_apb_router
@@ -892,9 +894,97 @@ package nf_components is
             pwrite_s    : out   logic_array  (apb_slave_c-1 downto 0);                          -- APB - slave PWRITE
             penable_s   : out   logic_array  (apb_slave_c-1 downto 0);                          -- APB - slave PENABLE
             pready_s    : in    logic_array  (apb_slave_c-1 downto 0);                          -- APB - slave PREADY
-            psel_s      : out   logic_array  (apb_slave_c-1 downto 0)                           -- APB - slave PSEL
+            psel_s      : out   logic_array  (apb_slave_c-1 downto 0);                          -- APB - slave PSEL
+            --
+            bus_error   : out   std_logic
         );
     end component nf_apb_router;
+    -- nf_apb_pwm
+    component nf_apb_pwm
+        generic
+        (
+            pwm_width   : integer := 8;
+            apb_addr_w  : integer
+        );
+        port
+        (
+            -- clock and reset
+            pclk        : in    std_logic;                                  -- pclk
+            presetn     : in    std_logic;                                  -- presetn
+            -- APB PWM slave side
+            paddr_s     : in    std_logic_vector(apb_addr_w-1 downto 0);    -- APB - PWM-slave PADDR
+            pwdata_s    : in    std_logic_vector(31           downto 0);    -- APB - PWM-slave PWDATA
+            prdata_s    : out   std_logic_vector(31           downto 0);    -- APB - PWM-slave PRDATA
+            pwrite_s    : in    std_logic;                                  -- APB - PWM-slave PWRITE
+            psel_s      : in    std_logic;                                  -- APB - PWM-slave PSEL
+            penable_s   : in    std_logic;                                  -- APB - PWM-slave PENABLE
+            pready_s    : out   std_logic;                                  -- APB - PWM-slave PREADY
+            -- PWM side
+            pwm_clk     : in    std_logic;                                  -- PWM clk
+            pwm_resetn  : in    std_logic;                                  -- PWM resetn
+            pwm         : out   std_logic                                   -- PWM output signal
+        );
+    end component nf_apb_pwm;
+    -- nf_apb_gpio
+    component nf_apb_gpio
+        generic
+        (
+            gpio_w      : integer := NF_GPIO_WIDTH;
+            apb_addr_w  : integer
+        );
+        port
+        (
+            -- clock and reset
+            pclk        : in    std_logic;                                  -- pclock
+            presetn     : in    std_logic;                                  -- presetn
+            -- APB GPIO slave side
+            paddr_s     : in    std_logic_vector(apb_addr_w-1 downto 0);    -- APB - GPIO-slave PADDR
+            pwdata_s    : in    std_logic_vector(31           downto 0);    -- APB - GPIO-slave PWDATA
+            prdata_s    : out   std_logic_vector(31           downto 0);    -- APB - GPIO-slave PRDATA
+            pwrite_s    : in    std_logic;                                  -- APB - GPIO-slave PWRITE
+            psel_s      : in    std_logic;                                  -- APB - GPIO-slave PSEL
+            penable_s   : in    std_logic;                                  -- APB - GPIO-slave PENABLE
+            pready_s    : out   std_logic;                                  -- APB - GPIO-slave PREADY
+            -- GPIO side
+            gpi         : in    std_logic_vector(gpio_w-1 downto 0);        -- GPIO input
+            gpo         : out   std_logic_vector(gpio_w-1 downto 0);        -- GPIO output
+            gpd         : out   std_logic_vector(gpio_w-1 downto 0)         -- GPIO direction
+        );
+    end component nf_apb_gpio;
+    --
+    component nf_ahb2apb_bridge
+        generic
+        (
+            apb_addr_w  : integer := 8
+        );
+        port
+        (
+            -- clock and reset
+            hclk        : in    std_logic;                                  -- hclk
+            hresetn     : in    std_logic;                                  -- hresetn
+            pclk        : in    std_logic;                                  -- pclk
+            presetn     : in    std_logic;                                  -- presetn
+            -- AHB - Slave side
+            haddr_s     : in    std_logic_vector(31           downto 0);    -- AHB - slave HADDR
+            hwdata_s    : in    std_logic_vector(31           downto 0);    -- AHB - slave HWDATA
+            hrdata_s    : out   std_logic_vector(31           downto 0);    -- AHB - slave HRDATA
+            hwrite_s    : in    std_logic;                                  -- AHB - slave HWRITE
+            htrans_s    : in    std_logic_vector(1            downto 0);    -- AHB - slave HTRANS
+            hsize_s     : in    std_logic_vector(2            downto 0);    -- AHB - slave HSIZE
+            hburst_s    : in    std_logic_vector(2            downto 0);    -- AHB - slave HBURST
+            hresp_s     : out   std_logic_vector(1            downto 0);    -- AHB - slave HRESP
+            hready_s    : out   std_logic;                                  -- AHB - slave HREADYOUT
+            hsel_s      : in    std_logic;                                  -- AHB - slave HSEL
+            -- APB - Master side
+            paddr_m     : out   std_logic_vector(apb_addr_w-1 downto 0);    -- APB - master PADDR
+            pwdata_m    : out   std_logic_vector(31           downto 0);    -- APB - master PWDATA
+            prdata_m    : in    std_logic_vector(31           downto 0);    -- APB - master PRDATA
+            pwrite_m    : out   std_logic;                                  -- APB - master PWRITE
+            penable_m   : out   std_logic;                                  -- APB - master PENABLE
+            pready_m    : in    std_logic;                                  -- APB - master PREADY
+            psel_m      : out   std_logic                                   -- APB - master PSEL
+        );
+    end component nf_ahb2apb_bridge;
 
 end nf_components;
 

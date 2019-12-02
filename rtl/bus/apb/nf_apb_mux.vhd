@@ -33,7 +33,9 @@ entity nf_apb_mux is
         -- APB slave side
         prdata_s    : in    logic_v_array   (apb_slave_c-1 downto 0)(31 downto 0);  -- APB - slave PRDATA
         psel_s      : out   logic_array     (apb_slave_c-1 downto 0);               -- APB - slave PSEL
-        pready_s    : in    logic_array     (apb_slave_c-1 downto 0)                -- APB - slave PREADY
+        pready_s    : in    logic_array     (apb_slave_c-1 downto 0);               -- APB - slave PREADY
+        --
+        bus_error   : out   std_logic
     );
 end nf_apb_mux;
 
@@ -45,10 +47,11 @@ begin
         prdata_m <= (others => '0'); 
         psel_s   <= (others => '0'); 
         pready_m <= '1';
+        bus_error <= '0';
         case?( paddr_m ) is
             when NF_APB_GPIO_0_ADDR =>  prdata_m <= prdata_s(0) ; psel_s(0) <= psel_m ; pready_m <= pready_s(0) ;
-            when NF_APB_GPIO_1_ADDR =>  prdata_m <= prdata_s(1) ; psel_s(1) <= psel_m ; pready_m <= pready_s(1) ;
-            when others             =>
+            when NF_APB_PWM_0_ADDR  =>  prdata_m <= prdata_s(1) ; psel_s(1) <= psel_m ; pready_m <= pready_s(1) ;
+            when others             =>  bus_error <= '1';
         end case ?;
     end process;
 

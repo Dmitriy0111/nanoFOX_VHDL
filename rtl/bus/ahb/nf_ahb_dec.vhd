@@ -31,12 +31,13 @@ begin
 
     dec_proc : process(all)
         begin
-            hsel <= 4X"0";
+            hsel <= 5X"0";
             case?( haddr ) is
-                when NF_RAM_ADDR_MATCH  => hsel <= 4X"1";
-                when NF_GPIO_ADDR_MATCH => hsel <= 4X"2";
-                when NF_PWM_ADDR_MATCH  => hsel <= 4X"4";
-                when NF_UART_ADDR_MATCH => hsel <= 4X"8";
+                when NF_RAM_ADDR_MATCH  => hsel <= 5X"01";
+                when NF_GPIO_ADDR_MATCH => hsel <= 5X"02";
+                when NF_PWM_ADDR_MATCH  => hsel <= 5X"04";
+                when NF_UART_ADDR_MATCH => hsel <= 5X"08";
+                when NF_AHB_APB_MATCH   => hsel <= 5X"10";
                 when others         =>
             end case ?;
         end process;

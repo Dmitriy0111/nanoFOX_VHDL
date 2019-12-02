@@ -16,32 +16,32 @@ entity nf_cpu_cc is
     port
     (
         -- clock and reset
-        clk             : in    std_logic;                      -- clock
-        resetn          : in    std_logic;                      -- reset
+        clk             : in        std_logic;                      -- clock
+        resetn          : in        std_logic;                      -- reset
         -- instruction memory (IF)
-        addr_i          : in    std_logic_vector(31 downto 0);  -- address instruction memory
-        rd_i            : out   std_logic_vector(31 downto 0);  -- read instruction memory
-        wd_i            : in    std_logic_vector(31 downto 0);  -- write instruction memory
-        we_i            : in    std_logic;                      -- write enable instruction memory signal
-        size_i          : in    std_logic_vector(1  downto 0);  -- size for load/store instructions
-        req_i           : in    std_logic;                      -- request instruction memory signal
-        req_ack_i       : out   std_logic;                      -- request acknowledge instruction memory signal
+        addr_i          : in        std_logic_vector(31 downto 0);  -- address instruction memory
+        rd_i            : out       std_logic_vector(31 downto 0);  -- read instruction memory
+        wd_i            : in        std_logic_vector(31 downto 0);  -- write instruction memory
+        we_i            : in        std_logic;                      -- write enable instruction memory signal
+        size_i          : in        std_logic_vector(1  downto 0);  -- size for load/store instructions
+        req_i           : in        std_logic;                      -- request instruction memory signal
+        req_ack_i       : out       std_logic;                      -- request acknowledge instruction memory signal
         -- data memory and other's
-        addr_dm         : in    std_logic_vector(31 downto 0);  -- address data memory
-        rd_dm           : out   std_logic_vector(31 downto 0);  -- read data memory
-        wd_dm           : in    std_logic_vector(31 downto 0);  -- write data memory
-        we_dm           : in    std_logic;                      -- write enable data memory signal
-        size_dm         : in    std_logic_vector(1  downto 0);  -- size for load/store instructions
-        req_dm          : in    std_logic;                      -- request data memory signal
-        req_ack_dm      : out   std_logic;                      -- request acknowledge data memory signal
+        addr_dm         : in        std_logic_vector(31 downto 0);  -- address data memory
+        rd_dm           : out       std_logic_vector(31 downto 0);  -- read data memory
+        wd_dm           : in        std_logic_vector(31 downto 0);  -- write data memory
+        we_dm           : in        std_logic;                      -- write enable data memory signal
+        size_dm         : in        std_logic_vector(1  downto 0);  -- size for load/store instructions
+        req_dm          : in        std_logic;                      -- request data memory signal
+        req_ack_dm      : buffer    std_logic;                      -- request acknowledge data memory signal
         -- cross connect data
-        addr_cc         : out   std_logic_vector(31 downto 0);  -- address cc_data memory
-        rd_cc           : in    std_logic_vector(31 downto 0);  -- read cc_data memory
-        wd_cc           : out   std_logic_vector(31 downto 0);  -- write cc_data memory
-        we_cc           : out   std_logic;                      -- write enable cc_data memory signal
-        size_cc         : out   std_logic_vector(1  downto 0);  -- size for load/store instructions
-        req_cc          : out   std_logic;                      -- request cc_data memory signal
-        req_ack_cc      : in    std_logic                       -- request acknowledge cc_data memory signal
+        addr_cc         : out       std_logic_vector(31 downto 0);  -- address cc_data memory
+        rd_cc           : in        std_logic_vector(31 downto 0);  -- read cc_data memory
+        wd_cc           : out       std_logic_vector(31 downto 0);  -- write cc_data memory
+        we_cc           : out       std_logic;                      -- write enable cc_data memory signal
+        size_cc         : out       std_logic_vector(1  downto 0);  -- size for load/store instructions
+        req_cc          : out       std_logic;                      -- request cc_data memory signal
+        req_ack_cc      : in        std_logic                       -- request acknowledge cc_data memory signal
     );
 end nf_cpu_cc;
 
@@ -96,7 +96,7 @@ begin
                             master_sel_out <= MASTER_NONE;
                         end if;
                     when M1_s   =>
-                        if( req_i ) then
+                        if( req_ack_dm ) then
                             state <= M_NONE_s;
                             last_master <= '1';
                             master_sel_out <= MASTER_NONE;

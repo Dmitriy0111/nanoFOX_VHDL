@@ -41,11 +41,12 @@ begin
         hresp   <= AHB_HRESP_ERROR; 
         hready  <= '1';
         case?( hsel_ff ) is
-            when "---1" =>  hrdata <= hrdata_s(0) ; hresp <= hresp_s(0) ; hready <= hready_s(0) ;
-            when "--10" =>  hrdata <= hrdata_s(1) ; hresp <= hresp_s(1) ; hready <= hready_s(1) ;
-            when "-100" =>  hrdata <= hrdata_s(2) ; hresp <= hresp_s(2) ; hready <= hready_s(2) ;
-            when "1000" =>  hrdata <= hrdata_s(3) ; hresp <= hresp_s(3) ; hready <= hready_s(3) ;
-            when others =>
+            when "----1"    =>  hrdata <= hrdata_s(0) ; hresp <= hresp_s(0) ; hready <= hready_s(0) ;
+            when "---10"    =>  hrdata <= hrdata_s(1) ; hresp <= hresp_s(1) ; hready <= hready_s(1) ;
+            when "--100"    =>  hrdata <= hrdata_s(2) ; hresp <= hresp_s(2) ; hready <= hready_s(2) ;
+            when "-1000"    =>  hrdata <= hrdata_s(3) ; hresp <= hresp_s(3) ; hready <= hready_s(3) ;
+            when "10000"    =>  hrdata <= hrdata_s(4) ; hresp <= hresp_s(4) ; hready <= hready_s(4) ;
+            when others     =>
         end case ?;
     end process;
 
