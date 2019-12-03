@@ -36,15 +36,14 @@ architecture testbench of nf_tb is
     -- clock and reset
     signal clk              : std_logic;                    -- clock
     signal resetn           : std_logic;                    -- reset
+    -- clock and reset
+    signal pclk             : std_logic;                    -- clock
+    signal presetn          : std_logic;                    -- reset
     -- peryphery inputs/outputs
     signal gpio_i_0         : std_logic_vector(7 downto 0); -- GPIO_0 input
     signal gpio_o_0         : std_logic_vector(7 downto 0); -- GPIO_0 output
     signal gpio_d_0         : std_logic_vector(7 downto 0); -- GPIO_0 direction
     signal pwm              : std_logic;                    -- PWM output signal
-    signal gpio_i_1         : std_logic_vector(7 downto 0); -- GPIO_0 input
-    signal gpio_o_1         : std_logic_vector(7 downto 0); -- GPIO_0 output
-    signal gpio_d_1         : std_logic_vector(7 downto 0); -- GPIO_0 direction
-    signal pwm_1            : std_logic;                    -- PWM output signal
     signal uart_tx          : std_logic;                    -- UART tx wire
     signal uart_rx          : std_logic;                    -- UART rx wire
     -- help signals
@@ -81,18 +80,14 @@ architecture testbench of nf_tb is
             -- clock and reset
             clk         : in    std_logic;                      -- clock
             resetn      : in    std_logic;                      -- reset
+            pclk        : in    std_logic;                      -- clock
+            presetn     : in    std_logic;                      -- reset
             -- PWM side
             pwm         : out   std_logic;                      -- PWM output
             -- GPIO side
             gpio_i_0    : in    std_logic_vector(7 downto 0);   -- GPIO input
             gpio_o_0    : out   std_logic_vector(7 downto 0);   -- GPIO output
             gpio_d_0    : out   std_logic_vector(7 downto 0);   -- GPIO direction
-            --
-            gpio_i_1    : in    std_logic_vector(7 downto 0);
-            gpio_o_1    : out   std_logic_vector(7 downto 0);
-            gpio_d_1    : out   std_logic_vector(7 downto 0);
-            --
-            pwm_1       : out   std_logic;
             -- UART side
             uart_tx     : out   std_logic;                      -- UART tx wire
             uart_rx     : in    std_logic                       -- UART rx wire
@@ -101,7 +96,7 @@ architecture testbench of nf_tb is
 begin
 
     gpio_i_0 <= 8X"02";
-    gpio_i_1 <= 8X"01";
+    presetn <= resetn;
     -- associate signals
     pc_value   <= << signal .nf_tb.nf_top_ahb_0.nf_cpu_0.addr_i : std_logic_vector(31 downto 0) >>;
 
@@ -119,18 +114,14 @@ begin
         -- clock and reset
         clk         => clk,         -- clock input
         resetn      => resetn,      -- reset input
+        pclk        => pclk,
+        presetn     => presetn,
         -- GPIO side
         gpio_i_0    => gpio_i_0,    -- GPIO_0 input
         gpio_o_0    => gpio_o_0,    -- GPIO_0 output
         gpio_d_0    => gpio_d_0,    -- GPIO_0 direction
         -- PWM side
         pwm         => pwm,         -- PWM output signal
-        --
-        gpio_i_1    => gpio_i_1,
-        gpio_o_1    => gpio_o_1,
-        gpio_d_1    => gpio_d_1,
-        --
-        pwm_1       => pwm_1,
         -- UART side
         uart_tx     => uart_tx,     -- UART tx wire
         uart_rx     => uart_rx      -- UART rx wire
@@ -292,6 +283,14 @@ begin
             stop;
         end if;
     end process clk_gen;
+    -- generating pclock
+    pclk_gen : process
+    begin
+        pclk <= '0';
+        wait for (T / 2 * timescale);
+        pclk <= '1';
+        wait for (T / 2 * timescale);
+    end process pclk_gen;
     -- reset generation
     rst_gen : process
     begin

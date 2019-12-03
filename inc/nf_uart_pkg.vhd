@@ -13,11 +13,11 @@ use ieee.std_logic_1164.all;
 package nf_uart_pkg is
 
     type ucr is record
-        UN      : std_logic_vector(3 downto 0); -- unused
-        RX_EN   : std_logic_vector(0 downto 0); -- receiver enable
-        TX_EN   : std_logic_vector(0 downto 0); -- transmitter enable
-        RX_VAL  : std_logic_vector(0 downto 0); -- rx byte received
-        TX_REQ  : std_logic_vector(0 downto 0); -- request transmit
+        un      : std_logic_vector(3 downto 0); -- unused
+        rx_en   : std_logic_vector(0 downto 0); -- receiver enable
+        tx_en   : std_logic_vector(0 downto 0); -- transmitter enable
+        rx_val  : std_logic_vector(0 downto 0); -- rx byte received
+        busy_tx : std_logic_vector(0 downto 0); -- transmit busy
     end record; -- uart control reg
 
     function ucr2slv(ucr_v : ucr ) return std_logic_vector;
@@ -29,7 +29,7 @@ package body nf_uart_pkg is
     function ucr2slv( ucr_v : ucr ) return std_logic_vector is
         variable ret_svl : std_logic_vector(7 downto 0);
     begin
-        ret_svl := ucr_v.UN & ucr_v.RX_EN & ucr_v.TX_EN & ucr_v.RX_VAL & ucr_v.TX_REQ;
+        ret_svl := ucr_v.un & ucr_v.rx_en & ucr_v.tx_en & ucr_v.rx_val & ucr_v.busy_tx;
         return ret_svl;
     end function;
 

@@ -42,7 +42,15 @@ if {$test == "nf_uart_transmitter test"} {
     #set sub_test "rx_test"
     set sub_test "tx_test"
 
-    vcom -2008 ../inc/*.vhd -work nf
+    vcom -2008 ../inc/nf_settings.vhd           -work nf
+    vcom -2008 ../inc/nf_ahb_pkg.vhd            -work nf
+    vcom -2008 ../inc/nf_cpu_def.vhd            -work nf
+    vcom -2008 ../inc/nf_csr_pkg.vhd            -work nf
+    vcom -2008 ../inc/nf_help_pkg.vhd           -work nf
+    vcom -2008 ../inc/nf_mem_pkg.vhd            -work nf
+    vcom -2008 ../inc/nf_uart_pkg.vhd           -work nf
+    vcom -2008 ../inc/nf_components.vhd         -work nf
+
     vcom -2008 ../rtl/periphery/uart/*.vhd
     vcom -2008 ../rtl/common/*.vhd
     vcom -2008 ../rtl/periphery/*.vhd
@@ -96,7 +104,7 @@ if {$test == "nf_uart_transmitter test"} {
     add wave -divider  "ahb to apb bridge singals"
     add wave -position insertpoint sim:/nf_tb/nf_top_ahb_0/nf_ahb2apb_bridge_0/*
     add wave -divider  "testbench signals"
-    add wave -position insertpoint sim:/nf_tb/clk sim:/nf_tb/resetn sim:/nf_tb/gpio_i_0 sim:/nf_tb/gpio_o_0 sim:/nf_tb/gpio_d_0 sim:/nf_tb/pwm sim:/nf_tb/gpio_i_1 sim:/nf_tb/gpio_o_1 sim:/nf_tb/gpio_d_1 sim:/nf_tb/pwm_1 sim:/nf_tb/uart_tx sim:/nf_tb/uart_rx sim:/nf_tb/cycle_counter sim:/nf_tb/rst_c sim:/nf_tb/pc_value
+    add wave -position insertpoint sim:/nf_tb/clk sim:/nf_tb/resetn sim:/nf_tb/gpio_i_0 sim:/nf_tb/gpio_o_0 sim:/nf_tb/gpio_d_0 sim:/nf_tb/pwm sim:/nf_tb/uart_tx sim:/nf_tb/uart_rx sim:/nf_tb/cycle_counter sim:/nf_tb/rst_c sim:/nf_tb/pc_value
 
 }
 

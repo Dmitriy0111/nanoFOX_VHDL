@@ -8,9 +8,9 @@
 # 
 
 .equ NF_RAM_ADDR      , 0x00000
-.equ NF_GPIO_ADDR     , 0x00010
-.equ NF_PWM_ADDR      , 0x00020
-.equ NF_UART_ADDR     , 0x00030
+.equ NF_GPIO_ADDR     , 0x00020000
+.equ NF_PWM_ADDR      , 0x00020020
+.equ NF_UART_ADDR     , 0x00010000
 .equ NF_UART_CR       , 0x0
 .equ NF_UART_TX       , 0x4
 .equ NF_UART_RX       , 0x8
@@ -19,7 +19,8 @@
 
 .section    .text
 
-_start:     lui     a4, 0x30
+_start:     lui     a4, %hi(NF_UART_ADDR)
+            addi    a4, a4, %lo(NF_UART_ADDR)
             addi    a3, zero, 0x04
             addi    a5, zero, 0x48
             addi    a2, zero, NF_UART_SP_115200

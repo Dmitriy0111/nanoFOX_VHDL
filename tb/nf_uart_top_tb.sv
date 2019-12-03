@@ -7,7 +7,10 @@
 *  Copyright(c)    :   2019 Vlasov D.V.
 */
 
-`include "../inc/nf_settings.svh"
+`define NF_UART_CR      'h0
+`define NF_UART_TX      'h4
+`define NF_UART_RX      'h8
+`define NF_UART_DR      'hC
 
 `define     tx_req      0
 `define     rx_valid    1

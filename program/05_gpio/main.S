@@ -8,12 +8,13 @@
 # 
 
 .equ NF_RAM_ADDR ,  0x00000
-.equ NF_GPIO_ADDR,  0x00010
-.equ NF_PWM_ADDR ,  0x00020
+.equ NF_GPIO_ADDR,  0x00020000
+.equ NF_PWM_ADDR ,  0x00020020
 
 .section    .text
 
-_start:     lui     t1, NF_GPIO_ADDR        # load upper bytes of addr GPIO;
+_start:     lui     t1, %hi(NF_GPIO_ADDR)
+            addi    t1, t1, %lo(NF_GPIO_ADDR)
             addi    t2, zero, 0xFF          # enable register
             sw      t0, 0x0C (t1)           # mem[ 0x04 + t1 ] = t0; 
             addi    t2, zero, 0x20          # load max value for gpio;

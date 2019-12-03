@@ -22,6 +22,8 @@ package nf_help_pkg is
 
     function sel_slv(bool_v : boolean ; slv_1 : std_logic_vector ; slv_0 : std_logic_vector ) return std_logic_vector;
 
+    function sel_sl(bool_v : boolean ; sl_1 : std_logic ; sl_0 : std_logic ) return std_logic;
+
     function or_vec(slv_v : std_logic_vector) return std_logic;
 
     function vec_array_trans(vec_array : logic_v_array) return logic_v_array;
@@ -66,6 +68,17 @@ package body nf_help_pkg is
             ret_slv := slv_0;
         end if;
         return ret_slv;
+    end function;
+
+    function sel_sl(bool_v : boolean ; sl_1 : std_logic ; sl_0 : std_logic ) return std_logic is
+        variable ret_sl : std_logic;
+    begin
+        if( bool_v ) then 
+            ret_sl := sl_1;
+        else
+            ret_sl := sl_0;
+        end if;
+        return ret_sl;
     end function;
 
     function vec_array_trans(vec_array : logic_v_array) return logic_v_array is 

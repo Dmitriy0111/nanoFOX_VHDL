@@ -18,53 +18,57 @@ use nf.nf_ahb_pkg.all;
 entity nf_ahb2apb_bridge is
     generic
     (
-        apb_addr_w  : integer := 8
+        apb_addr_w  : integer := 8;
+        cdc_use     : integer := 1
     );
     port
     (
-        -- clock and reset
-        hclk        : in    std_logic;                                  -- hclk
-        hresetn     : in    std_logic;                                  -- hresetn
-        pclk        : in    std_logic;                                  -- pclk
-        presetn     : in    std_logic;                                  -- presetn
+        -- AHB clock and reset
+        hclk        : in        std_logic;                                  -- AHB clk
+        hresetn     : in        std_logic;                                  -- AHB resetn
         -- AHB - Slave side
-        haddr_s     : in    std_logic_vector(31           downto 0);    -- AHB - slave HADDR
-        hwdata_s    : in    std_logic_vector(31           downto 0);    -- AHB - slave HWDATA
-        hrdata_s    : out   std_logic_vector(31           downto 0);    -- AHB - slave HRDATA
-        hwrite_s    : in    std_logic;                                  -- AHB - slave HWRITE
-        htrans_s    : in    std_logic_vector(1            downto 0);    -- AHB - slave HTRANS
-        hsize_s     : in    std_logic_vector(2            downto 0);    -- AHB - slave HSIZE
-        hburst_s    : in    std_logic_vector(2            downto 0);    -- AHB - slave HBURST
-        hresp_s     : out   std_logic_vector(1            downto 0);    -- AHB - slave HRESP
-        hready_s    : out   std_logic;                                  -- AHB - slave HREADYOUT
-        hsel_s      : in    std_logic;                                  -- AHB - slave HSEL
+        haddr_s     : in        std_logic_vector(31           downto 0);    -- AHB - slave HADDR
+        hwdata_s    : in        std_logic_vector(31           downto 0);    -- AHB - slave HWDATA
+        hrdata_s    : out       std_logic_vector(31           downto 0);    -- AHB - slave HRDATA
+        hwrite_s    : in        std_logic;                                  -- AHB - slave HWRITE
+        htrans_s    : in        std_logic_vector(1            downto 0);    -- AHB - slave HTRANS
+        hsize_s     : in        std_logic_vector(2            downto 0);    -- AHB - slave HSIZE
+        hburst_s    : in        std_logic_vector(2            downto 0);    -- AHB - slave HBURST
+        hresp_s     : out       std_logic_vector(1            downto 0);    -- AHB - slave HRESP
+        hready_s    : buffer    std_logic;                                  -- AHB - slave HREADYOUT
+        hsel_s      : in        std_logic;                                  -- AHB - slave HSEL
+        -- APB clock and reset
+        pclk        : in        std_logic;                                  -- APB clk
+        presetn     : in        std_logic;                                  -- APB resetn
         -- APB - Master side
-        paddr_m     : out   std_logic_vector(apb_addr_w-1 downto 0);    -- APB - master PADDR
-        pwdata_m    : out   std_logic_vector(31           downto 0);    -- APB - master PWDATA
-        prdata_m    : in    std_logic_vector(31           downto 0);    -- APB - master PRDATA
-        pwrite_m    : out   std_logic;                                  -- APB - master PWRITE
-        penable_m   : out   std_logic;                                  -- APB - master PENABLE
-        pready_m    : in    std_logic;                                  -- APB - master PREADY
-        psel_m      : out   std_logic                                   -- APB - master PSEL
+        paddr_m     : out       std_logic_vector(apb_addr_w-1 downto 0);    -- APB - master PADDR
+        pwdata_m    : out       std_logic_vector(31           downto 0);    -- APB - master PWDATA
+        prdata_m    : in        std_logic_vector(31           downto 0);    -- APB - master PRDATA
+        pwrite_m    : out       std_logic;                                  -- APB - master PWRITE
+        penable_m   : out       std_logic;                                  -- APB - master PENABLE
+        pready_m    : in        std_logic;                                  -- APB - master PREADY
+        psel_m      : out       std_logic                                   -- APB - master PSEL
     );
 end nf_ahb2apb_bridge;
 
 architecture rtl of nf_ahb2apb_bridge is
-    signal trans_req    : std_logic;
+    signal trans_req        : std_logic;
     -- AHB signals
-    signal ahb_req      : std_logic;
-    signal ahb_ack      : std_logic;
-    signal ahb_addr     : std_logic_vector(31           downto 0);
-    signal ahb_wd       : std_logic_vector(31           downto 0);
-    signal ahb_rd       : std_logic_vector(31           downto 0);
-    signal ahb_wr_rd    : std_logic;
+    signal ahb_req          : std_logic;
+    signal ahb_ack          : std_logic;
+    signal ahb_addr         : std_logic_vector(31           downto 0);
+    signal ahb_wd           : std_logic_vector(31           downto 0);
+    signal ahb_rd           : std_logic_vector(31           downto 0);
+    signal ahb_wr_rd        : std_logic;
+    signal ahb_idle2trans   : std_logic;
+    signal ahb_trans2idle   : std_logic;
     -- APB signals
-    signal apb_req      : std_logic;
-    signal apb_ack      : std_logic;
-    signal apb_addr     : std_logic_vector(apb_addr_w-1 downto 0);
-    signal apb_wd       : std_logic_vector(31           downto 0);
-    signal apb_rd       : std_logic_vector(31           downto 0);
-    signal apb_wr_rd    : std_logic;
+    signal apb_req          : std_logic;
+    signal apb_ack          : std_logic;
+    signal apb_addr         : std_logic_vector(apb_addr_w-1 downto 0);
+    signal apb_wd           : std_logic_vector(31           downto 0);
+    signal apb_rd           : std_logic_vector(31           downto 0);
+    signal apb_wr_rd        : std_logic;
     signal apb_idle2setup   : std_logic;
     signal apb_setup2enable : std_logic;
     signal apb_enable2idle  : std_logic;
@@ -95,9 +99,15 @@ architecture rtl of nf_ahb2apb_bridge is
                 return st_0;
             end if;
     end function;
+    -- CDC
+    signal req_sync : std_logic_vector(2 downto 0);
+    signal ack_sync : std_logic_vector(2 downto 0);
 begin
 
     trans_req <= ( hsel_s and bool2sl( htrans_s /= AHB_HTRANS_IDLE) );
+
+    ahb_idle2trans <= trans_req and (not hready_s);
+    ahb_trans2idle <= ahb_ack;
 
     hrdata_s <= ahb_rd;
     ahb_wd <= hwdata_s;
@@ -105,14 +115,48 @@ begin
     apb_addr <= ahb_addr(apb_addr'range);
     apb_wr_rd <= ahb_wr_rd;
 
-    apb_req <= ahb_req;
-    ahb_ack <= apb_ack;
+    req_ack_gen:
+    if with_cdc : (cdc_use = 1) generate
+        apb_req <= req_sync(2) xor req_sync(1);
+        ahb_ack <= ack_sync(2) xor ack_sync(1);
+    else without_cdc : generate
+        apb_req <= ahb_req;
+        ahb_ack <= apb_ack;
+    end generate req_ack_gen;
+
+    apb_idle2setup   <= apb_req;
+    apb_setup2enable <= '1';
+    apb_enable2idle  <= pready_m;
 
     hresp_s <= AHB_HRESP_OKAY;
 
     --------------------------------------------------------------------------------
     --                              AHB statemachine                              --
     --------------------------------------------------------------------------------
+    ahb_req_proc : process( hclk )
+    begin
+        if( rising_edge(hclk) ) then
+            if( not hresetn ) then
+                ahb_req <= '0';
+            else
+                ahb_req <= sel_sl( (cdc_use = 1) , ahb_req , '0' );
+                if( bool2sl( ahb_state = AHB_IDLE_s ) and ahb_idle2trans ) then
+                    ahb_req <= sel_sl( (cdc_use = 1) , not ahb_req , '1' );
+                end if;
+            end if;
+        end if;
+    end process ahb_req_proc;
+
+    ack_cdc_proc : process( hclk )
+    begin
+        if( rising_edge(hclk) ) then
+            if( not hresetn ) then
+                ack_sync <= (others => '0');
+            else
+                ack_sync <= ack_sync(1 downto 0) & apb_ack;
+            end if;
+        end if;
+    end process ack_cdc_proc;
    
     -- ahb fsm state change
     ahb_fsm_state_change_proc : process( hclk )
@@ -130,8 +174,8 @@ begin
     begin
         ahb_next_state <= ahb_state;
         case( ahb_state ) is
-            when AHB_IDLE_s     => ahb_next_state <= sel_ahb_st( trans_req , AHB_TRANS_s , ahb_state );
-            when AHB_TRANS_s    => ahb_next_state <= sel_ahb_st( ahb_ack   , AHB_IDLE_s  , ahb_state );
+            when AHB_IDLE_s     => ahb_next_state <= sel_ahb_st( ahb_idle2trans , AHB_TRANS_s , ahb_state );
+            when AHB_TRANS_s    => ahb_next_state <= sel_ahb_st( ahb_trans2idle , AHB_IDLE_s  , ahb_state );
             when others         => ahb_next_state <= AHB_IDLE_s;
         end case;
     end process ahb_find_next_state_proc;
@@ -140,22 +184,17 @@ begin
     begin
         if( rising_edge(hclk) ) then
             if( not hresetn ) then
-                ahb_req <= '0';
                 ahb_wr_rd <= '0';
                 ahb_addr <= (others => '0');
                 hready_s <= '0';
             else
-                ahb_req <= '0';
                 case( ahb_state ) is
                     when AHB_IDLE_s     => 
                         ahb_wr_rd <= hwrite_s;
                         ahb_addr <= haddr_s;
                         hready_s <= '0';
-                        if( trans_req ) then
-                            ahb_req <= '1';
-                        end if;
                     when AHB_TRANS_s    => 
-                        if( ahb_ack ) then
+                        if( ahb_trans2idle ) then
                             hready_s <= '1';
                             ahb_rd <= apb_rd;
                         end if;
@@ -169,9 +208,30 @@ begin
     --                              APB statemachine                              --
     --------------------------------------------------------------------------------
 
-    apb_idle2setup   <= apb_req;
-    apb_setup2enable <= '1';
-    apb_enable2idle  <= pready_m;
+    req_cdc_proc : process( pclk )
+    begin
+        if( rising_edge(pclk) ) then
+            if( not presetn ) then
+                req_sync <= (others => '0');
+            else
+                req_sync <= req_sync(1 downto 0) & ahb_req;
+            end if;
+        end if;
+    end process req_cdc_proc;
+
+    apb_ack_proc : process( pclk )
+    begin
+        if( rising_edge(pclk) ) then
+            if( not presetn ) then
+                apb_ack <= '0';
+            else
+                apb_ack <= sel_sl( (cdc_use = 1) , apb_ack , '0' );
+                if( bool2sl( apb_state = APB_ENABLE_s ) and apb_enable2idle ) then
+                    apb_ack <= sel_sl( (cdc_use = 1) , not apb_ack , '1' );
+                end if;
+            end if;
+        end if;
+    end process apb_ack_proc;
     
     -- apb fsm state change
     apb_fsm_state_change_proc : process( pclk )
@@ -205,9 +265,7 @@ begin
                 paddr_m <= (others => '0');
                 penable_m <= '0';
                 psel_m <= '0';
-                apb_ack <= '0';
             else
-                apb_ack <= '0';
                 case( apb_state ) is
                     when APB_IDLE_s     => 
                         if( apb_idle2setup ) then
@@ -224,7 +282,6 @@ begin
                             penable_m <= '0';
                             psel_m <= '0';
                             apb_rd <= prdata_m;
-                            apb_ack <= '1';
                         end if;
                     when others         =>
                 end case;

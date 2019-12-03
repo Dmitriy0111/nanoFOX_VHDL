@@ -714,7 +714,7 @@ package nf_components is
             comp    : in    std_logic_vector(15 downto 0);  -- compare input for setting baudrate
             tx_data : in    std_logic_vector(7  downto 0);  -- data for transfer
             req     : in    std_logic;                      -- request signal
-            req_ack : out   std_logic;                      -- acknowledgent signal
+            busy_tx : out   std_logic;
             -- uart tx side
             uart_tx : out   std_logic                       -- UART tx wire
         );
@@ -955,34 +955,36 @@ package nf_components is
     component nf_ahb2apb_bridge
         generic
         (
-            apb_addr_w  : integer := 8
+            apb_addr_w  : integer := 8;
+            cdc_use     : integer := 1
         );
         port
         (
-            -- clock and reset
-            hclk        : in    std_logic;                                  -- hclk
-            hresetn     : in    std_logic;                                  -- hresetn
-            pclk        : in    std_logic;                                  -- pclk
-            presetn     : in    std_logic;                                  -- presetn
+            -- AHB clock and reset
+            hclk        : in        std_logic;                                  -- AHB clk
+            hresetn     : in        std_logic;                                  -- AHB resetn
             -- AHB - Slave side
-            haddr_s     : in    std_logic_vector(31           downto 0);    -- AHB - slave HADDR
-            hwdata_s    : in    std_logic_vector(31           downto 0);    -- AHB - slave HWDATA
-            hrdata_s    : out   std_logic_vector(31           downto 0);    -- AHB - slave HRDATA
-            hwrite_s    : in    std_logic;                                  -- AHB - slave HWRITE
-            htrans_s    : in    std_logic_vector(1            downto 0);    -- AHB - slave HTRANS
-            hsize_s     : in    std_logic_vector(2            downto 0);    -- AHB - slave HSIZE
-            hburst_s    : in    std_logic_vector(2            downto 0);    -- AHB - slave HBURST
-            hresp_s     : out   std_logic_vector(1            downto 0);    -- AHB - slave HRESP
-            hready_s    : out   std_logic;                                  -- AHB - slave HREADYOUT
-            hsel_s      : in    std_logic;                                  -- AHB - slave HSEL
+            haddr_s     : in        std_logic_vector(31           downto 0);    -- AHB - slave HADDR
+            hwdata_s    : in        std_logic_vector(31           downto 0);    -- AHB - slave HWDATA
+            hrdata_s    : out       std_logic_vector(31           downto 0);    -- AHB - slave HRDATA
+            hwrite_s    : in        std_logic;                                  -- AHB - slave HWRITE
+            htrans_s    : in        std_logic_vector(1            downto 0);    -- AHB - slave HTRANS
+            hsize_s     : in        std_logic_vector(2            downto 0);    -- AHB - slave HSIZE
+            hburst_s    : in        std_logic_vector(2            downto 0);    -- AHB - slave HBURST
+            hresp_s     : out       std_logic_vector(1            downto 0);    -- AHB - slave HRESP
+            hready_s    : buffer    std_logic;                                  -- AHB - slave HREADYOUT
+            hsel_s      : in        std_logic;                                  -- AHB - slave HSEL
+            -- APB clock and reset
+            pclk        : in        std_logic;                                  -- APB clk
+            presetn     : in        std_logic;                                  -- APB resetn
             -- APB - Master side
-            paddr_m     : out   std_logic_vector(apb_addr_w-1 downto 0);    -- APB - master PADDR
-            pwdata_m    : out   std_logic_vector(31           downto 0);    -- APB - master PWDATA
-            prdata_m    : in    std_logic_vector(31           downto 0);    -- APB - master PRDATA
-            pwrite_m    : out   std_logic;                                  -- APB - master PWRITE
-            penable_m   : out   std_logic;                                  -- APB - master PENABLE
-            pready_m    : in    std_logic;                                  -- APB - master PREADY
-            psel_m      : out   std_logic                                   -- APB - master PSEL
+            paddr_m     : out       std_logic_vector(apb_addr_w-1 downto 0);    -- APB - master PADDR
+            pwdata_m    : out       std_logic_vector(31           downto 0);    -- APB - master PWDATA
+            prdata_m    : in        std_logic_vector(31           downto 0);    -- APB - master PRDATA
+            pwrite_m    : out       std_logic;                                  -- APB - master PWRITE
+            penable_m   : out       std_logic;                                  -- APB - master PENABLE
+            pready_m    : in        std_logic;                                  -- APB - master PREADY
+            psel_m      : out       std_logic                                   -- APB - master PSEL
         );
     end component nf_ahb2apb_bridge;
 

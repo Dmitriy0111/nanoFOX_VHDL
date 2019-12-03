@@ -8,10 +8,10 @@
 */
 
 // GPIO registers addr
-#define     NF_GPIO_GPI_ADDR    0x00040000
-#define     NF_GPIO_GPO_ADDR    0x00040004
-#define     NF_GPIO_GPD_ADDR    0x00040008
-#define     NF_GPIO_EN_ADDR     0x0004000C
+#define     NF_GPIO_GPI_ADDR    0x00020000
+#define     NF_GPIO_GPO_ADDR    0x00020004
+#define     NF_GPIO_GPD_ADDR    0x00020008
+#define     NF_GPIO_EN_ADDR     0x0002000C
 // GPIO registers
 #define     NF_GPIO_GPI         (* (volatile unsigned *) NF_GPIO_GPI_ADDR )
 #define     NF_GPIO_GPO         (* (volatile unsigned *) NF_GPIO_GPO_ADDR )

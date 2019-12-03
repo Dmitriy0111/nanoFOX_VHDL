@@ -8,10 +8,10 @@
 */
 
 // UART registers addr
-#define     NF_UART_CR_ADDR     0x00030000
-#define     NF_UART_TX_ADDR     0x00030004
-#define     NF_UART_RX_ADDR     0x00030008
-#define     NF_UART_DV_ADDR     0x0003000C
+#define     NF_UART_CR_ADDR     0x00010000
+#define     NF_UART_TX_ADDR     0x00010004
+#define     NF_UART_RX_ADDR     0x00010008
+#define     NF_UART_DV_ADDR     0x0001000C
 // UART constants
 #define     NF_UART_SP_9600     0x1458  // for work frequency = 50 MHz
 #define     NF_UART_SP_19200    0x0A2C  // for work frequency = 50 MHz
@@ -19,7 +19,7 @@
 #define     NF_UART_SP_57600    0x0364  // for work frequency = 50 MHz
 #define     NF_UART_SP_115200   0x01B2  // for work frequency = 50 MHz
 
-#define     NF_UART_TX_SEND     0x1
+#define     NF_UART_TX_BUSY     0x1
 #define     NF_UART_TX_EN       0x4
 #define     NF_UART_RX_EN       0x8
 #define     NF_UART_RX_VALID    0x2

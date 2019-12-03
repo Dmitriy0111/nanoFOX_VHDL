@@ -25,7 +25,7 @@ entity nf_uart_transmitter is
         comp    : in    std_logic_vector(15 downto 0);  -- compare input for setting baudrate
         tx_data : in    std_logic_vector(7  downto 0);  -- data for transfer
         req     : in    std_logic;                      -- request signal
-        req_ack : out   std_logic;                      -- acknowledgent signal
+        busy_tx : out   std_logic;
         -- uart tx side
         uart_tx : out   std_logic                       -- UART tx wire
     );
@@ -38,9 +38,7 @@ architecture rtl of nf_uart_transmitter is
     signal idle2start   : std_logic;                        -- idle to start
     signal start2tr     : std_logic;                        -- start to transmit
     signal tr2stop      : std_logic;                        -- transmit to stop
-    signal stop2wait    : std_logic;                        -- stop to wait
-    signal wait2idle    : std_logic;                        -- wait to idle
-    signal req_ack_i    : std_logic;                        -- acknowledgent signal internal
+    signal stop2idle    : std_logic;                        -- stop to idle
     -- fsm settings
     type   fsm_state is (IDLE_s , START_s , TRANSMIT_s , STOP_s , WAIT_s);
 	attribute enum_encoding : string;
@@ -60,9 +58,8 @@ begin
     idle2start <= req;
     start2tr   <= bool2sl( counter >= comp );
     tr2stop    <= bool2sl( bit_counter = 4X"8" );
-    stop2wait  <= bool2sl( counter >= comp );
-    wait2idle  <= req_ack_i;
-    req_ack    <= req_ack_i;
+    stop2idle  <= bool2sl( counter >= comp );
+    busy_tx    <= '1' when ( state /= IDLE_s ) else '0';
     
     --FSM state change
     fsm_state_change_proc : process( clk )
@@ -86,8 +83,7 @@ begin
             when IDLE_s     => next_state <= sel_st( idle2start , START_s    , state );
             when START_s    => next_state <= sel_st( start2tr   , TRANSMIT_s , state );
             when TRANSMIT_s => next_state <= sel_st( tr2stop    , STOP_s     , state );
-            when STOP_s     => next_state <= sel_st( stop2wait  , WAIT_s     , state );
-            when WAIT_s     => next_state <= sel_st( wait2idle  , IDLE_s     , state );
+            when STOP_s     => next_state <= sel_st( stop2idle  , IDLE_s     , state );
             when others     => next_state <= IDLE_s;
         end case;
     end process;
@@ -99,13 +95,11 @@ begin
                 bit_counter <= (others => '0');
                 int_reg <= (others => '1');
                 uart_tx <= '1';
-                req_ack_i <= '0';
                 counter <= (others => '0');
             elsif( tr_en ) then
                 case( state ) is
                     when IDLE_s     => 
                         uart_tx <= '1';
-                        req_ack_i <= '0';
                         if( idle2start ) then 
                             bit_counter <= (others => '0');
                             counter <= (others => '0');
@@ -132,9 +126,7 @@ begin
                         counter <= counter + 1;
                         if( counter >= comp ) then
                             counter <= (others => '0');
-                            req_ack_i <= '1';
                         end if;
-                    when WAIT_s     => 
                     when others     =>
                 end case;
             else

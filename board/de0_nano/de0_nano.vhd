@@ -54,6 +54,8 @@ architecture rtl of de0_nano is
     -- clock and reset
     signal clk      : std_logic;                    -- clock
     signal resetn   : std_logic;                    -- reset
+    signal pclk     : std_logic;                    -- clock
+    signal presetn  : std_logic;                    -- reset
     -- pwm side
     signal pwm      : std_logic;                    -- pwm output
     -- gpio side
@@ -70,6 +72,8 @@ architecture rtl of de0_nano is
             -- clock and reset
             clk         : in    std_logic;                      -- clock input
             resetn      : in    std_logic;                      -- reset input
+            pclk        : in    std_logic;                      -- clock input
+            presetn     : in    std_logic;                      -- reset input
             -- GPIO side
             gpio_i_0    : in    std_logic_vector(7 downto 0);   -- GPIO_0 input
             gpio_o_0    : out   std_logic_vector(7 downto 0);   -- GPIO_0 output
@@ -85,6 +89,8 @@ begin
 
     clk       <= CLOCK_50;
     resetn    <= KEY(0);
+    pclk      <= CLOCK_50;
+    presetn   <= KEY(0);
     LED(6 downto 0) <= gpio_o_0(6 downto 0);
     LED(7)          <= pwm;
     gpio_i_0  <= 4X"0" & SW;
@@ -97,6 +103,8 @@ begin
     (
         clk         => clk,
         resetn      => resetn,
+        pclk        => pclk,
+        presetn     => presetn,
         pwm         => pwm,
         gpio_i_0    => gpio_i_0,
         gpio_o_0    => gpio_o_0,

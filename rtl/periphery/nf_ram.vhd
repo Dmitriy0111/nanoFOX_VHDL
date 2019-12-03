@@ -14,7 +14,6 @@ use ieee.std_logic_unsigned.all;
 use std.standard.boolean;
 library nf;
 use nf.nf_mem_pkg.all;
-use nf.nf_program.all;
 
 entity nf_ram is
     generic

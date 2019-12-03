@@ -23,8 +23,7 @@ int main ()
     while( i != 14 )
     {
         NF_UART_TX = message[i];
-        NF_UART_CR = NF_UART_TX_EN | NF_UART_TX_SEND;
-        while( NF_UART_CR == ( NF_UART_TX_EN | NF_UART_TX_SEND ) );
+        while( NF_UART_CR & NF_UART_TX_BUSY );
         i++;
     }
     NF_GPIO_GPO = 0x55;

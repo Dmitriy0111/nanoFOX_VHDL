@@ -19,7 +19,7 @@ package nf_settings is
     constant ADDR_I_W       : integer := 20;
     constant MEM_I_DEPTH    : integer := 2 ** ADDR_I_W;
     -- number of slave device's
-    constant SLAVE_COUNT    : integer := 5;
+    constant SLAVE_COUNT    : integer := 3;
     --
     -- memory map for devices
     -- 
@@ -30,19 +30,14 @@ package nf_settings is
     -- 0x0000_ffff/
     -- 0x0001_0000\
     --             \
-    --              GPIO
+    --              UART
     --             /
     -- 0x0001_ffff/
     -- 0x0002_0000\
     --             \
-    --              PWM
+    --              AHB2APB_BRIDGE
     --             /
     -- 0x0002_ffff/
-    -- 0x0003_0000\
-    --             \
-    --              UART
-    --             /
-    -- 0x0003_ffff/
     -- 0x0004_0000\
     --             \
     --              Unused
@@ -68,10 +63,8 @@ package nf_settings is
     function slv_2_la(slv : std_logic_vector) return logic_array;
 
     constant NF_RAM_ADDR_MATCH  : std_logic_vector(31 downto 0) := 32X"0000----";
-    constant NF_GPIO_ADDR_MATCH : std_logic_vector(31 downto 0) := 32X"0001----";
-    constant NF_PWM_ADDR_MATCH  : std_logic_vector(31 downto 0) := 32X"0002----";
-    constant NF_UART_ADDR_MATCH : std_logic_vector(31 downto 0) := 32X"0003----";
-    constant NF_AHB_APB_MATCH   : std_logic_vector(31 downto 0) := 32X"0004----";
+    constant NF_UART_ADDR_MATCH : std_logic_vector(31 downto 0) := 32X"0001----";
+    constant NF_AHB_APB_MATCH   : std_logic_vector(31 downto 0) := 32X"0002----";
 
     constant NF_APB_GPIO_0_ADDR : std_logic_vector(7 downto 0) := 8X"0-";
     constant NF_APB_PWM_0_ADDR  : std_logic_vector(7 downto 0) := 8X"2-";
@@ -79,8 +72,6 @@ package nf_settings is
     constant ahb_vector : logic_v_array(SLAVE_COUNT-1 downto 0)(31 downto 0) := 
                                                                                 (
                                                                                     NF_RAM_ADDR_MATCH,
-                                                                                    NF_GPIO_ADDR_MATCH,
-                                                                                    NF_PWM_ADDR_MATCH,
                                                                                     NF_UART_ADDR_MATCH,
                                                                                     NF_AHB_APB_MATCH
                                                                                 );

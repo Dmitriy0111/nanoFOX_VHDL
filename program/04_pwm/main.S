@@ -8,12 +8,13 @@
 # 
 
 .equ NF_RAM_ADDR ,  0x00000
-.equ NF_GPIO_ADDR,  0x00010
-.equ NF_PWM_ADDR ,  0x00020
+.equ NF_GPIO_ADDR,  0x00020000
+.equ NF_PWM_ADDR ,  0x00020020
 
 .section    .text
 
-_start:     lui     t1, NF_PWM_ADDR         # load upper bytes of addr PWM;
+_start:     lui     t1, %hi(NF_PWM_ADDR)
+            addi    t1, t1, %lo(NF_PWM_ADDR)
             lui     t2, 0x00
             addi    t2, t2, 0xff            # load max PWM;
 clean_t0:   lui     t0, 0                   # t0 = 0 ; clear t0;

@@ -23,18 +23,14 @@ entity nf_top_ahb is
         -- clock and reset
         clk         : in    std_logic;                                  -- clock
         resetn      : in    std_logic;                                  -- reset
+        pclk        : in    std_logic;
+        presetn     : in    std_logic;
         -- PWM side
         pwm         : out   std_logic;                                  -- PWM output
         -- GPIO side
         gpio_i_0    : in    std_logic_vector(NF_GPIO_WIDTH-1 downto 0); -- GPIO input
         gpio_o_0    : out   std_logic_vector(NF_GPIO_WIDTH-1 downto 0); -- GPIO output
         gpio_d_0    : out   std_logic_vector(NF_GPIO_WIDTH-1 downto 0); -- GPIO direction
-        -- PWM side
-        pwm_1       : out   std_logic;                                  -- PWM output
-        -- GPIO side
-        gpio_i_1    : in    std_logic_vector(NF_GPIO_WIDTH-1 downto 0); -- GPIO input
-        gpio_o_1    : out   std_logic_vector(NF_GPIO_WIDTH-1 downto 0); -- GPIO output
-        gpio_d_1    : out   std_logic_vector(NF_GPIO_WIDTH-1 downto 0); -- GPIO direction
         -- UART side
         uart_tx     : out   std_logic;                                  -- UART tx wire
         uart_rx     : in    std_logic                                   -- UART rx wire
@@ -78,10 +74,6 @@ architecture rtl of nf_top_ahb is
     -- PWM 
     signal pwm_clk      :   std_logic;                              -- PWM clock input
     signal pwm_resetn   :   std_logic;                              -- PWM reset input   
-    -- GPIO port 0
-    signal gpi_0        :   std_logic_vector(gpio_w-1 downto 0);    -- GPIO input
-    signal gpo_0        :   std_logic_vector(gpio_w-1 downto 0);    -- GPIO output
-    signal gpd_0        :   std_logic_vector(gpio_w-1 downto 0);    -- GPIO direction
     -- AHB interconnect wires
     signal haddr_s      :   logic_v_array(slave_c-1 downto 0)(31 downto 0); -- AHB - Slave HADDR 
     signal hwdata_s     :   logic_v_array(slave_c-1 downto 0)(31 downto 0); -- AHB - Slave HWDATA 
@@ -115,9 +107,6 @@ begin
 
     pwm_clk    <= clk;
     pwm_resetn <= resetn;    
-    gpi_0      <= gpio_i_0;
-    gpio_o_0   <= gpo_0;
-    gpio_d_0   <= gpd_0;
     ram_addr_i <= "00" & ram_addr(31 downto 2);
 
     -- Creating one nf_cpu_0
@@ -235,60 +224,6 @@ begin
         ram_wd      => ram_wd,          -- write data
         ram_rd      => ram_rd           -- read data
     );
-    -- Creating one nf_ahb_gpio_0
-    nf_ahb_gpio_0 : nf_ahb_gpio 
-    generic map
-    (
-        gpio_w      => gpio_w 
-    )
-    port map
-    (
-        -- clock and reset
-        hclk        => clk,             -- hclock
-        hresetn     => resetn,          -- hresetn
-        -- Slaves side
-        haddr_s     => haddr_s  (1),    -- AHB - GPIO-slave HADDR
-        hwdata_s    => hwdata_s (1),    -- AHB - GPIO-slave HWDATA
-        hrdata_s    => hrdata_s (1),    -- AHB - GPIO-slave HRDATA
-        hwrite_s    => hwrite_s (1),    -- AHB - GPIO-slave HWRITE
-        htrans_s    => htrans_s (1),    -- AHB - GPIO-slave HTRANS
-        hsize_s     => hsize_s  (1),    -- AHB - GPIO-slave HSIZE
-        hburst_s    => hburst_s (1),    -- AHB - GPIO-slave HBURST
-        hresp_s     => hresp_s  (1),    -- AHB - GPIO-slave HRESP
-        hready_s    => hready_s (1),    -- AHB - GPIO-slave HREADYOUT
-        hsel_s      => hsel_s   (1),    -- AHB - GPIO-slave HSEL
-        --gpio_side
-        gpi         => gpi_0,           -- GPIO input
-        gpo         => gpo_0,           -- GPIO output
-        gpd         => gpd_0            -- GPIO direction
-    );
-    -- Creating one nf_ahb_pwm_0
-    nf_ahb_pwm_0 : nf_ahb_pwm
-    generic map
-    (
-        pwm_width   => 8
-    )
-    port map
-    (
-        -- clock and reset
-        hclk        => clk,             -- hclk
-        hresetn     => resetn,          -- hresetn
-        -- Slaves side
-        haddr_s     => haddr_s  (2),    -- AHB - PWM-slave HADDR
-        hwdata_s    => hwdata_s (2),    -- AHB - PWM-slave HWDATA
-        hrdata_s    => hrdata_s (2),    -- AHB - PWM-slave HRDATA
-        hwrite_s    => hwrite_s (2),    -- AHB - PWM-slave HWRITE
-        htrans_s    => htrans_s (2),    -- AHB - PWM-slave HTRANS
-        hsize_s     => hsize_s  (2),    -- AHB - PWM-slave HSIZE
-        hburst_s    => hburst_s (2),    -- AHB - PWM-slave HBURST
-        hresp_s     => hresp_s  (2),    -- AHB - PWM-slave HRESP
-        hready_s    => hready_s (2),    -- AHB - PWM-slave HREADYOUT
-        hsel_s      => hsel_s   (2),    -- AHB - PWM-slave HSEL
-        -- pmw_side
-        pwm_clk     => pwm_clk,         -- PWM_clk
-        pwm_resetn  => pwm_resetn,      -- PWM_resetn
-        pwm         => pwm              -- PWM output signal
-    );
     -- Creating one nf_ahb_uart_0
     nf_ahb_uart_0 : nf_ahb_uart 
     port map
@@ -297,16 +232,16 @@ begin
         hclk        => clk,             -- hclock
         hresetn     => resetn,          -- hresetn
         -- Slaves side
-        haddr_s     => haddr_s  (3),    -- AHB - UART-slave HADDR
-        hwdata_s    => hwdata_s (3),    -- AHB - UART-slave HWDATA
-        hrdata_s    => hrdata_s (3),    -- AHB - UART-slave HRDATA
-        hwrite_s    => hwrite_s (3),    -- AHB - UART-slave HWRITE
-        htrans_s    => htrans_s (3),    -- AHB - UART-slave HTRANS
-        hsize_s     => hsize_s  (3),    -- AHB - UART-slave HSIZE
-        hburst_s    => hburst_s (3),    -- AHB - UART-slave HBURST
-        hresp_s     => hresp_s  (3),    -- AHB - UART-slave HRESP
-        hready_s    => hready_s (3),    -- AHB - UART-slave HREADYOUT
-        hsel_s      => hsel_s   (3),    -- AHB - UART-slave HSEL
+        haddr_s     => haddr_s  (1),    -- AHB - UART-slave HADDR
+        hwdata_s    => hwdata_s (1),    -- AHB - UART-slave HWDATA
+        hrdata_s    => hrdata_s (1),    -- AHB - UART-slave HRDATA
+        hwrite_s    => hwrite_s (1),    -- AHB - UART-slave HWRITE
+        htrans_s    => htrans_s (1),    -- AHB - UART-slave HTRANS
+        hsize_s     => hsize_s  (1),    -- AHB - UART-slave HSIZE
+        hburst_s    => hburst_s (1),    -- AHB - UART-slave HBURST
+        hresp_s     => hresp_s  (1),    -- AHB - UART-slave HRESP
+        hready_s    => hready_s (1),    -- AHB - UART-slave HREADYOUT
+        hsel_s      => hsel_s   (1),    -- AHB - UART-slave HSEL
         -- UART side
         uart_tx     => uart_tx,         -- UART tx wire
         uart_rx     => uart_rx          -- UART rx wire
@@ -315,26 +250,28 @@ begin
     nf_ahb2apb_bridge_0 : nf_ahb2apb_bridge
     generic map
     (
-        apb_addr_w  => 8
+        apb_addr_w  => 8,
+        cdc_use     => 1
     )
     port map
     (
-        -- clock and reset
-        hclk        => clk,             -- hclk
-        hresetn     => resetn,          -- hresetn
-        pclk        => clk,             -- pclk
-        presetn     => resetn,          -- presetn
+        -- AHB clock and reset
+        hclk        => clk,             -- AHB clk
+        hresetn     => resetn,          -- AHB resetn
         -- AHB - Slave side
-        haddr_s     => haddr_s  (4),    -- AHB - slave HADDR
-        hwdata_s    => hwdata_s (4),    -- AHB - slave HWDATA
-        hrdata_s    => hrdata_s (4),    -- AHB - slave HRDATA
-        hwrite_s    => hwrite_s (4),    -- AHB - slave HWRITE
-        htrans_s    => htrans_s (4),    -- AHB - slave HTRANS
-        hsize_s     => hsize_s  (4),    -- AHB - slave HSIZE
-        hburst_s    => hburst_s (4),    -- AHB - slave HBURST
-        hresp_s     => hresp_s  (4),    -- AHB - slave HRESP
-        hready_s    => hready_s (4),    -- AHB - slave HREADYOUT
-        hsel_s      => hsel_s   (4),    -- AHB - slave HSEL
+        haddr_s     => haddr_s  (2),    -- AHB - slave HADDR
+        hwdata_s    => hwdata_s (2),    -- AHB - slave HWDATA
+        hrdata_s    => hrdata_s (2),    -- AHB - slave HRDATA
+        hwrite_s    => hwrite_s (2),    -- AHB - slave HWRITE
+        htrans_s    => htrans_s (2),    -- AHB - slave HTRANS
+        hsize_s     => hsize_s  (2),    -- AHB - slave HSIZE
+        hburst_s    => hburst_s (2),    -- AHB - slave HBURST
+        hresp_s     => hresp_s  (2),    -- AHB - slave HRESP
+        hready_s    => hready_s (2),    -- AHB - slave HREADYOUT
+        hsel_s      => hsel_s   (2),    -- AHB - slave HSEL
+        -- APB clock and reset
+        pclk        => pclk,            -- APB clk
+        presetn     => presetn,         -- APB resetn
         -- APB - Master side
         paddr_m     => paddr_b2r,       -- APB - master PADDR
         pwdata_m    => pwdata_b2r,      -- APB - master PWDATA
@@ -353,8 +290,8 @@ begin
     )
     port map
     (
-        pclk        => clk,             -- pclk
-        presetn     => resetn,          -- presetn
+        pclk        => pclk,            -- pclk
+        presetn     => presetn,         -- presetn
         -- Master side
         paddr_m     => paddr_b2r,       -- APB - master PADDR
         pwdata_m    => pwdata_b2r,      -- APB - master PWDATA
@@ -384,8 +321,8 @@ begin
     port map
     (
         -- clock and reset
-        pclk        => clk,                 -- pclock
-        presetn     => resetn,              -- presetn
+        pclk        => pclk,                -- pclock
+        presetn     => presetn,             -- presetn
         -- APB GPIO slave side
         paddr_s     => paddr_r2s    (0),    -- APB - GPIO-slave PADDR
         pwdata_s    => pwdata_r2s   (0),    -- APB - GPIO-slave PWDATA
@@ -395,9 +332,9 @@ begin
         penable_s   => penable_r2s  (0),    -- APB - GPIO-slave PENABLE
         pready_s    => pready_r2s   (0),    -- APB - GPIO-slave PREADY
         -- GPIO side
-        gpi         => gpio_i_1,            -- GPIO input
-        gpo         => gpio_o_1,            -- GPIO output
-        gpd         => gpio_d_1             -- GPIO direction
+        gpi         => gpio_i_0,            -- GPIO input
+        gpo         => gpio_o_0,            -- GPIO output
+        gpd         => gpio_d_0             -- GPIO direction
     );
     -- Creating one nf_apb_pwm_0
     nf_apb_pwm_0 : nf_apb_pwm
@@ -409,8 +346,8 @@ begin
     port map
     (
         -- clock and reset
-        pclk        => clk,                 -- pclk
-        presetn     => resetn,              -- presetn
+        pclk        => pclk,                -- pclk
+        presetn     => presetn,             -- presetn
         -- APB PWM slave side
         paddr_s     => paddr_r2s    (1),    -- APB - PWM-slave PADDR
         pwdata_s    => pwdata_r2s   (1),    -- APB - PWM-slave PWDATA
@@ -420,9 +357,9 @@ begin
         penable_s   => penable_r2s  (1),    -- APB - PWM-slave PENABLE
         pready_s    => pready_r2s   (1),    -- APB - PWM-slave PREADY
         -- PWM side
-        pwm_clk     => clk,                 -- PWM clk
-        pwm_resetn  => resetn,              -- PWM resetn
-        pwm         => pwm_1                -- PWM output signal
+        pwm_clk     => pclk,                -- PWM clk
+        pwm_resetn  => presetn,             -- PWM resetn
+        pwm         => pwm                  -- PWM output signal
     );
     -- Creating one instruction/data memory
     nf_ram_i_d_0 : nf_ram
